@@ -48,7 +48,7 @@ jobs:
     name: Build image and test
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: fairvote-test-image
+      IMAGE_NAME: scheduler-test-image
 
     services:
       postgres:
