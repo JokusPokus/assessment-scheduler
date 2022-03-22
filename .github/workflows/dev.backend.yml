@@ -47,7 +47,6 @@ jobs:
   build-test:
     name: Build image and test
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
     env:
       IMAGE_NAME: fairvote-test-image
 
