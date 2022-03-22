@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.postgres",
     "django.contrib.admin",
-    "corsheaders"
+    "corsheaders",
+    "schedule.apps.ScheduleConfig"
 ]
 
 MIDDLEWARE = [
