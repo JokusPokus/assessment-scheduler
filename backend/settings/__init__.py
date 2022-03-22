@@ -4,7 +4,6 @@ Django settings for project.
 
 import sys
 import os
-import environ
 from base64 import b64decode
 from datetime import timedelta
 
