@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     "django.contrib.admin",
     "corsheaders",
-    "schedule.apps.ScheduleConfig"
+    "schedule.apps.ScheduleConfig",
+    "core.apps.CoreConfig",
 ]
 
 MIDDLEWARE = [
@@ -65,13 +66,14 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = "service.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['templates'],
+        "DIRS": [os.path.join(BASE_DIR, 'frontend')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -83,6 +85,11 @@ TEMPLATES = [
         },
     },
 ]
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "frontend", "static"),
+)
 
 WSGI_APPLICATION = "service.wsgi.application"
 
