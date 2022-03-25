@@ -130,3 +130,6 @@ dmypy.json
 
 # Local settings
 settings/local.py
+
+# React build folder
+frontend
