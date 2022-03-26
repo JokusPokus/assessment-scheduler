@@ -3,6 +3,7 @@ import './App.css';
 import 'antd/dist/antd.css';
 import {BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LogIn from './pages/login/LogIn';
+import Portal from './pages/portal/Portal';
 
 const App = () => {
   const [requestUrl, setRequestUrl] = useState('http://localhost:8000');
@@ -25,6 +26,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path='/login' element={<LogIn requestUrl={requestUrl}/>} />
+        <Route path='/portal' element={<Portal requestUrl={requestUrl} refreshRequestBody={refreshRequestBody}/>} />
       </Routes>
     </Router>
   );

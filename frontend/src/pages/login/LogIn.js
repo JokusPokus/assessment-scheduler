@@ -13,7 +13,8 @@ const LogIn = ({ requestUrl }) => {
         setLoginUser({
             'username': values.email,
             'password': values.password
-        })
+        });
+        navigate('/portal');
     };
 
     useEffect(() => {
