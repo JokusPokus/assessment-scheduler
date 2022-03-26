@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import 'antd/dist/antd.css';
 import {BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LandingPage from './pages/landingpage/LandingPage';
+import LogIn from './pages/login/LogIn';
 
 const App = () => {
   const [requestUrl, setRequestUrl] = useState('http://localhost:8000');
@@ -24,7 +24,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<LandingPage/>} />
+        <Route path='/login' element={<LogIn requestUrl={requestUrl}/>} />
       </Routes>
     </Router>
   );
