@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "schedule.apps.ScheduleConfig",
     "core.apps.CoreConfig",
+    "user.apps.UserConfig",
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,9 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "frontend", "static"),
 )
+
+AUTH_USER_MODEL = "user.User"
+USERNAME_FIELD = "email"
 
 WSGI_APPLICATION = "service.wsgi.application"
 
