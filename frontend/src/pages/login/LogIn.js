@@ -60,11 +60,10 @@ const LogIn = ({ requestUrl }) => {
                 </div>
             </Header>
             <Layout>
-                <Content style={{ padding: '50px 50px', background: '#fff'}}>
+                <Content style={{ width: '30%', margin: 'auto', padding: '50px 50px', background: '#fff'}}>
                     <div className='page_content'>
                         <div className='left_col'>
                             <div className='greet'>
-                                <p className='welcome'>Welcome Again</p>
                                 <p className='sign_up'>Sign In to get started!</p>
                             </div>
                         </div>
