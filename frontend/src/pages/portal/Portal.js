@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Layout } from 'antd';
+import './Portal.css'
 import SideBar from '../../components/sideBar/SideBar';
 
 const { Header, Content, Footer } = Layout;
