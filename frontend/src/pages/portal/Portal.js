@@ -46,6 +46,11 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
         <Layout className="site-layout-background">
             <Header className="navbar-layout-background" >
                 <div className='navbar-content'>
+                    <Link to='/portal' style={{ textDecoration: 'none' }}>
+                        <Button className='schedules-button' type="link">
+                            Schedules
+                        </Button>
+                    </Link>
                     <Link to='/login' style={{ textDecoration: 'none' }}>
                         <Button className='logout-button' type="link" onClick={removeCookies}>
                             Log Out
