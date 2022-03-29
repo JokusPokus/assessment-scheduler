@@ -12,6 +12,12 @@ class User(AbstractUser):
         blank=True
     )
 
+    def __str__(self):
+        return f"<User: {self.email}>"
+
 
 class Organization(BaseModel):
     name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"<Organization: {self.name}>"
