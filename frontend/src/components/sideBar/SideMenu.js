@@ -6,11 +6,14 @@ const SideMenu = ({ changeActiveTab }) => {
         <Menu
           defaultSelectedKeys={['1']}
           mode='inline'
-          theme='light'
+          theme='dark'
           style={{ height: '100%', borderRight: 0 }}
         >
-            <Menu.Item key="1">
+            <Menu.Item key="1" style={{ marginTop: "65px"}}>
                 <p onClick={changeActiveTab('main')}>Main</p>
+            </Menu.Item>
+            <Menu.Item key="2">
+                <p onClick={changeActiveTab('second')}>Second</p>
             </Menu.Item>
         </Menu>
     )

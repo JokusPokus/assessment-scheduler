@@ -60,34 +60,43 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
 
     return(
         <Layout className="site-layout-background">
-            <Header className="navbar-layout-background" >
-                <div className='navbar-content'>
-                    <Button className='phases-button'>
-                        Assessment Phases
-                    </Button>
-                    <Select defaultValue={years[0]} style={{ width: 120 }} onChange={handleYearChange}>
-                        {years.map(year => (
-                            <Option key={year}>{year}</Option>
-                        ))}
-                    </Select>
-                    <Select style={{ width: 120 }} value={phase} onChange={onPhaseChange}>
-                        {phases.map(assessPhase => (
-                            <Option key={assessPhase}>{assessPhase}</Option>
-                        ))}
-                    </Select>
-                    <Link to='/login' style={{ textDecoration: 'none' }}>
-                        <Button className='logout-button' type="link" onClick={removeCookies}>
-                            Log Out
-                        </Button>
-                    </Link>
-                </div>
-            </Header>
+            <SideBar changeActiveTab={changeActiveTab}></SideBar>
             <Layout>
-                <SideBar changeActiveTab={changeActiveTab}>
-                </SideBar>
-            </Layout>
-            <Layout>
-                <Content className='page-content' style={{ marginTop: '10vh'}}>
+                <Header className="navbar-layout-background" >
+                    <div className='navbar-content'>
+                        <div className="phase-selection-group">
+                            <Button className='phases-button' type={'link'}>
+                                Assessment Phase:
+                            </Button>
+                            <Select
+                                defaultValue={years[0]}
+                                style={{ width: 120, marginLeft: "30px" }}
+                                onChange={handleYearChange}
+                                bordered={false}
+                            >
+                                {years.map(year => (
+                                    <Option key={year}>{year}</Option>
+                                ))}
+                            </Select>
+                            <Select
+                                style={{ width: 240, marginLeft: "30px" }}
+                                value={phase}
+                                onChange={onPhaseChange}
+                                bordered={false}
+                            >
+                                {phases.map(assessPhase => (
+                                    <Option key={assessPhase}>{assessPhase}</Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <Link to='/login' style={{ textDecoration: 'none' }}>
+                            <Button className='logout-button' type="link" onClick={removeCookies}>
+                                Log Out
+                            </Button>
+                        </Link>
+                    </div>
+                </Header>
+                <Content className='page-content'>
                     <h1>Welcome!</h1>
                 </Content>
             </Layout>
