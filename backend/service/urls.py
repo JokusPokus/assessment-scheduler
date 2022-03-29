@@ -22,7 +22,8 @@ from core.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index, name='index'),
+    path('login/', index, name='index'),
+    path('portal/', index, name='index'),
     path('auth/', include('djoser.urls')),
     path(
         'auth/token/',
