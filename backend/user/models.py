@@ -5,7 +5,12 @@ from core.models import BaseModel
 
 
 class User(AbstractUser):
-    pass
+    organization = models.ForeignKey(
+        'user.Organization',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
 
 class Organization(BaseModel):
