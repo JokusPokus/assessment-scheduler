@@ -1,22 +1,25 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Layout, Menu, Dropdown } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { Button, Layout, Select } from 'antd';
 import './Portal.css'
 import SideBar from '../../components/sideBar/SideBar';
 
 const { Header, Content, Footer } = Layout;
-const { SubMenu } = Menu;
+const { Option } = Select;
 
 const UserPortal = ({ requestUrl, refreshRequestBody }) => {
+    const phaseData = {
+        2022: ["Spring Semester", "Fall Semester"],
+        2021: ["Fall Semester"],
+    };
+    const years = Object.keys(phaseData);
+
     const [activeTab, setActiveTab] = useState('main');
-    const [visible, setVisible] = useState(false);
 
     const changeActiveTab = (tabName) => {
         return (event) => {
             setActiveTab(tabName);
-            setVisible(false)
         }
     };
 
@@ -24,23 +27,17 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
         <h1>Welcome, user!</h1>
     );
 
-    const PHASES = [
-        {name: "FS 2021", id: "fs21", weeks: ["Week 1", "Week 2", "Week 3"]},
-        {name: "SS 2022", id: "ss22", weeks: ["Week 1", "Week 2", "Week 3"]},
-        {name: "FS 2022", id: "fs22", weeks: ["Week 1", "Week 2", "Week 3"]},
-    ];
+    const [phases, setPhases] = useState(phaseData[years[0]]);
+    const [phase, setPhase] = useState(phaseData[years[0]][0]);
 
-    const menu = (
-        <Menu>
-            {PHASES.map((phase, index) => (
-                <SubMenu title={phase.name} key={phase.name}>
-                    {phase.weeks.map((week, w_index) => (
-                        <Menu.Item key={`${phase.name}_${week}`}>{week}</Menu.Item>)
-                    )}
-                </SubMenu>
-            ))}
-        </Menu>
-    );
+    const handleYearChange = value => {
+        setPhases(phaseData[value]);
+        setPhase(phaseData[value][0]);
+    };
+
+    const onPhaseChange = value => {
+        setPhase(value);
+    };
 
     useEffect(() => {
         const tabs = {
@@ -54,22 +51,30 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
                 );
                 break;
         }
-    }, [activeTab, requestUrl, refreshRequestBody ])
+    }, [activeTab, requestUrl, refreshRequestBody ]);
 
     const removeCookies = () => {
-            window.localStorage.removeItem('access');
-            window.localStorage.removeItem('refresh');
+        window.localStorage.removeItem('access');
+        window.localStorage.removeItem('refresh');
     };
 
     return(
         <Layout className="site-layout-background">
             <Header className="navbar-layout-background" >
                 <div className='navbar-content'>
-                    <Link to='/phases' style={{ textDecoration: 'none' }}>
-                        <Button className='phases-button' type="link">
-                            Assessment Phases
-                        </Button>
-                    </Link>
+                    <Button className='phases-button'>
+                        Assessment Phases
+                    </Button>
+                    <Select defaultValue={years[0]} style={{ width: 120 }} onChange={handleYearChange}>
+                        {years.map(year => (
+                            <Option key={year}>{year}</Option>
+                        ))}
+                    </Select>
+                    <Select style={{ width: 120 }} value={phase} onChange={onPhaseChange}>
+                        {phases.map(assessPhase => (
+                            <Option key={assessPhase}>{assessPhase}</Option>
+                        ))}
+                    </Select>
                     <Link to='/login' style={{ textDecoration: 'none' }}>
                         <Button className='logout-button' type="link" onClick={removeCookies}>
                             Log Out
@@ -77,15 +82,15 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
                     </Link>
                 </div>
             </Header>
-            <Content className='page-content'>
-                <Layout className='content_layout'>
-                    <SideBar changeActiveTab={changeActiveTab}/>
-                    <Content className="site-layout-background rendered-content">
-                        {activeTabComponent}
-                    </Content>
-                </Layout>
-            </Content>
-            <Footer className="site-layout-background" style={{ textAlign: 'center' }}>CODE assessment scheduler</Footer>
+            <Layout>
+                <SideBar changeActiveTab={changeActiveTab}>
+                </SideBar>
+            </Layout>
+            <Layout>
+                <Content className='page-content' style={{ marginTop: '10vh'}}>
+                    <h1>Welcome!</h1>
+                </Content>
+            </Layout>
         </Layout>
     )
 };
