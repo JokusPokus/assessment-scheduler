@@ -104,3 +104,14 @@ class Block(BaseModel):
     exam_length = models.IntegerField(
         validators=[MinValueValidator(10), MaxValueValidator(360)]
     )
+
+
+class Slot(BaseModel):
+    """An available time slot for an assessment."""
+
+    block = models.ForeignKey(
+        'schedule.Block',
+        related_name='slots',
+        on_delete=models.CASCADE
+    )
+    start_time = models.DateTimeField()
