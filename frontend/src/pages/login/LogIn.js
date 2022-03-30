@@ -41,7 +41,8 @@ const LogIn = ({ requestUrl, setUserInfo }) => {
                 if(tokens) {
                     window.localStorage.setItem('access', tokens.access);
                     window.localStorage.setItem('refresh', tokens.refresh);
-                    navigate('/portal')
+                    message.success(`Welcome, ${loginUser.username}!`);
+                    navigate('/portal');
                 }
             };
 
