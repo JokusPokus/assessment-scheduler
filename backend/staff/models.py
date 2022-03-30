@@ -3,8 +3,10 @@ from django.db import models
 from core.models import BaseModel
 
 
-class Assessor(BaseModel):
-    """A module assessor."""
+class Staff(BaseModel):
+    """A member of the organization's staff involved in the execution of
+    assessments.
+    """
 
     organization = models.ForeignKey(
         'user.Organization',
@@ -17,5 +19,7 @@ class Assessor(BaseModel):
         related_name='assessors'
     )
 
-    def __str__(self):
-        return f'<Assessor: {self.email}>'
+    class Meta:
+        abstract = True
+
+
