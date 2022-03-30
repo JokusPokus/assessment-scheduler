@@ -135,7 +135,12 @@ class BlockTemplate(BaseModel):
     +-----------------+
     """
 
-    windows = models.ManyToManyField('schedule.Window')
+    windows = models.ManyToManyField(
+        'schedule.Window',
+        related_name='block_templates',
+        null=True,
+        blank=True
+    )
     block_length = models.IntegerField(
         validators=[
             MinValueValidator(MIN_BLOCK_LENGTH),
@@ -173,12 +178,12 @@ class BlockTemplate(BaseModel):
                 raise ValidationError('Overlapping exams')
 
 
-class Slot(BaseModel):
+class ExamSlot(BaseModel):
     """An available time slot for an assessment."""
 
     block = models.ForeignKey(
         'schedule.Block',
-        related_name='slots',
+        related_name='exam_slots',
         on_delete=models.CASCADE
     )
     start_time = models.DateTimeField()
