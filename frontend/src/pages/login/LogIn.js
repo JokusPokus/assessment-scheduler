@@ -5,7 +5,7 @@ import { Content } from "antd/lib/layout/layout";
 
 const { Header } = Layout;
 
-const LogIn = ({ requestUrl }) => {
+const LogIn = ({ requestUrl, setUserInfo }) => {
     const [loginUser, setLoginUser] = useState(undefined);
     const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ const LogIn = ({ requestUrl }) => {
             'username': values.email,
             'password': values.password
         });
-        navigate('/portal');
+        // navigate('/portal');
     };
 
     useEffect(() => {

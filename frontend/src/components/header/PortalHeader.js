@@ -1,8 +1,10 @@
 import { Button, Select, Layout } from "antd";
+import { HomeOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import React from "react";
 
-const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData}) => {
+
+const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData, userInfo}) => {
     const years = Object.keys(phaseData);
 
     const handleYearChange = value => {
@@ -47,9 +49,17 @@ const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData}) => {
                         ))}
                     </Select>
                 </div>
+                {userInfo &&
+                    <div>
+                        <HomeOutlined />
+                        <Button className='org-button' type={'link'} style={{ color: 'black'}}>
+                            {userInfo['organization']['name']}
+                        </Button>
+                    </div>
+                }
                 <Link to='/login' style={{ textDecoration: 'none' }}>
                     <Button className='logout-button' type="link" onClick={removeCookies}>
-                        Log Out
+                        <LogoutOutlined />
                     </Button>
                 </Link>
             </div>

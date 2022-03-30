@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Layout, Select } from 'antd';
+import {Layout, message, Select} from 'antd';
 import './Portal.css'
 import SideBar from '../../components/sideBar/SideBar';
 import PortalHeader from "../../components/header/PortalHeader";
@@ -18,8 +18,28 @@ const { Header, Content, Footer } = Layout;
 const { Option } = Select;
 
 const UserPortal = ({ requestUrl, refreshRequestBody }) => {
+    const [userInfo, setUserInfo] = useState(undefined);
     const [activeTab, setActiveTab] = useState('main');
     const [activeTabComponent, setActiveTabComponent] = useState(Dashboard);
+
+    async function getUserInfo () {
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.localStorage.getItem('access')}`
+            }
+        };
+        const response = await fetch(`${requestUrl}/users/current/`, requestOptions);
+        return response.json()
+    }
+
+    useEffect(() => {
+        getUserInfo()
+            .then(data => {
+                setUserInfo(data);
+            });
+    }, []);
 
     const changeActiveTab = (tabName) => {
         return (event) => {
@@ -82,6 +102,7 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
                     phases={phases}
                     setPhases={setPhases}
                     phaseData={phaseData}
+                    userInfo={userInfo}
                 />
                 <Content className='page-content'>
                     { activeTabComponent }
