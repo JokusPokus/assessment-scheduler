@@ -16,11 +16,6 @@ const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData, userInfo}
         setPhase(value);
     };
 
-    const removeCookies = () => {
-        window.localStorage.removeItem('access');
-        window.localStorage.removeItem('refresh');
-    };
-
     return (
         <Layout.Header className="navbar-layout-background" >
             <div className='navbar-content'>
@@ -57,16 +52,6 @@ const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData, userInfo}
                         </Button>
                     </div>
                 }
-                <Link to='/login' style={{ textDecoration: 'none' }}>
-                    <Tooltip title="Log Out">
-                        <Button
-                            type="primary"
-                            shape="circle"
-                            icon={<LogoutOutlined />}
-                            onClick={removeCookies}
-                        />
-                    </Tooltip>
-                </Link>
             </div>
         </Layout.Header>
     )

@@ -1,13 +1,20 @@
 import React from "react";
-import { Menu } from "antd";
+import {Menu, Space} from "antd";
+import {Link} from "react-router-dom";
+import {LogoutOutlined} from "@ant-design/icons";
 
 const SideMenu = ({ changeActiveTab }) => {
+    const removeCookies = () => {
+        window.localStorage.removeItem('access');
+        window.localStorage.removeItem('refresh');
+    };
+
     return (
         <Menu
           defaultSelectedKeys={['1']}
           mode='inline'
           theme='dark'
-          style={{ height: '100%', borderRight: 0 }}
+          style={{ height: '100%', borderRight: 0, fontSize: '16px' }}
         >
             <Menu.Item key="1" style={{ marginTop: "65px"}}>
                 <p onClick={changeActiveTab('dashboard')}>Dashboard</p>
@@ -29,7 +36,22 @@ const SideMenu = ({ changeActiveTab }) => {
             </Menu.Item>
             <Menu.Item key="7">
                 <p onClick={changeActiveTab('schedules')}>Schedules</p>
-            </Menu.Item>            
+            </Menu.Item>
+            <Menu.Item
+                key="8"
+                style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    zIndex: 1,
+                    transition: 'all 0.2s',
+                }}
+                icon={<LogoutOutlined />}
+            >
+                <Link to="/login" onClick={removeCookies}>
+                    <p>Log out</p>
+                </Link>
+
+            </Menu.Item>
         </Menu>
     )
 };
