@@ -49,6 +49,7 @@ class AssessmentPhase(BaseModel):
         max_length=32,
         choices=PhaseCategory.choices
     )
+    room_limit = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"<{self.category.label} in {self.semester.label} {self.year}>"
