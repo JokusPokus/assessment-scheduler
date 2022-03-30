@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.timezone import now
@@ -76,7 +77,22 @@ class Block(BaseModel):
     """A collection of back-to-back exams and breaks of the same assessor.
 
     Each day within an assessment phase can contain a fixed number of blocks
-    that have a fixed total length. Assessments within a block have a fixed,
+    that have a fixed total length.
+    """
+
+    window = models.ForeignKey(
+        'schedule.Window',
+        related_name='blocks',
+        on_delete=models.CASCADE
+    )
+    start_time = models.DateTimeField()
+
+
+class BlockTemplate(BaseModel):
+    """A specification of a block's precise structure, defining when each
+    exam and break take place relative to the block's starting time.
+
+    Assessments within a block have a fixed,
     equal length. In turn, the length of assessments and breaks between
     different blocks may vary.
 
@@ -95,15 +111,36 @@ class Block(BaseModel):
     +-----------------+
     """
 
-    window = models.ForeignKey(
-        'schedule.Window',
-        related_name='blocks',
-        on_delete=models.CASCADE
+    windows = models.ManyToManyField('schedule.Window')
+    block_length = models.IntegerField(
+        validators=[MinValueValidator(10), MaxValueValidator(420)]
     )
-    start_time = models.DateTimeField()
     exam_length = models.IntegerField(
         validators=[MinValueValidator(10), MaxValueValidator(360)]
     )
+    exam_start_times = ArrayField(
+        models.PositiveIntegerField()
+    )
+
+    def save(self, *args, **kwargs):
+        if self.exam_start_times:
+            self.exam_start_times.sort()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        self._enforce_exams_do_not_exceed_block()
+        self._enforce_no_overlapping_exams()
+
+    def _enforce_exams_do_not_exceed_block(self):
+        if max(self.exam_start_times) + self.exam_length > block_length:
+            raise ValidationError('Last exam starts too late')
+
+    def _enforce_no_overlapping_exams(self):
+        adjacent_exams = zip(self.exam_start_times, self.exam_start_times[1:])
+        for earlier, later in adjacent_exams:
+            if earlier + self.exam_length > later:
+                raise ValidationError('Overlapping exams')
 
 
 class Slot(BaseModel):
