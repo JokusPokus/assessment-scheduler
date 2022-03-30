@@ -137,9 +137,7 @@ class BlockTemplate(BaseModel):
 
     windows = models.ManyToManyField(
         'schedule.Window',
-        related_name='block_templates',
-        null=True,
-        blank=True
+        related_name='block_templates'
     )
     block_length = models.IntegerField(
         validators=[
