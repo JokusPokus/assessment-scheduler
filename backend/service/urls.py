@@ -18,6 +18,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
+from input import urls as input_urls
 
 
 urlpatterns = [
@@ -35,4 +36,5 @@ urlpatterns = [
         TokenRefreshView.as_view(),
         name='token_refresh'
     ),
+    path('input/', include(input_urls.urlpatterns)),
 ]
