@@ -10,16 +10,28 @@ class Staff(BaseModel):
 
     organization = models.ForeignKey(
         'user.Organization',
-        related_name='assessors',
+        related_name='%(class)s',
         on_delete=models.CASCADE
     )
     email = models.EmailField(unique=True)
     assessment_phases = models.ManyToManyField(
         'schedule.AssessmentPhase',
-        related_name='assessors'
+        related_name='%(class)s'
     )
 
     class Meta:
         abstract = True
 
 
+class Assessor(Staff):
+    """A module assessor."""
+
+    def __str__(self):
+        return f'<Assessor: {self.email}>'
+
+
+class Helper(Staff):
+    """An assistant to the module assessors."""
+
+    def __str__(self):
+        return f'<Helper: {self.email}>'
