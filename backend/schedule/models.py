@@ -8,6 +8,12 @@ from core.models import BaseModel
 from core.utils.datetime import current_year
 
 
+MIN_BLOCK_LENGTH = 10
+MAX_BLOCK_LENGTH = 420
+MIN_EXAM_LENGTH = 10
+MAX_EXAM_LENGTH = 360
+
+
 class Semester(models.TextChoices):
     SPRING = 'spring', 'Spring Semester'
     FALL = 'fall', 'Fall Semester'
@@ -64,7 +70,10 @@ class Window(BaseModel):
     start_date = models.DateField()
     end_date = models.DateField()
     block_length = models.IntegerField(
-        validators=[MinValueValidator(10), MaxValueValidator(420)]
+        validators=[
+            MinValueValidator(MIN_BLOCK_LENGTH),
+            MaxValueValidator(MAX_BLOCK_LENGTH)
+        ]
     )
 
     def clean(self):
@@ -113,10 +122,16 @@ class BlockTemplate(BaseModel):
 
     windows = models.ManyToManyField('schedule.Window')
     block_length = models.IntegerField(
-        validators=[MinValueValidator(10), MaxValueValidator(420)]
+        validators=[
+            MinValueValidator(MIN_BLOCK_LENGTH),
+            MaxValueValidator(MAX_BLOCK_LENGTH)
+        ]
     )
     exam_length = models.IntegerField(
-        validators=[MinValueValidator(10), MaxValueValidator(360)]
+        validators=[
+            MinValueValidator(MIN_EXAM_LENGTH),
+            MaxValueValidator(MAX_EXAM_LENGTH)
+        ]
     )
     exam_start_times = ArrayField(
         models.PositiveIntegerField()
