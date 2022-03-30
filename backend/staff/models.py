@@ -18,6 +18,10 @@ class Staff(BaseModel):
         'schedule.AssessmentPhase',
         related_name='%(class)s'
     )
+    available_blocks = models.ManyToManyField(
+        'schedule.BlockSlot',
+        related_name='%(class)s'
+    )
 
     class Meta:
         abstract = True
