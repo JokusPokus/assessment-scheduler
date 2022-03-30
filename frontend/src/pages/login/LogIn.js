@@ -14,7 +14,7 @@ const LogIn = ({ requestUrl }) => {
             'username': values.email,
             'password': values.password
         });
-        navigate('/phases');
+        navigate('/portal');
     };
 
     useEffect(() => {
@@ -41,7 +41,7 @@ const LogIn = ({ requestUrl }) => {
                 if(tokens) {
                     window.localStorage.setItem('access', tokens.access);
                     window.localStorage.setItem('refresh', tokens.refresh);
-                    navigate('/phases')
+                    navigate('/portal')
                 }
             };
 
