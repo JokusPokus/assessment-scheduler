@@ -1,4 +1,4 @@
-import { Button, Select, Layout } from "antd";
+import { Button, Select, Layout, Tooltip } from "antd";
 import { HomeOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
 import React from "react";
@@ -58,9 +58,14 @@ const PortalHeader = ({ phase, setPhase, phases, setPhases, phaseData, userInfo}
                     </div>
                 }
                 <Link to='/login' style={{ textDecoration: 'none' }}>
-                    <Button className='logout-button' type="link" onClick={removeCookies}>
-                        <LogoutOutlined />
-                    </Button>
+                    <Tooltip title="Log Out">
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon={<LogoutOutlined />}
+                            onClick={removeCookies}
+                        />
+                    </Tooltip>
                 </Link>
             </div>
         </Layout.Header>
