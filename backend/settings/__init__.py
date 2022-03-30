@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "user.apps.UserConfig",
     "staff.apps.StaffConfig",
     "exam.apps.ExamConfig",
+    "input.apps.InputConfig",
 ]
 
 MIDDLEWARE = [
