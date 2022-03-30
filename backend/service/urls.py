@@ -19,12 +19,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
 from input import urls as input_urls
+from user.views import current_user
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', index, name='index'),
     path('portal/', index, name='index'),
+    path('users/current/', current_user, name='current-user'),
     path('auth/', include('djoser.urls')),
     path(
         'auth/token/',
