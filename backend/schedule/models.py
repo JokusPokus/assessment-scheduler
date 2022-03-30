@@ -82,19 +82,34 @@ class Window(BaseModel):
             raise ValidationError('Start date after end date')
 
 
-class Block(BaseModel):
-    """A collection of back-to-back exams and breaks of the same assessor.
-
-    Each day within an assessment phase can contain a fixed number of blocks
-    that have a fixed total length.
+class BlockSlot(BaseModel):
+    """An available slot for any number of blocks (constrained by personnel
+    and room availabilities.
     """
 
     window = models.ForeignKey(
         'schedule.Window',
-        related_name='blocks',
+        related_name='block_slots',
         on_delete=models.CASCADE
     )
     start_time = models.DateTimeField()
+
+
+class Block(BaseModel):
+    """A collection of concrete back-to-back exams and breaks
+    of the same assessor.
+    """
+
+    block_slot = models.ForeignKey(
+        'schedule.BlockSlot',
+        related_name='blocks',
+        on_delete=models.CASCADE
+    )
+    template = models.ForeignKey(
+        'schedule.BlockTemplate',
+        related_name='blocks',
+        on_delete=models.CASCADE
+    )
 
 
 class BlockTemplate(BaseModel):
