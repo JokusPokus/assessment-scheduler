@@ -50,9 +50,8 @@ const LogIn = ({ requestUrl, setUserInfo }) => {
         }
     }, [loginUser, requestUrl, navigate]);
 
-    /////// Any? //////
     const onFinishFailed = (errorInfo) => {
-
+        message.warning(`There has been a problem: ${errorInfo}`)
     };
 
     return(
