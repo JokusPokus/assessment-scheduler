@@ -24,7 +24,7 @@ from input import urls as input_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', index, name='index'),
-    path('phases/', index, name='index'),
+    path('portal/', index, name='index'),
     path('auth/', include('djoser.urls')),
     path(
         'auth/token/',
