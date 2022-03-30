@@ -17,6 +17,10 @@ class PhaseCategory(models.TextChoices):
 
 
 class AssessmentPhase(BaseModel):
+    """A coherent time span of assessments that may consist of various windows
+    that can be scheduled separately. While windows are rather independent,
+    various specifications are common to all windows of an assessment phase.
+    """
     organization = models.ForeignKey(
         'user.Organization',
         on_delete=models.CASCADE,
@@ -37,3 +41,16 @@ class AssessmentPhase(BaseModel):
 
     def __str__(self):
         return f"<{self.category.label} in {self.semester.label} {self.year}>"
+
+
+class Window(BaseModel):
+    """An independent time range that can be scheduled 'in one go'. One or more
+    windows make up an assessment phase.
+    """
+    assessment_phase = models.ForeignKey(
+        'schedule.AssessmentPhase',
+        related_name='windows',
+        on_delete=models.CASCADE
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
