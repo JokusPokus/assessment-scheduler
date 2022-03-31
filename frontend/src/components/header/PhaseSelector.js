@@ -2,6 +2,7 @@ import {Button, Select, Tooltip } from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import React, {useEffect, useState} from "react";
 import usePhases from "../../hooks/callbacks";
+import {httpPostPhase} from "../../hooks/requests";
 import PhaseCreateForm from "./PhaseCreateForm";
 
 const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
@@ -38,7 +39,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
     const [visible, setVisible] = useState(false);
 
     const onCreate = (values) => {
-        console.log('Received values of form: ', values);
+        httpPostPhase({...values, category: "main"})();
         setVisible(false);
     };
 
