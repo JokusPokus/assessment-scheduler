@@ -1,8 +1,10 @@
-import {Button, Select} from "antd";
+import {Button, Select, Tooltip } from "antd";
+import {PlusOutlined} from "@ant-design/icons";
 import React, {useEffect, useState} from "react";
 import usePhases from "../../hooks/callbacks";
+import PhaseCreateForm from "./PhaseCreateForm";
 
-const PhaseSelector = ({ currentPhase, setCurrentPhase }) => {
+const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
     const phases = usePhases();
     const [years, setYears] = useState(undefined);
     const [semesterChoices, setSemesterChoices] = useState([]);
@@ -30,19 +32,26 @@ const PhaseSelector = ({ currentPhase, setCurrentPhase }) => {
     };
 
     const onPhaseChange = value => {
-        setCurrentPhase({ ...currentPhase, semester: value})
+        setCurrentPhase({...currentPhase, semester: value})
     };
 
-    return(
+    const [visible, setVisible] = useState(false);
+
+    const onCreate = (values) => {
+        console.log('Received values of form: ', values);
+        setVisible(false);
+    };
+
+    return (
         <div className="phase-selection-group">
             <Button className='phases-button' type={'link'}>
                 Assessment Phase:
             </Button>
-            { years &&
+            {years &&
             <>
                 <Select
                     defaultValue={years[0]}
-                    style={{ width: 120, marginLeft: "30px" }}
+                    style={{width: 120, marginLeft: "30px"}}
                     onChange={handleYearChange}
                     bordered={false}
                 >
@@ -51,7 +60,7 @@ const PhaseSelector = ({ currentPhase, setCurrentPhase }) => {
                     ))}
                 </Select>
                 <Select
-                    style={{ width: 240, marginLeft: "30px" }}
+                    style={{width: 240, marginLeft: "30px"}}
                     value={currentPhase.semester}
                     onChange={onPhaseChange}
                     bordered={false}
@@ -60,6 +69,23 @@ const PhaseSelector = ({ currentPhase, setCurrentPhase }) => {
                         <Select.Option key={semester}>{semester}</Select.Option>
                     ))}
                 </Select>
+                <Tooltip title="Add new phase">
+                    <Button
+                        shape="circle"
+                        style={{marginLeft: "20px"}}
+                        icon={<PlusOutlined/>}
+                        onClick={() => {
+                            setVisible(true);
+                        }}
+                    />
+                </Tooltip>
+                <PhaseCreateForm
+                    visible={visible}
+                    onCreate={onCreate}
+                    onCancel={() => {
+                        setVisible(false);
+                    }}
+                />
             </>
             }
         </div>
