@@ -15,6 +15,8 @@ class AssessmentPhaseViewSet(ModelViewSet):
             return AssessmentPhaseListSerializer
         if self.action == 'retrieve':
             return AssessmentPhaseDetailSerializer
+        if self.action == 'create':
+            return AssessmentPhaseListSerializer
 
         raise NotImplementedError
 

@@ -21,3 +21,7 @@ class Organization(BaseModel):
 
     def __str__(self):
         return f"<Organization: {self.name}>"
+
+
+def code_university_id() -> int:
+    return Organization.objects.get_or_create(name='CODE University')[0].id

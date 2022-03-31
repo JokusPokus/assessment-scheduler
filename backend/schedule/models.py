@@ -6,6 +6,7 @@ from django.utils.timezone import now
 
 from core.models import BaseModel
 from core.utils.datetime import current_year
+from user.models import code_university_id
 
 
 MIN_BLOCK_LENGTH = 10
@@ -35,7 +36,8 @@ class AssessmentPhase(BaseModel):
     organization = models.ForeignKey(
         'user.Organization',
         on_delete=models.CASCADE,
-        related_name='phases'
+        related_name='phases',
+        default=code_university_id
     )
     year = models.IntegerField(
         default=current_year,

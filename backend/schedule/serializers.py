@@ -7,16 +7,21 @@ from .models import (
 
 
 class AssessmentPhaseListSerializer(serializers.ModelSerializer):
-    semester = serializers.CharField(
-        source='get_semester_display'
-    )
-    category = serializers.CharField(
-        source='get_category_display'
-    )
-
     class Meta:
         model = AssessmentPhase
-        fields = ['year', 'semester', 'category']
+        fields = [
+            'year',
+            'semester',
+            'category',
+        ]
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        return {
+            **rep,
+            'semester': instance.get_semester_display(),
+            'category': instance.get_category_display()
+        }
 
 
 class AssessmentPhaseDetailSerializer(serializers.ModelSerializer):
