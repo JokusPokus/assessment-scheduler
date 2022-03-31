@@ -9,9 +9,18 @@ from .serializers import (
 
 
 class AssessmentPhaseViewSet(ModelViewSet):
+    def get_serializer_class(self):
+        """Select the serializer class based on the HTTP action."""
+        if self.action == 'list':
+            return AssessmentPhaseListSerializer
+        if self.action == 'retrieve':
+            return AssessmentPhaseDetailSerializer
+
+        raise NotImplementedError
+
     def get_queryset(self):
-        """Return all assessment phases that belong to the requesting user's
-        organization.
+        """Return all assessment phases that belong to the requesting
+        user's organization.
         """
         return AssessmentPhase.objects.filter(
             organization=self.request.user.organization
