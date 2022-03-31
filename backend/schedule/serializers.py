@@ -1,4 +1,4 @@
-from rest_framework import serializer
+from rest_framework import serializers
 
 from .models import (
     AssessmentPhase,
@@ -6,13 +6,13 @@ from .models import (
 )
 
 
-class AssessmentPhaseListSerializer(serializer.ModelSerializer):
+class AssessmentPhaseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentPhase
         fields = ['year', 'semester', 'category']
 
 
-class AssessmentPhaseDetailSerializer(serializer.ModelSerializer):
+class AssessmentPhaseDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentPhase
         fields = ['year', 'semester', 'category', 'room_limit']
