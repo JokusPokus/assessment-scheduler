@@ -7,6 +7,13 @@ from .models import (
 
 
 class AssessmentPhaseListSerializer(serializers.ModelSerializer):
+    semester = serializers.CharField(
+        source='get_semester_display'
+    )
+    category = serializers.CharField(
+        source='get_category_display'
+    )
+
     class Meta:
         model = AssessmentPhase
         fields = ['year', 'semester', 'category']
