@@ -13,29 +13,21 @@ import Availabilities from "../../components/availabilities/Availabilities";
 import Assessments from "../../components/assessments/Assessments";
 import Rooms from "../../components/rooms/Rooms";
 
+import {httpGetPhases, httpGetUser} from "../../hooks/requests";
+import usePhases from "../../hooks/callbacks";
+
 
 const { Header, Content, Footer } = Layout;
 const { Option } = Select;
 
 const UserPortal = ({ requestUrl, refreshRequestBody }) => {
+    const [currentPhase, setCurrentPhase] = useState(undefined);
     const [userInfo, setUserInfo] = useState(undefined);
     const [activeTab, setActiveTab] = useState('main');
     const [activeTabComponent, setActiveTabComponent] = useState(Dashboard);
 
-    async function getUserInfo () {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.localStorage.getItem('access')}`
-            }
-        };
-        const response = await fetch(`${requestUrl}/users/current/`, requestOptions);
-        return response.json()
-    }
-
     useEffect(() => {
-        getUserInfo()
+        httpGetUser()
             .then(data => {
                 setUserInfo(data);
             });
@@ -83,25 +75,13 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
         }
     }, [activeTab, requestUrl, refreshRequestBody ]);
 
-    const phaseData = {
-        2022: ["Spring Semester", "Fall Semester"],
-        2021: ["Fall Semester"],
-    };
-    const years = Object.keys(phaseData);
-
-    const [phases, setPhases] = useState(phaseData[years[0]]);
-    const [phase, setPhase] = useState(phaseData[years[0]][0]);
-
     return(
         <Layout className="site-layout-background" style={{ minHeight: "100vh" }}>
             <SideBar changeActiveTab={changeActiveTab}/>
             <Layout>
                 <PortalHeader
-                    phase={phase}
-                    setPhase={setPhase}
-                    phases={phases}
-                    setPhases={setPhases}
-                    phaseData={phaseData}
+                    currentPhase={currentPhase}
+                    setCurrentPhase={setCurrentPhase}
                     userInfo={userInfo}
                 />
                 <Content className='page-content'>
