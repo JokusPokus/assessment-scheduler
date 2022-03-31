@@ -52,7 +52,8 @@ class AssessmentPhase(BaseModel):
     room_limit = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"<{self.category.label} in {self.semester.label} {self.year}>"
+        return f"<{self.get_category_display()} " \
+               f"in {self.get_semester_display()} {self.year}>"
 
 
 class Window(BaseModel):
