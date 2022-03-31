@@ -19,6 +19,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
 from input import urls as input_urls
+from schedule import urls as schedule_urls
 from user.views import current_user
 
 
@@ -39,4 +40,5 @@ urlpatterns = [
         name='token_refresh'
     ),
     path('input/', include(input_urls.urlpatterns)),
+    path('schedules/', include(schedule_urls.urlpatterns)),
 ]
