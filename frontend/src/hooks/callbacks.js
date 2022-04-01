@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useState } from "react"
 import { httpGetPhases } from "./requests"
 
-const usePhases = () => {
+const usePhases = ( didAddPhase ) => {
     const [phases, setPhases] = useState([]);
 
-    const getPhases = useCallback(async () => {
-        const fetchedPhases = await httpGetPhases();
-
-        const formattedPhases = fetchedPhases.reduce((r, a) => {
-            r[a.year] = r[a.year] || [];
-            r[a.year].push(a.semester);
-            return r;
-        }, Object.create(null));
-
-        setPhases(formattedPhases);
-    }, []);
-
     useEffect(() => {
+        const getPhases = async () => {
+
+            const fetchedPhases = await httpGetPhases();
+
+            const formattedPhases = fetchedPhases.reduce((r, a) => {
+                r[a.year] = r[a.year] || [];
+                r[a.year].push(a.semester);
+                return r;
+            }, Object.create(null));
+
+            setPhases(formattedPhases);
+        };
         getPhases()
-    }, [getPhases]);
+    }, [didAddPhase]);
 
     return phases
 };

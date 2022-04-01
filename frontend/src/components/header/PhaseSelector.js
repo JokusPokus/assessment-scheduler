@@ -6,7 +6,9 @@ import {httpPostPhase} from "../../hooks/requests";
 import PhaseCreateForm from "./PhaseCreateForm";
 
 const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
-    const phases = usePhases();
+    const [didAddPhase, setDidAddPhase] = useState(false);
+
+    const phases = usePhases(didAddPhase);
     const [years, setYears] = useState(undefined);
     const [semesterChoices, setSemesterChoices] = useState([]);
 
@@ -40,6 +42,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
 
     const onCreate = (values) => {
         httpPostPhase({...values, category: "main"})();
+        setDidAddPhase(true);
         setVisible(false);
     };
 
