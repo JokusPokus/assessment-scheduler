@@ -53,6 +53,9 @@ class AssessmentPhase(BaseModel):
     )
     room_limit = models.PositiveIntegerField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['-year']
+
     def __str__(self):
         return f"<{self.get_category_display()} " \
                f"in {self.get_semester_display()} {self.year}>"
