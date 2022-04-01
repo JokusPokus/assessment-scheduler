@@ -18,26 +18,26 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
 
     useEffect(() => {
         const years = Object.keys(phases);
+        years.reverse();
         setYears(years);
-
-        if (!currentPhase && phases.length !== 0) {
-            const years = Object.keys(phases);
-            setYears(years);
+        if (years.length !== 0) {
+            const currentSemesterChoices = phases[years[0]];
+            setSemesterChoices(currentSemesterChoices);
             setCurrentPhase({
                 year: years[0],
-                semester: phases[years[0]][0],
+                semester: currentSemesterChoices.slice(-1)[0],
                 category: "main"
             });
-            setSemesterChoices(phases[years[0]]);
         }
     }, [phases]);
 
     const handleYearChange = value => {
-        setSemesterChoices(phases[value]);
+        const currentSemesterChoices = phases[value]
+        setSemesterChoices(currentSemesterChoices);
         setCurrentPhase({
             ...currentPhase,
             year: value,
-            semester: semesterChoices[0]
+            semester: currentSemesterChoices[0]
         })
     };
 
@@ -61,7 +61,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
             {years.length !== 0 &&
             <>
                 <Select
-                    defaultValue={years[0]}
+                    value={currentPhase.year}
                     style={{width: 120, marginLeft: "30px"}}
                     onChange={handleYearChange}
                     bordered={false}
