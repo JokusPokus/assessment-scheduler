@@ -1,19 +1,14 @@
-.logo {
-    float: left;
-    margin: 10px 15px 10px 0;
-    height: 40px;
-    cursor: pointer;
-}
-
 .site-layout-background {
     background: #fff;
 }
 
 .navbar-layout-background {
     background: #fff;
-    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+    box-shadow: rgba(0, 0, 0, 0.08) 0 4px 12px;
     display: flex;
     justify-content: center;
+    position: relative;
+    z-index: 10;
 }
 
 .navbar-content {
@@ -21,21 +16,6 @@
     justify-content: space-between;
     flex-grow: 1;
     max-width: 1400px;
-}
-
-.logo-area {
-    display: flex;
-    align-items: center;
-}
-
-.logo-area h1 {
-    font-weight: 700;
-    cursor: pointer;
-    margin: 0px;
-}
-
-.logo-area button {
-    border: none;
 }
 
 .button-area {
@@ -58,6 +38,7 @@
     padding: 20px 50px;
     display: flex;
     justify-content: center;
+    background-color: #FFF
 }
 
 .content_layout {
