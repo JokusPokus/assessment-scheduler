@@ -15,7 +15,7 @@ function httpApiCall(method, path, body) {
             requestOptions['body'] = JSON.stringify(body)
         }
         const response = await fetch(`${API_URL}/${path}`, requestOptions);
-        return response.json()
+        return await response.json()
     }
 }
 

@@ -1,18 +1,25 @@
 import {Button, Select, Tooltip } from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import React, {useEffect, useState} from "react";
-import usePhases from "../../hooks/callbacks";
+import getFormattedPhases from "../../hooks/callbacks";
 import {httpPostPhase} from "../../hooks/requests";
 import PhaseCreateForm from "./PhaseCreateForm";
 
 const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
-    const [didAddPhase, setDidAddPhase] = useState(false);
-
-    const phases = usePhases(didAddPhase);
-    const [years, setYears] = useState(undefined);
+    const [phases, setPhases] = useState([]);
+    const [newPhaseCounter, setNewPhaseCounter] = useState([]);
+    const [years, setYears] = useState([]);
     const [semesterChoices, setSemesterChoices] = useState([]);
 
     useEffect(() => {
+        getFormattedPhases()
+            .then(data => {setPhases(data)});
+    }, [newPhaseCounter]);
+
+    useEffect(() => {
+        const years = Object.keys(phases);
+        setYears(years);
+
         if (!currentPhase && phases.length !== 0) {
             const years = Object.keys(phases);
             setYears(years);
@@ -40,9 +47,9 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
 
     const [visible, setVisible] = useState(false);
 
-    const onCreate = (values) => {
-        httpPostPhase({...values, category: "main"})();
-        setDidAddPhase(true);
+    const onCreate = async (values) => {
+        await httpPostPhase({...values, category: "main"})();
+        setNewPhaseCounter(newPhaseCounter + 1);
         setVisible(false);
     };
 
@@ -51,7 +58,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
             <Button className='phases-button' type={'link'}>
                 Assessment Phase:
             </Button>
-            {years &&
+            {years.length !== 0 &&
             <>
                 <Select
                     defaultValue={years[0]}
