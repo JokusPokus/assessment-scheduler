@@ -20,7 +20,7 @@ const Dashboard = ({currentPhase}) => {
         }
     }, [currentPhase]);
 
-    return ({ activeComponent })
+    return ( activeComponent )
 };
 
 export default Dashboard;
