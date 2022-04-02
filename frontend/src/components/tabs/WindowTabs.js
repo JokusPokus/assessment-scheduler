@@ -1,9 +1,10 @@
 import {Tabs} from 'antd';
 import React, {useState} from "react";
+import WindowCreateForm from "../dashbord/WindowCreateForm";
 
 const {TabPane} = Tabs;
 
-const WindowTabs = () => {
+const WindowTabs = ({onWindowCreate}) => {
     const initialPanes = [
         {
             title: 'Week 1',
@@ -13,15 +14,24 @@ const WindowTabs = () => {
     ];
     const [panes, setPanes] = useState(initialPanes);
     const [activeKey, setActiveKey] = useState(initialPanes[0].key);
+    const [visible, setVisible] = useState(false);
 
     const onChange = paneKey => {
         setActiveKey(paneKey);
     };
 
-    const add = () => {
+    const add = async () => {
+        setVisible(true);
+    };
+
+    const onEdit = (targetKey, action) => {
+        eval(action)(targetKey);
+    };
+
+    const onCreate = async (values) => {
+        await onWindowCreate(values);
         const currentMaxKey = parseInt(panes.slice(-1)[0].key);
         const newKey = (currentMaxKey + 1).toString();
-        console.log(newKey)
         const newPane = {
             title: `Week ${newKey}`,
             content: 'New content',
@@ -29,10 +39,7 @@ const WindowTabs = () => {
         };
         setPanes([...panes, newPane]);
         setActiveKey(newKey);
-    };
-
-    const onEdit = (targetKey, action) => {
-        eval(action)(targetKey);
+        setVisible(false);
     };
 
     return (
@@ -49,6 +56,13 @@ const WindowTabs = () => {
                     </TabPane>
                 ))}
             </Tabs>
+            <WindowCreateForm
+                visible={visible}
+                onCreate={onCreate}
+                onCancel={() => {
+                    setVisible(false);
+                }}
+            />
         </div>
     );
 };
