@@ -11,6 +11,7 @@ class WindowSerializer(serializers.ModelSerializer):
         model = Window
         fields = [
             'id',
+            'position',
             'assessment_phase',
             'start_date',
             'end_date',
