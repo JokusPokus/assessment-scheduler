@@ -11,7 +11,7 @@ function httpApiCall(method, path, body) {
                 'Authorization': `Bearer ${window.localStorage.getItem('access')}`
             }
         };
-        if (method==='POST') {
+        if (method === 'POST') {
             requestOptions['body'] = JSON.stringify(body)
         }
         const response = await fetch(`${API_URL}/${path}`, requestOptions);
@@ -19,6 +19,15 @@ function httpApiCall(method, path, body) {
     }
 }
 
+function httpGetResourceById(pathTemplate, resourceId) {
+    const path = pathTemplate(resourceId);
+    return httpApiCall('GET', path, null);
+}
+
 export const httpGetUser = httpApiCall('GET', 'users/current/', null);
 export const httpGetPhases = httpApiCall('GET', 'schedules/assessment-phases/', null);
 export const httpPostPhase = _.partial(httpApiCall, 'POST', 'schedules/assessment-phases/');
+export const httpGetPhase = _.partial(
+    httpGetResourceById, ({year, semester}) => {
+        return `schedules/assessment-phases/${year}/${semester}/`
+    });

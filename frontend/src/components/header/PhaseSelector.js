@@ -1,9 +1,14 @@
-import {Button, Select, Tooltip } from "antd";
+import {Button, Select, Tooltip} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import React, {useEffect, useState} from "react";
 import getFormattedPhases from "../../hooks/callbacks";
-import {httpPostPhase} from "../../hooks/requests";
+import {httpPostPhase, httpGetPhase} from "../../hooks/requests";
 import PhaseCreateForm from "./PhaseCreateForm";
+
+const semesterDisplay = {
+    spring: "Spring Semester",
+    fall: "Fall Semester"
+};
 
 const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
     const [phases, setPhases] = useState([]);
@@ -13,21 +18,28 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
 
     useEffect(() => {
         getFormattedPhases()
-            .then(data => {setPhases(data)});
+            .then(data => {
+                setPhases(data)
+            });
     }, [newPhaseCounter]);
 
-    useEffect(() => {
+    const setPhaseData = async (year, semester) => {
+        const newPhase = await httpGetPhase({year: year, semester: semester})();
+        setCurrentPhase(newPhase);
+        console.log(newPhase);
+    };
+
+    useEffect(async () => {
         const years = Object.keys(phases);
         years.reverse();
-        setYears(years);
+
         if (years.length !== 0) {
-            const currentSemesterChoices = phases[years[0]];
+            setYears(years);
+
+            const latestYear = years[0];
+            const currentSemesterChoices = phases[latestYear];
             setSemesterChoices(currentSemesterChoices);
-            setCurrentPhase({
-                year: years[0],
-                semester: currentSemesterChoices.slice(-1)[0],
-                category: "main"
-            });
+            await setPhaseData(latestYear, currentSemesterChoices.slice(-1)[0])
         }
     }, [phases]);
 
@@ -77,7 +89,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
                     bordered={false}
                 >
                     {semesterChoices.map(semester => (
-                        <Select.Option key={semester}>{semester}</Select.Option>
+                        <Select.Option key={semester}>{semesterDisplay[semester]}</Select.Option>
                     ))}
                 </Select>
                 <Tooltip title="Add new phase">
