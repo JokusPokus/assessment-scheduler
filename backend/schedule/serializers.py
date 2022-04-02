@@ -6,25 +6,27 @@ from .models import (
 )
 
 
+class WindowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Window
+        fields = ['id', 'start_date', 'end_date']
+
+
 class AssessmentPhaseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessmentPhase
         fields = [
+            'id',
             'year',
             'semester',
             'category',
         ]
 
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        return {
-            **rep,
-            'semester': instance.get_semester_display(),
-            'category': instance.get_category_display()
-        }
-
 
 class AssessmentPhaseDetailSerializer(serializers.ModelSerializer):
+    windows = WindowSerializer(many=True)
+
     class Meta:
         model = AssessmentPhase
-        fields = ['year', 'semester', 'category', 'room_limit']
+        fields = ['year', 'semester', 'category', 'room_limit', 'windows']
+        depth = 1
