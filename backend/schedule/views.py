@@ -8,10 +8,11 @@ from rest_framework.status import (
 )
 from rest_framework.viewsets import ModelViewSet
 
-from .models import AssessmentPhase
+from .models import AssessmentPhase, Window
 from .serializers import (
     AssessmentPhaseDetailSerializer,
     AssessmentPhaseListSerializer,
+    WindowSerializer
 )
 
 
@@ -54,3 +55,12 @@ class AssessmentPhaseViewSet(ModelViewSet):
 
         serializer = AssessmentPhaseDetailSerializer(phase)
         return Response(serializer.data, status=HTTP_200_OK)
+
+
+class WindowViewSet(ModelViewSet):
+    serializer_class = WindowSerializer
+
+    def get_queryset(self):
+        return Window.objects.filter(
+            assessment_phase__organization=self.request.user.organization
+        )

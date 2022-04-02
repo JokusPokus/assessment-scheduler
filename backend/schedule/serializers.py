@@ -9,7 +9,13 @@ from .models import (
 class WindowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Window
-        fields = ['id', 'start_date', 'end_date']
+        fields = [
+            'id',
+            'assessment_phase',
+            'start_date',
+            'end_date',
+            'block_length'
+        ]
 
 
 class AssessmentPhaseListSerializer(serializers.ModelSerializer):
@@ -28,5 +34,12 @@ class AssessmentPhaseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssessmentPhase
-        fields = ['year', 'semester', 'category', 'room_limit', 'windows']
+        fields = [
+            'id',
+            'year',
+            'semester',
+            'category',
+            'room_limit',
+            'windows'
+        ]
         depth = 1
