@@ -1,9 +1,13 @@
 import React from 'react';
+import PhaseHeader from "../pageHeader/phaseHeader";
 
-const Dashboard = () => {
+const _ = require('lodash');
+
+const Dashboard = ({ currentPhase }) => {
     return (
-        <h1>This is the dashboard section.</h1>
+        !_.isEmpty(currentPhase) &&
+        <PhaseHeader currentPhase={currentPhase}/>
     )
-}
+};
 
 export default Dashboard;

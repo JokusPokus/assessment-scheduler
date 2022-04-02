@@ -21,10 +21,12 @@ const { Header, Content, Footer } = Layout;
 const { Option } = Select;
 
 const UserPortal = ({ requestUrl, refreshRequestBody }) => {
-    const [currentPhase, setCurrentPhase] = useState(undefined);
+    const [currentPhase, setCurrentPhase] = useState({});
     const [userInfo, setUserInfo] = useState(undefined);
-    const [activeTab, setActiveTab] = useState('main');
-    const [activeTabComponent, setActiveTabComponent] = useState(Dashboard);
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTabComponent, setActiveTabComponent] = useState(
+        <Dashboard currentPhase={currentPhase} />
+    );
 
     useEffect(() => {
         httpGetUser()
@@ -52,7 +54,7 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
 
         switch (activeTab) {
             case tabs.DASHBOARD:
-                setActiveTabComponent(Dashboard);
+                setActiveTabComponent(<Dashboard currentPhase={currentPhase}/>);
                 break;
             case tabs.WEEKS:
                 setActiveTabComponent(Weeks);
@@ -73,7 +75,7 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
                 setActiveTabComponent(Schedules);
                 break;
         }
-    }, [activeTab, requestUrl, refreshRequestBody ]);
+    }, [activeTab, requestUrl, refreshRequestBody, currentPhase]);
 
     return(
         <Layout className="site-layout-background" style={{ minHeight: "100vh" }}>

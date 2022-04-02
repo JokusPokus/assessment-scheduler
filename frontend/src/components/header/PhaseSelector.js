@@ -32,7 +32,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
     }, [phases]);
 
     const handleYearChange = value => {
-        const currentSemesterChoices = phases[value]
+        const currentSemesterChoices = phases[value];
         setSemesterChoices(currentSemesterChoices);
         setCurrentPhase({
             ...currentPhase,
