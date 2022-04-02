@@ -31,3 +31,4 @@ export const httpGetPhase = _.partial(
     httpGetResourceById, ({year, semester}) => {
         return `schedules/assessment-phases/${year}/${semester}/`
     });
+export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/weeks/');
