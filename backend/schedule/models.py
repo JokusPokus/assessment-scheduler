@@ -49,12 +49,19 @@ class AssessmentPhase(BaseModel):
     )
     category = models.CharField(
         max_length=32,
-        choices=PhaseCategory.choices
+        choices=PhaseCategory.choices,
+        default=PhaseCategory.MAIN
     )
     room_limit = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['-year']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organization', 'year', 'semester', 'category'],
+                name='unique_phase'
+            )
+        ]
 
     def __str__(self):
         return f"<{self.get_category_display()} " \
@@ -74,6 +81,7 @@ class Window(BaseModel):
         related_name='windows',
         on_delete=models.CASCADE
     )
+    position = models.PositiveIntegerField(null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     block_length = models.IntegerField(
@@ -82,6 +90,20 @@ class Window(BaseModel):
             MaxValueValidator(MAX_BLOCK_LENGTH)
         ]
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['assessment_phase', 'position'],
+                name='unique_position_per_phase'
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.position:
+            self.position = self.assessment_phase.windows.count() + 1
+
+        super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
