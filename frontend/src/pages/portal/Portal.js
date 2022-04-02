@@ -47,7 +47,7 @@ const UserPortal = ({requestUrl, refreshRequestBody}) => {
         if (currentSemester) {
             await setPhaseData(currentYear, currentSemester);
         }
-    }, [currentSemester, newWindowCounter]);
+    }, [currentSemester, currentYear, newWindowCounter]);
 
     const changeActiveTab = (tabName) => {
         return (event) => {

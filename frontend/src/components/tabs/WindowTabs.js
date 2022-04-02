@@ -8,12 +8,17 @@ const _ = require('lodash');
 
 const WindowTabs = ({currentPhase, onWindowCreate}) => {
     const [panes, setPanes] = useState([]);
+    const [phaseId, setPhaseId] = useState(undefined);
     const [activeKey, setActiveKey] = useState("1");
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (!_.isEmpty(currentPhase)) {
             setPanes(currentPhase.windows);
+            if (currentPhase.id !== phaseId) {
+                setActiveKey("1");
+                setPhaseId(currentPhase.id);
+            }
         }
     }, [currentPhase]);
 
