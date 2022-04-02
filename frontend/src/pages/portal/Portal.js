@@ -1,6 +1,6 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import {useState, useEffect} from 'react';
+import {Link} from 'react-router-dom';
 import {Layout, message, Select} from 'antd';
 import './Portal.css'
 import SideBar from '../../components/sideBar/SideBar';
@@ -13,19 +13,22 @@ import Availabilities from "../../components/availabilities/Availabilities";
 import Assessments from "../../components/assessments/Assessments";
 import Rooms from "../../components/rooms/Rooms";
 
-import {httpGetPhases, httpGetUser} from "../../hooks/requests";
+import {httpGetPhase, httpGetPhases, httpGetUser} from "../../hooks/requests";
 import usePhases from "../../hooks/callbacks";
 
 
-const { Header, Content, Footer } = Layout;
-const { Option } = Select;
+const {Header, Content, Footer} = Layout;
+const {Option} = Select;
 
-const UserPortal = ({ requestUrl, refreshRequestBody }) => {
+const UserPortal = ({requestUrl, refreshRequestBody}) => {
     const [currentPhase, setCurrentPhase] = useState({});
     const [userInfo, setUserInfo] = useState(undefined);
+    const [currentYear, setCurrentYear] = useState(undefined);
+    const [currentSemester, setCurrentSemester] = useState(undefined);
+    const [newWindowCounter, setNewWindowCounter] = useState(0);
     const [activeTab, setActiveTab] = useState('dashboard');
     const [activeTabComponent, setActiveTabComponent] = useState(
-        <Dashboard currentPhase={currentPhase} />
+        <Dashboard currentPhase={currentPhase}/>
     );
 
     useEffect(() => {
@@ -34,6 +37,17 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
                 setUserInfo(data);
             });
     }, []);
+
+    const setPhaseData = async (year, semester) => {
+        const newPhase = await httpGetPhase({year: year, semester: semester})();
+        setCurrentPhase(newPhase);
+    };
+
+    useEffect(async () => {
+        if (currentSemester) {
+            await setPhaseData(currentYear, currentSemester);
+        }
+    }, [currentSemester, newWindowCounter]);
 
     const changeActiveTab = (tabName) => {
         return (event) => {
@@ -54,7 +68,13 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
 
         switch (activeTab) {
             case tabs.DASHBOARD:
-                setActiveTabComponent(<Dashboard currentPhase={currentPhase}/>);
+                setActiveTabComponent(
+                    <Dashboard
+                        currentPhase={currentPhase}
+                        newWindowCounter={newWindowCounter}
+                        setNewWindowCounter={setNewWindowCounter}
+                    />
+                );
                 break;
             case tabs.WEEKS:
                 setActiveTabComponent(Weeks);
@@ -77,17 +97,19 @@ const UserPortal = ({ requestUrl, refreshRequestBody }) => {
         }
     }, [activeTab, requestUrl, refreshRequestBody, currentPhase]);
 
-    return(
-        <Layout className="site-layout-background" style={{ minHeight: "100vh" }}>
+    return (
+        <Layout className="site-layout-background" style={{minHeight: "100vh"}}>
             <SideBar changeActiveTab={changeActiveTab}/>
             <Layout>
                 <PortalHeader
-                    currentPhase={currentPhase}
-                    setCurrentPhase={setCurrentPhase}
+                    currentYear={currentYear}
+                    setCurrentYear={setCurrentYear}
+                    currentSemester={currentSemester}
+                    setCurrentSemester={setCurrentSemester}
                     userInfo={userInfo}
                 />
                 <Content className='page-content'>
-                    { activeTabComponent }
+                    {activeTabComponent}
                 </Content>
             </Layout>
         </Layout>

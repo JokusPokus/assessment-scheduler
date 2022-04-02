@@ -14,8 +14,11 @@ function httpApiCall(method, path, body) {
         if (method === 'POST') {
             requestOptions['body'] = JSON.stringify(body)
         }
+        console.log(requestOptions)
         const response = await fetch(`${API_URL}/${path}`, requestOptions);
-        return await response.json()
+        const j = await response.json();
+        console.log(j);
+        return j;
     }
 }
 
@@ -31,4 +34,4 @@ export const httpGetPhase = _.partial(
     httpGetResourceById, ({year, semester}) => {
         return `schedules/assessment-phases/${year}/${semester}/`
     });
-export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/weeks/');
+export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');

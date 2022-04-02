@@ -10,7 +10,7 @@ const semesterDisplay = {
     fall: "Fall Semester"
 };
 
-const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
+const PhaseSelector = ({currentYear, setCurrentYear, currentSemester, setCurrentSemester}) => {
     const [phases, setPhases] = useState([]);
     const [newPhaseCounter, setNewPhaseCounter] = useState([]);
     const [years, setYears] = useState([]);
@@ -23,13 +23,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
             });
     }, [newPhaseCounter]);
 
-    const setPhaseData = async (year, semester) => {
-        const newPhase = await httpGetPhase({year: year, semester: semester})();
-        setCurrentPhase(newPhase);
-        console.log(newPhase);
-    };
-
-    useEffect(async () => {
+    useEffect(() => {
         const years = Object.keys(phases);
         years.reverse();
 
@@ -37,30 +31,30 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
             setYears(years);
 
             const latestYear = years[0];
+            setCurrentYear(latestYear);
+
             const currentSemesterChoices = phases[latestYear];
             setSemesterChoices(currentSemesterChoices);
-            await setPhaseData(latestYear, currentSemesterChoices.slice(-1)[0])
+            setCurrentSemester(currentSemesterChoices.slice(-1)[0]);
         }
     }, [phases]);
 
     const handleYearChange = value => {
+        setCurrentYear(value);
+
         const currentSemesterChoices = phases[value];
         setSemesterChoices(currentSemesterChoices);
-        setCurrentPhase({
-            ...currentPhase,
-            year: value,
-            semester: currentSemesterChoices[0]
-        })
+        setCurrentSemester(currentSemesterChoices[0]);
     };
 
     const onPhaseChange = value => {
-        setCurrentPhase({...currentPhase, semester: value})
+        setCurrentSemester(value);
     };
 
     const [visible, setVisible] = useState(false);
 
     const onCreate = async (values) => {
-        await httpPostPhase({...values, category: "main"})();
+        await httpPostPhase(values)();
         setNewPhaseCounter(newPhaseCounter + 1);
         setVisible(false);
     };
@@ -70,10 +64,10 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
             <Button className='phases-button' type={'link'}>
                 Assessment Phase:
             </Button>
-            {years.length !== 0 &&
+            {currentSemester &&
             <>
                 <Select
-                    value={currentPhase.year}
+                    value={currentYear}
                     style={{width: 120, marginLeft: "30px"}}
                     onChange={handleYearChange}
                     bordered={false}
@@ -84,7 +78,7 @@ const PhaseSelector = ({currentPhase, setCurrentPhase}) => {
                 </Select>
                 <Select
                     style={{width: 240, marginLeft: "30px"}}
-                    value={currentPhase.semester}
+                    value={currentSemester}
                     onChange={onPhaseChange}
                     bordered={false}
                 >

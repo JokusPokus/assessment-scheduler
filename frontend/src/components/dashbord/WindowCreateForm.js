@@ -4,7 +4,7 @@ import moment from 'moment';
 
 const {RangePicker} = DatePicker;
 
-const dateFormat = 'YYYY/MM/DD';
+const dateFormat = 'YYYY-MM-DD';
 
 const WindowCreateForm = ({visible, onCreate, onCancel}) => {
     const [form] = Form.useForm();
@@ -46,7 +46,7 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                     ]}
                 >
                     <RangePicker
-                        defaultValue={[moment('2015/01/01', dateFormat), moment('2015/01/01', dateFormat)]}
+                        defaultValue={[moment('2015-01-01', dateFormat), moment('2015-01-01', dateFormat)]}
                         format={dateFormat}
                     />
                 </Form.Item>

@@ -4,13 +4,15 @@ import { HomeOutlined } from '@ant-design/icons';
 import PhaseSelector from "./PhaseSelector";
 
 
-const PortalHeader = ({ currentPhase, setCurrentPhase, userInfo }) => {
+const PortalHeader = ({ currentYear, setCurrentYear, currentSemester, setCurrentSemester, setCurrentPhase, userInfo }) => {
     return (
         <Layout.Header className="navbar-layout-background" >
             <div className='navbar-content'>
                 <PhaseSelector
-                    currentPhase={currentPhase}
-                    setCurrentPhase={setCurrentPhase}
+                    currentYear={currentYear}
+                    setCurrentYear={setCurrentYear}
+                    currentSemester={currentSemester}
+                    setCurrentSemester={setCurrentSemester}
                 />
                 {userInfo &&
                     <div>

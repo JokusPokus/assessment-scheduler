@@ -5,7 +5,7 @@ import WindowAdder from "./WindowAdder";
 
 const _ = require('lodash');
 
-const Dashboard = ({currentPhase}) => {
+const Dashboard = ({currentPhase, newWindowCounter, setNewWindowCounter}) => {
     const [activeComponent, setActiveComponent] = useState(
         <Skeleton active/>
     );
@@ -14,7 +14,11 @@ const Dashboard = ({currentPhase}) => {
         if (!_.isEmpty(currentPhase)) {
             setActiveComponent(
                 currentPhase.windows.length === 0
-                    ? <WindowAdder currentPhase={currentPhase} />
+                    ? <WindowAdder
+                        currentPhase={currentPhase}
+                        newWindowCounter={newWindowCounter}
+                        setNewWindowCounter={setNewWindowCounter}
+                    />
                     : <PhaseHeader currentPhase={currentPhase} />
             );
         }
