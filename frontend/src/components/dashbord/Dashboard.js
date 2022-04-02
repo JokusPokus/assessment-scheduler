@@ -27,7 +27,7 @@ const Dashboard = ({currentPhase, newWindowCounter, setNewWindowCounter}) => {
             setActiveComponent(
                 currentPhase.windows.length === 0
                     ? <WindowAdder onWindowCreate={onWindowCreate} />
-                    : <PhaseHeader onWindowCreate={onWindowCreate} />
+                    : <PhaseHeader currentPhase={currentPhase} onWindowCreate={onWindowCreate} />
             );
         }
     }, [currentPhase]);

@@ -1,20 +1,20 @@
 import {Tabs} from 'antd';
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import WindowCreateForm from "../dashbord/WindowCreateForm";
 
 const {TabPane} = Tabs;
+const _ = require('lodash');
 
-const WindowTabs = ({onWindowCreate}) => {
-    const initialPanes = [
-        {
-            title: 'Week 1',
-            content: 'Content of Week 1',
-            key: '1',
-        },
-    ];
-    const [panes, setPanes] = useState(initialPanes);
-    const [activeKey, setActiveKey] = useState(initialPanes[0].key);
+const WindowTabs = ({currentPhase, onWindowCreate}) => {
+    const [panes, setPanes] = useState([]);
+    const [activeKey, setActiveKey] = useState("1");
     const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        if (!_.isEmpty(currentPhase)) {
+            setPanes(currentPhase.windows);
+        }
+    }, [currentPhase]);
 
     const onChange = paneKey => {
         setActiveKey(paneKey);
@@ -30,39 +30,35 @@ const WindowTabs = ({onWindowCreate}) => {
 
     const onCreate = async (values) => {
         await onWindowCreate(values);
-        const currentMaxKey = parseInt(panes.slice(-1)[0].key);
-        const newKey = (currentMaxKey + 1).toString();
-        const newPane = {
-            title: `Week ${newKey}`,
-            content: 'New content',
-            key: newKey
-        };
-        setPanes([...panes, newPane]);
-        setActiveKey(newKey);
+        setActiveKey(panes.length.toString());
         setVisible(false);
     };
 
     return (
         <div className="card-container">
-            <Tabs
-                type="editable-card"
-                onEdit={onEdit}
-                activeKey={activeKey}
-                onChange={onChange}
-            >
-                {panes.map(pane => (
-                    <TabPane tab={pane.title} key={pane.key} closable={false}>
-                        {pane.content}
-                    </TabPane>
-                ))}
-            </Tabs>
-            <WindowCreateForm
-                visible={visible}
-                onCreate={onCreate}
-                onCancel={() => {
-                    setVisible(false);
-                }}
-            />
+            {panes.length !== 0 &&
+            <>
+                <Tabs
+                    type="editable-card"
+                    onEdit={onEdit}
+                    activeKey={activeKey}
+                    onChange={onChange}
+                >
+                    {panes.map(pane => (
+                        <TabPane tab={`Week ${pane.position}`} key={pane.position.toString()} closable={false}>
+                            <h1>Week {pane.position}</h1>
+                            <p>{pane.start_date} - {pane.end_date}</p>
+                        </TabPane>
+                    ))}
+                </Tabs>
+                < WindowCreateForm
+                    visible={visible}
+                    onCreate={onCreate}
+                    onCancel={() => {
+                        setVisible(false);
+                    }}
+                />
+            </>}
         </div>
     );
 };

@@ -14,11 +14,8 @@ function httpApiCall(method, path, body) {
         if (method === 'POST') {
             requestOptions['body'] = JSON.stringify(body)
         }
-        console.log(requestOptions)
         const response = await fetch(`${API_URL}/${path}`, requestOptions);
-        const j = await response.json();
-        console.log(j);
-        return j;
+        return await response.json();
     }
 }
 
