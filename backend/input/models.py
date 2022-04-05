@@ -8,8 +8,8 @@ class PlanningSheet(BaseModel):
     such as the exams to be scheduled and the respective students and
     assessors.
     """
-    assessment_phase = models.ForeignKey(
-        'schedule.AssessmentPhase',
+    window = models.ForeignKey(
+        'schedule.Window',
         related_name='planning_sheets',
         on_delete=models.CASCADE
     )
