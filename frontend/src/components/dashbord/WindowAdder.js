@@ -14,6 +14,7 @@ const WindowAdder = ({onWindowCreate}) => {
         <Empty
             imageStyle={{height: 300}}
             description={<span>No weeks yet...</span>}
+            style={{marginTop: "8%"}}
         >
             <Button
                 type="primary"

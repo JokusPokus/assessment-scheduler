@@ -72,6 +72,10 @@ const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUplo
                         modifier: 'public',
                     }}
                     encType="multipart/form-data"
+                    style={{
+                        width: "50%",
+                        margin: "auto"
+                    }}
                 >
                     <Form.Item>
                         <Form.Item
@@ -85,6 +89,7 @@ const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUplo
                                 customRequest={dummyRequest}
                                 multiple={false}
                                 accept=".csv"
+                                style={{padding: "10%"}}
                             >
                                 <p className="ant-upload-drag-icon">
                                     <InboxOutlined/>
@@ -104,13 +109,12 @@ const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUplo
                             <Button
                                 type="primary"
                                 htmlType="submit"
-                                visible={form.isFieldTouched("planningSheet")}
                                 loading={isUploading}
+                                disabled={!form.getFieldValue("planningSheet")}
                             >
                                 Upload
                             </Button>
                         )}
-
                     </Form.Item>
                 </Form>
             )}
