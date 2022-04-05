@@ -19,6 +19,7 @@ function httpApiCall(method, path, body) {
     }
 }
 
+
 function httpGetResourceById(pathTemplate, resourceId) {
     const path = pathTemplate(resourceId);
     return httpApiCall('GET', path, null);
@@ -32,3 +33,16 @@ export const httpGetPhase = _.partial(
         return `schedules/assessment-phases/${year}/${semester}/`
     });
 export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
+
+export const httpPostPlanningSheet = async (body) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${window.localStorage.getItem('access')}`
+        },
+        body: JSON.stringify(body)
+    };
+    const response = await fetch(`${API_URL}/${path}`, requestOptions);
+    return await response.json();
+};
