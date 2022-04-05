@@ -35,14 +35,17 @@ export const httpGetPhase = _.partial(
 export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
 
 export const httpPostPlanningSheet = async (body) => {
+    const formData = new FormData();
+    for (const key in body) {
+        formData.append(key, body[key]);
+    }
+
     const requestOptions = {
-        method: 'POST',
+        method: 'PUT',
         headers: {
-            'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${window.localStorage.getItem('access')}`
         },
-        body: JSON.stringify(body)
+        body: formData
     };
-    const response = await fetch(`${API_URL}/${path}`, requestOptions);
-    return await response.json();
+    return await fetch(`${API_URL}/upload/planningSheet.csv/`, requestOptions);
 };

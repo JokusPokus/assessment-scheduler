@@ -9,25 +9,18 @@ const CSVDashboard = ({window}) => {
     const [form] = Form.useForm();
 
     const onFinish = async (values) => {
-        requestBody = {
-            planning_sheet: values.planningSheet,
-            window: window.id
-        };
-        await httpPostPlanningSheet()
+        const response = await httpPostPlanningSheet(
+            {
+                planningSheet: values.planningSheet[0].originFileObj,
+                window: window.id
+            }
+        );
     };
 
     const dummyRequest = ({file, onSuccess}) => {
         setTimeout(() => {
             onSuccess("ok");
         }, 0);
-    };
-
-    const normFile = (e) => {
-        if (Array.isArray(e)) {
-            return e;
-        }
-
-        return e && e.fileList[0];
     };
 
     return (
@@ -40,10 +33,21 @@ const CSVDashboard = ({window}) => {
                 initialValues={{
                     modifier: 'public',
                 }}
+                encType="multipart/form-data"
             >
                 <Form.Item>
-                    <Form.Item name="planningSheet" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
-                        <Upload.Dragger name="files" customRequest={dummyRequest} multiple={false}>
+                    <Form.Item
+                        name="planningSheet"
+                        valuePropName="fileList"
+                        getValueFromEvent={({file}) => file.originFileObj}
+                        noStyle
+                    >
+                        <Upload.Dragger
+                            name="files"
+                            customRequest={dummyRequest}
+                            multiple={false}
+                            accept=".csv"
+                        >
                             <p className="ant-upload-drag-icon">
                                 <InboxOutlined/>
                             </p>
