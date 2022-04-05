@@ -1,8 +1,9 @@
 import React from 'react';
+import WindowSteps from "./WindowSteps";
 
 const WindowContent = ({window}) => {
     return(
-        <h1>{window.start_date}</h1>
+        <WindowSteps/>
     );
 };
 

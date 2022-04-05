@@ -14,7 +14,6 @@ const LogIn = ({ requestUrl, setUserInfo }) => {
             'username': values.email,
             'password': values.password
         });
-        // navigate('/portal');
     };
 
     useEffect(() => {

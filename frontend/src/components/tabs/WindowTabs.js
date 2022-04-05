@@ -1,7 +1,7 @@
 import {Tabs} from 'antd';
 import React, {useState, useEffect} from "react";
 import WindowCreateForm from "../dashbord/WindowCreateForm";
-import WindowContent from "../dashbord/WindowContent";
+import WindowContent from "../dashbord/windowContent/WindowContent";
 
 const {TabPane} = Tabs;
 const _ = require('lodash');
@@ -49,6 +49,7 @@ const WindowTabs = ({currentPhase, onWindowCreate}) => {
                     onEdit={onEdit}
                     activeKey={activeKey}
                     onChange={onChange}
+                    size={"large"}
                 >
                     {panes.map(pane => (
                         <TabPane tab={`Week ${pane.position}`} key={pane.position.toString()} closable={false}>
