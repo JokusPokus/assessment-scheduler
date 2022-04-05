@@ -3,7 +3,7 @@ import WindowSteps from "./WindowSteps";
 
 const WindowContent = ({window}) => {
     return(
-        <WindowSteps/>
+        <WindowSteps style={{ paddingTop: "100px" }}/>
     );
 };
 

@@ -27,7 +27,7 @@ const WindowSteps = () => {
     };
 
     return (
-        <>
+        <div style={{marginTop: "20px"}}>
             <Steps current={current} onChange={onChange}>
                 {steps.map(item => (
                     <Step key={item.title} title={item.title}/>
@@ -52,7 +52,7 @@ const WindowSteps = () => {
                 )}
             </div>
 
-        </>
+        </div>
     );
 };
 
