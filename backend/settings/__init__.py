@@ -94,6 +94,9 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "frontend", "static"),
 )
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler'
+]
 
 AUTH_USER_MODEL = "user.User"
 USERNAME_FIELD = "email"

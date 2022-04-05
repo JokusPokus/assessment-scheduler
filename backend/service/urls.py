@@ -13,14 +13,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
-from input import urls as input_urls
 from schedule import urls as schedule_urls
 from user.views import current_user
+from input.views import PlanningSheetUploadView
 
 
 urlpatterns = [
@@ -39,6 +39,6 @@ urlpatterns = [
         TokenRefreshView.as_view(),
         name='token_refresh'
     ),
-    path('input/', include(input_urls.urlpatterns)),
+    re_path(r'^upload/(?P<filename>[^/]+)/$', PlanningSheetUploadView.as_view()),
     path('schedules/', include(schedule_urls.urlpatterns)),
 ]
