@@ -7,11 +7,18 @@ const {Step} = Steps;
 
 const WindowSteps = ({window}) => {
     const [current, setCurrent] = useState(0);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
 
     const steps = [
         {
             title: 'CSV',
-            content: <CSVDashboard window={window}/>,
+            content: <CSVDashboard
+                window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
+                uploadSuccess={uploadSuccess}
+                setUploadSuccess={setUploadSuccess}
+            />,
         },
         {
             title: 'Blocks',

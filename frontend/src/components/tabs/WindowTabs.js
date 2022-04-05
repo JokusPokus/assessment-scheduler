@@ -1,7 +1,7 @@
 import {Tabs} from 'antd';
 import React, {useState, useEffect} from "react";
 import WindowCreateForm from "../dashbord/WindowCreateForm";
-import WindowContent from "../dashbord/windowContent/WindowContent";
+import WindowContent from "../tabs/windowContent/WindowContent";
 
 const {TabPane} = Tabs;
 const _ = require('lodash');
@@ -9,14 +9,14 @@ const _ = require('lodash');
 const WindowTabs = ({currentPhase, onWindowCreate}) => {
     const [panes, setPanes] = useState([]);
     const [phaseId, setPhaseId] = useState(undefined);
-    const [activeKey, setActiveKey] = useState("1");
+    const [activeKey, setActiveKey] = useState(undefined);
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (!_.isEmpty(currentPhase)) {
             setPanes(currentPhase.windows);
             if (currentPhase.id !== phaseId) {
-                setActiveKey("1");
+                setActiveKey(`${currentPhase.id}_1`);
                 setPhaseId(currentPhase.id);
             }
         }
@@ -36,7 +36,7 @@ const WindowTabs = ({currentPhase, onWindowCreate}) => {
 
     const onCreate = async (values) => {
         await onWindowCreate(values);
-        setActiveKey((panes.length + 1).toString());
+        setActiveKey(`${phaseId}_${(panes.length + 1).toString()}`);
         setVisible(false);
     };
 
@@ -52,7 +52,7 @@ const WindowTabs = ({currentPhase, onWindowCreate}) => {
                     size={"large"}
                 >
                     {panes.map(pane => (
-                        <TabPane tab={`Week ${pane.position}`} key={pane.position.toString()} closable={false}>
+                        <TabPane tab={`Week ${pane.position}`} key={`${phaseId}_${pane.position}`} closable={false}>
                             <WindowContent window={pane}/>
                         </TabPane>
                     ))}
