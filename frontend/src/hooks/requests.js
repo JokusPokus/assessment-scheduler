@@ -41,7 +41,7 @@ export const httpPostPlanningSheet = async (body) => {
     }
 
     const requestOptions = {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Authorization': `Bearer ${window.localStorage.getItem('access')}`
         },
