@@ -107,7 +107,7 @@ class Window(BaseModel):
 
     def clean(self):
         super().clean()
-        if start_date > end_date:
+        if self.start_date > self.end_date:
             raise ValidationError('Start date after end date')
 
 

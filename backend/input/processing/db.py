@@ -1,3 +1,8 @@
+import pandas as pd
+
+from ..models import SheetRecord
+
+
 class DBRecorder:
     """Reads a CSV file and saves the contained information into the
     database, using a normalized schema.

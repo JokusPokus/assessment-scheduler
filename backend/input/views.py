@@ -3,16 +3,17 @@ import pandas as pd
 
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import views
+from rest_framework import generics
 from rest_framework.parsers import MultiPartParser
 
+from .serializers import PlanningSheetSerializer
 from schedule.models import Window
 
 
-class PlanningSheetUploadView(views.APIView):
+class PlanningSheetUploadView(generics.CreateAPIView):
     parser_classes = [MultiPartParser]
 
-    def put(self, request, filename, format=None):
+    def post(self, request, filename, format=None):
         """View to receive the general CSV planning sheet and initiates its
         processing.
 
@@ -29,8 +30,12 @@ class PlanningSheetUploadView(views.APIView):
         ).exists():
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        csv = request.data.get('planningSheet')
-        data = pd.read_csv(csv.temporary_file_path())
-        print(window_id)
-        print(data)
-        return Response(status=status.HTTP_200_OK)
+        serializer = PlanningSheetSerializer(
+            data={
+                'csv': request.data.get('planningSheet'),
+                'window': window_id
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
