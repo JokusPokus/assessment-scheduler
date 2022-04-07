@@ -30,12 +30,7 @@ class PlanningSheetUploadView(generics.CreateAPIView):
         ).exists():
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        serializer = PlanningSheetSerializer(
-            data={
-                'csv': request.data.get('planningSheet'),
-                'window': window_id
-            }
-        )
+        serializer = PlanningSheetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_200_OK)
