@@ -19,34 +19,3 @@ class PlanningSheet(BaseModel):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         SheetProcessor(self.window, self.csv.path).populate_db()
-
-
-class SheetRecord(BaseModel):
-    """Holds the information of one record - i.e., row - in a particular
-    planning sheet.
-    """
-    planning_sheet = models.ForeignKey(
-        'input.PlanningSheet',
-        related_name='records',
-        on_delete=models.CASCADE
-    )
-
-    assessmentId = models.CharField(max_length=32)
-    student = models.CharField(max_length=64)
-    semester = models.CharField(max_length=16)
-    shortCode = models.CharField(max_length=16)
-    module = models.CharField(max_length=64)
-    grade = models.CharField(max_length=16, null=True, blank=True)
-    assessor = models.CharField(max_length=64)
-    assistant = models.CharField(max_length=64, null=True, blank=True)
-    startTime = models.DateTimeField(null=True, blank=True)
-    endTime = models.DateTimeField(null=True, blank=True)
-    assessmentStatus = models.CharField(max_length=16, null=True, blank=True)
-    assessmentStyle = models.CharField(max_length=16)
-    proposalText = models.TextField(null=True, blank=True)
-    assessmentType = models.CharField(max_length=16)
-    examinationForms = models.CharField(max_length=16, null=True, blank=True)
-    learningUnit = models.CharField(max_length=64, null=True, blank=True)
-    proposalStatus = models.CharField(max_length=16, null=True, blank=True)
-    createdAt = models.DateTimeField(null=True, blank=True)
-    updatedAt = models.DateTimeField(null=True, blank=True)

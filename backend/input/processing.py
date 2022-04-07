@@ -34,12 +34,11 @@ class SheetProcessor:
         :self.file_path: and save to the appropriate database table.
         """
         data = pd.read_csv(self.path, sep=',')
+        module_info = data[['shortCode', 'module']]
 
         self._save_assessors(data.assessor.unique())
         self._save_students(data.student.unique())
-        self._save_modules(
-            data[['shortCode', 'module']].drop_duplicates('shortCode', keep='first')
-        )
+        self._save_modules(module_info.drop_duplicates('shortCode', keep='first'))
 
     def _save_assessors(self, emails: List[Email]) -> None:
         """Save a list of unique email identifiers to the database, each as
