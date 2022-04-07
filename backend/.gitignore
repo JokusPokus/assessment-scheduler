@@ -133,3 +133,6 @@ settings/local.py
 
 # React build folder
 frontend
+
+# Media
+media

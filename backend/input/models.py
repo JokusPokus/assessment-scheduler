@@ -1,5 +1,6 @@
 from django.db import models
 
+from .processing import SheetProcessor
 from core.models import BaseModel
 
 
@@ -14,6 +15,10 @@ class PlanningSheet(BaseModel):
         on_delete=models.CASCADE
     )
     csv = models.FileField()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        SheetProcessor(self.csv.url).populate_db()
 
 
 class SheetRecord(BaseModel):
