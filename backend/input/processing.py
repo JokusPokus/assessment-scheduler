@@ -18,9 +18,9 @@ class SheetProcessor:
     CSV file has been properly validated.
     """
 
-    def __init__(self, window: Window):
+    def __init__(self, window: Window, file_path: str):
         self.window = window
-        self.path = window.csv.path
+        self.path = file_path
 
     def populate_db(self) -> None:
         """Read all relevant information from the CSV file located by

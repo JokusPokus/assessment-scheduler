@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import AssessmentPhase, Window
 from input.admin import PlanningSheetInline
+from staff.admin import AssessorInline
 
 
 class WindowInline(admin.TabularInline):
@@ -29,4 +30,4 @@ class AssessmentPhaseAdmin(admin.ModelAdmin):
     list_display = ['id', 'year', 'semester', 'category', 'room_limit']
     search_fields = ['semester', 'year', 'category']
     ordering = ['-year']
-    inlines = [WindowInline]
+    inlines = [WindowInline, AssessorInline]
