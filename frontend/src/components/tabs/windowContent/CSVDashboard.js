@@ -15,7 +15,7 @@ const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUplo
         setIsUploading(true);
         const response = await httpPostPlanningSheet(
             {
-                planningSheet: values.planningSheet[0].originFileObj,
+                csv: values.planningSheet[0].originFileObj,
                 window: window.id
             }
         );
