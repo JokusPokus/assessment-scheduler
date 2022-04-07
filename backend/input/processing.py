@@ -4,6 +4,7 @@ import pandas as pd
 
 from schedule.models import Window
 from staff.models import Assessor
+from exam.models import Student
 
 
 Email = str
@@ -19,8 +20,13 @@ class SheetProcessor:
     """
 
     def __init__(self, window: Window, file_path: str):
+        """
+        :param window: a Window instance
+        :param file_path: the path to a CSV planning sheet
+        """
         self.window = window
         self.path = file_path
+        self.organization = self.window.assessment_phase.organization
 
     def populate_db(self) -> None:
         """Read all relevant information from the CSV file located by
@@ -29,6 +35,7 @@ class SheetProcessor:
         data = pd.read_csv(self.path, sep=',')
 
         self._save_assessors(data.assessor.unique())
+        self._save_students(data.student.unique())
 
     def _save_assessors(self, emails: List[Email]) -> None:
         """Save a list of unique email identifiers to the database, each as
@@ -36,10 +43,21 @@ class SheetProcessor:
 
         :param emails: list of unique emails
         """
-        org = self.window.assessment_phase.organization
         for email in emails:
             assessor, _ = Assessor.objects.get_or_create(
-                organization=org,
+                organization=self.organization,
                 email=email
             )
             assessor.assessment_phases.add(self.window.assessment_phase)
+
+    def _save_students(self, emails: List[Email]) -> None:
+        """Save a list of unique email identifiers to the database, each as
+        a Student instance.
+
+        :param emails: list of unique emails
+        """
+        for email in emails:
+            student, _ = Student.objects.get_or_create(
+                organization=self.organization,
+                email=email
+            )
