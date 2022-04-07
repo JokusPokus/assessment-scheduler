@@ -99,10 +99,6 @@ MEDIAFILES_LOCATION = "media"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR + "/" + MEDIAFILES_LOCATION
 
-FILE_UPLOAD_HANDLERS = [
-    'django.core.files.uploadhandler.TemporaryFileUploadHandler'
-]
-
 AUTH_USER_MODEL = "user.User"
 USERNAME_FIELD = "email"
 
