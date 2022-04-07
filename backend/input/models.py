@@ -18,7 +18,7 @@ class PlanningSheet(BaseModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        SheetProcessor(self.csv.url).populate_db()
+        SheetProcessor(self).populate_db()
 
 
 class SheetRecord(BaseModel):
