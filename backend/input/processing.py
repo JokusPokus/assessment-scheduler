@@ -1,10 +1,11 @@
 from typing import List
 
 import pandas as pd
+from pandas import DataFrame
 
 from schedule.models import Window
 from staff.models import Assessor
-from exam.models import Student
+from exam.models import Student, Module
 
 
 Email = str
@@ -36,6 +37,9 @@ class SheetProcessor:
 
         self._save_assessors(data.assessor.unique())
         self._save_students(data.student.unique())
+        self._save_modules(
+            data[['shortCode', 'module']].drop_duplicates('shortCode', keep='first')
+        )
 
     def _save_assessors(self, emails: List[Email]) -> None:
         """Save a list of unique email identifiers to the database, each as
@@ -60,4 +64,17 @@ class SheetProcessor:
             student, _ = Student.objects.get_or_create(
                 organization=self.organization,
                 email=email
+            )
+
+    def _save_modules(self, modules: DataFrame) -> None:
+        """Save a collection of unique module identifiers and names to the
+        database, each as a Module instance.
+
+        :param modules: DataFrame with [unique identifier, name] of modules
+        """
+        for _, (short_code, name) in modules.iterrows():
+            module, _ = Module.objects.get_or_create(
+                organization=self.organization,
+                code=short_code,
+                name=name
             )
