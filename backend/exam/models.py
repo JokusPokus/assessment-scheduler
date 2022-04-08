@@ -14,7 +14,7 @@ class Student(BaseModel):
     email = models.EmailField(unique=True)
 
     def __str__(self):
-        return f'<Student: {self.email}>'
+        return self.email
 
 
 class Module(BaseModel):
@@ -29,7 +29,7 @@ class Module(BaseModel):
     name = models.CharField(max_length=64)
 
     def __str__(self):
-        return f'<Module: {self.name}>'
+        return self.code
 
 
 class Exam(BaseModel):
@@ -64,3 +64,6 @@ class Exam(BaseModel):
         null=True,
         blank=True
     )
+
+    def __str__(self):
+        return f"<{self.module.code}: {self.student.email}>"

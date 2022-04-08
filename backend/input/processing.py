@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 from schedule.models import Window
 from staff.models import Assessor
-from exam.models import Student, Module
+from exam.models import Student, Module, Exam
 
 
 Email = str
@@ -39,6 +39,7 @@ class SheetProcessor:
         self._save_assessors(data.assessor.unique())
         self._save_students(data.student.unique())
         self._save_modules(module_info.drop_duplicates('shortCode', keep='first'))
+        self._save_exams(data)
 
     def _save_assessors(self, emails: List[Email]) -> None:
         """Save a list of unique email identifiers to the database, each as
@@ -60,7 +61,7 @@ class SheetProcessor:
         :param emails: list of unique emails
         """
         for email in emails:
-            student, _ = Student.objects.get_or_create(
+            Student.objects.get_or_create(
                 organization=self.organization,
                 email=email
             )
@@ -72,8 +73,26 @@ class SheetProcessor:
         :param modules: DataFrame with [unique identifier, name] of modules
         """
         for _, (short_code, name) in modules.iterrows():
-            module, _ = Module.objects.get_or_create(
+            Module.objects.get_or_create(
                 organization=self.organization,
                 code=short_code,
                 name=name
+            )
+
+    @staticmethod
+    def _save_exams(data: DataFrame) -> None:
+        """Save Exam instances based on the CSV data
+
+        :param data: a DataFrame containing exam information
+        """
+        for _, row in data.iterrows():
+            assessor = Assessor.objects.get(email=row['assessor'])
+            student = Student.objects.get(email=row['student'])
+            module = Module.objects.get(code=row['shortCode'])
+
+            Exam.objects.get_or_create(
+                code=row['assessmentId'],
+                assessor=assessor,
+                student=student,
+                module=module
             )

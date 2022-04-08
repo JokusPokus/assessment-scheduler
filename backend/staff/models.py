@@ -31,11 +31,11 @@ class Assessor(Staff):
     """A module assessor."""
 
     def __str__(self):
-        return f'<Assessor: {self.email}>'
+        return self.email
 
 
 class Helper(Staff):
     """An assistant to the module assessors."""
 
     def __str__(self):
-        return f'<Helper: {self.email}>'
+        return self.email
