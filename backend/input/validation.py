@@ -23,11 +23,22 @@ class SheetValidator:
 
     def __init__(self, file: str):
         self.file = file
+        self.errors = {}
 
     def validate(self) -> None:
         data = pd.read_csv(
             io.StringIO(self.file.read().decode('utf-8')), delimiter=','
         )
+
+        self._collect_validation_errors(data)
+
+        if self.errors:
+            raise ValidationError(
+                self.errors,
+                code='sheet_invalid'
+            )
+
+    def _collect_validation_errors(self, data: DataFrame):
         self._validate_contains_required_cols(data)
 
     def _validate_contains_required_cols(self, data: DataFrame) -> None:
@@ -37,7 +48,4 @@ class SheetValidator:
         missing_cols = self.REQUIRED_COLS - set(data.columns)
 
         if missing_cols:
-            raise ValidationError(
-                {'missing_cols': list(missing_cols)},
-                code='missing_columns'
-            )
+            self.errors['missing_cols'] = list(missing_cols)
