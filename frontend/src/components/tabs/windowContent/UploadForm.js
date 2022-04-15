@@ -33,10 +33,7 @@ const UploadForm = ({onFinish, isUploading}) => {
                 modifier: 'public',
             }}
             encType="multipart/form-data"
-            style={{
-                width: "50%",
-                margin: "auto"
-            }}
+            style={{margin: "auto"}}
         >
             <Form.Item>
                 <Form.Item

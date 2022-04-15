@@ -47,12 +47,24 @@ const CSVDashboard = ({
             {uploadSuccess ? (
                 <UploadSuccess windowStep={windowStep} setWindowStep={setWindowStep}/>
             ) : missingColumns.length > 0 ? (
-                <>
-                    <UploadError missingColumns={missingColumns}/>
-                    <UploadForm onFinish={onFinish} isUploading={isUploading}/>
-                </>
+                <div style={{maxWidth: '50%', margin: 'auto'}}>
+                    <UploadError
+                        missingColumns={missingColumns}
+                    />
+                    <UploadForm
+                        onFinish={onFinish}
+                        isUploading={isUploading}
+                        style={{width: '100%'}}
+                    />
+                </div>
             ) : (
-                <UploadForm onFinish={onFinish} isUploading={isUploading}/>
+                <div style={{maxWidth: '50%', margin: '64px auto'}}>
+                    <UploadForm
+                        style={{maxWidth: '50%'}}
+                        onFinish={onFinish}
+                        isUploading={isUploading}
+                    />
+                </div>
             )}
         </>
     );

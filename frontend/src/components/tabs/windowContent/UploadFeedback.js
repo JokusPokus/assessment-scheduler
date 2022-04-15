@@ -1,6 +1,7 @@
 import React from 'react';
 import {Result, Button, Typography} from 'antd';
 import {CloseCircleOutlined} from '@ant-design/icons';
+import './UploadFeedback.css';
 
 const {Paragraph, Text} = Typography;
 
@@ -8,27 +9,13 @@ const UploadError = ({missingColumns}) => {
     return (
         <Result
             status="error"
-            title="Upload Failed"
-            subTitle="Please check and modify the following information before resubmitting."
+            title="The sheet was not as expected"
         >
-            <div className="desc" style={{textAlign: 'left'}}>
-                <Paragraph>
-                    <Text
-                        strong
-                        style={{
-                            fontSize: 16,
-                        }}
-                    >
-                        The content you submitted has the following error:
-                    </Text>
-                </Paragraph>
+            <div className="desc">
                 {missingColumns &&
                 <Paragraph>
-                    <CloseCircleOutlined style={{color: 'red'}}/> The following required
-                    columns are missing:
-                    <ul style={{marginLeft: '20px'}}>
-                        {missingColumns.map(colName => <li><strong>{colName}</strong></li>)}
-                    </ul>
+                    <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;The following required
+                    columns are missing: <strong>{missingColumns.join(', ')}</strong>.
                 </Paragraph>
                 }
             </div>
@@ -39,7 +26,7 @@ const UploadError = ({missingColumns}) => {
 const UploadSuccess = ({windowStep, setWindowStep}) => {
     return (
         <Result
-            className="uploadSuccessFeedback"
+            className="uploadSuccessFeedback steps-success"
             status="success"
             title="Successfully uploaded planning sheet!"
             extra={[

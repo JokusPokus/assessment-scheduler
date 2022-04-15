@@ -7,7 +7,7 @@ import PhaseSelector from "./PhaseSelector";
 const PortalHeader = ({ currentYear, setCurrentYear, currentSemester, setCurrentSemester, setCurrentPhase, userInfo }) => {
     return (
         <Layout.Header className="navbar-layout-background" >
-            <div className='navbar-content'>
+            <div className='navbar-content' style={{width: '100%', justifyContent: 'space-between'}}>
                 <PhaseSelector
                     currentYear={currentYear}
                     setCurrentYear={setCurrentYear}

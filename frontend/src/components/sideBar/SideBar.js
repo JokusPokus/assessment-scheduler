@@ -10,8 +10,9 @@ const SideBar = ({changeActiveTab}) => {
       breakpoint={"lg"}
       collapsedWidth={0}
       trigger={null}
-      width={220}>
-        <SideMenu changeActiveTab={changeActiveTab}/>
+      width={220}
+    >
+        <SideMenu style={{height: "100vh"}} changeActiveTab={changeActiveTab}/>
     </Layout.Sider>
    );
 };
