@@ -26,6 +26,10 @@ class SheetValidator:
         self.errors = {}
 
     def validate(self) -> None:
+        """Read the CSV file into a pandas DataFrame, collect validation
+        errors and - if necessary - raise a single ValidationError that
+        can be propagated to the client via the API.
+        """
         data = pd.read_csv(
             io.StringIO(self.file.read().decode('utf-8')), delimiter=','
         )
@@ -39,6 +43,7 @@ class SheetValidator:
             )
 
     def _collect_validation_errors(self, data: DataFrame):
+        """Orchestrate the execution of validation steps."""
         self._validate_contains_required_cols(data)
 
     def _validate_contains_required_cols(self, data: DataFrame) -> None:
