@@ -20,6 +20,7 @@ class SheetValidator:
         'assessmentStyle',
         'assessmentType'
     }
+    STS = 'STS'
 
     def __init__(self, file: str):
         self.file = file
@@ -45,12 +46,25 @@ class SheetValidator:
     def _collect_validation_errors(self, data: DataFrame):
         """Orchestrate the execution of validation steps."""
         self._validate_contains_required_cols(data)
+        # self._validate_all_sts_exams_with_lu(data)
 
     def _validate_contains_required_cols(self, data: DataFrame) -> None:
-        """Throw validation error if at least one required column is
+        """Record validation error if at least one required column is
         not present in the input data.
         """
         missing_cols = self.REQUIRED_COLS - set(data.columns)
 
         if missing_cols:
             self.errors['missing_cols'] = list(missing_cols)
+
+    def _validate_all_sts_exams_with_lu(self, data: DataFrame) -> None:
+        """Record validation error if at least one STS exam does not have
+        a learning unit.
+        """
+        incomplete_exams = data.loc[
+            (data['assessmentStyle'] == self.STS) & (not data['learningUnit'])
+        ]
+
+        if incomplete_exams:
+            exam_ids = incomplete_exams['assessmentId'].tolist()
+            self.errors['sts_wo_lu'] = exam_ids
