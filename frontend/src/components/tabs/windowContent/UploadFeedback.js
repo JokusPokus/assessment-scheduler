@@ -8,8 +8,10 @@ const {Paragraph, Text} = Typography;
 const UploadError = ({missingColumns}) => {
     return (
         <Result
+            className="uploadFeedback"
             status="error"
             title="The sheet was not as expected"
+            subTitle="Please solve the following problems and upload again"
         >
             <div className="desc">
                 {missingColumns &&
@@ -26,7 +28,7 @@ const UploadError = ({missingColumns}) => {
 const UploadSuccess = ({windowStep, setWindowStep}) => {
     return (
         <Result
-            className="uploadSuccessFeedback steps-success"
+            className="uploadFeedback steps-success"
             status="success"
             title="Successfully uploaded planning sheet!"
             extra={[
