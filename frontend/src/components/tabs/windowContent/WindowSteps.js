@@ -8,6 +8,7 @@ const {Step} = Steps;
 const WindowSteps = ({window}) => {
     const [current, setCurrent] = useState(0);
     const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [missingColumns, setMissingColumns] = useState([]);
 
     const steps = [
         {
@@ -18,6 +19,8 @@ const WindowSteps = ({window}) => {
                 setWindowStep={setCurrent}
                 uploadSuccess={uploadSuccess}
                 setUploadSuccess={setUploadSuccess}
+                missingColumns={missingColumns}
+                setMissingColumns={setMissingColumns}
             />,
         },
         {

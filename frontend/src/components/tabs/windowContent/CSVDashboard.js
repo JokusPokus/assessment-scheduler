@@ -2,14 +2,23 @@ import React, {useState} from 'react';
 import {Upload, Form, Button, Result} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
 import {httpPostPlanningSheet} from "../../../hooks/requests";
+import {UploadError, UploadSuccess} from "./UploadFeedback";
+import UploadForm from "./UploadForm";
 import "./WindowSteps.css"
 
 const {Dragger} = Upload;
 
-const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUploadSuccess}) => {
+const CSVDashboard = ({
+                          window,
+                          windowStep,
+                          setWindowStep,
+                          uploadSuccess,
+                          setUploadSuccess,
+                          missingColumns,
+                          setMissingColumns
+                      }) => {
 
     const [isUploading, setIsUploading] = useState(false);
-    const [form] = Form.useForm();
 
     const onFinish = async (values) => {
         setIsUploading(true);
@@ -19,104 +28,31 @@ const CSVDashboard = ({window, windowStep, setWindowStep, uploadSuccess, setUplo
                 window: window.id
             }
         );
-        setTimeout(() => {
+        setTimeout(async () => {
             if (response.status === 200) {
                 setUploadSuccess(true);
+            } else if (response.status === 400) {
+                const body = await response.json();
+                if ('csv' in body && 'missing_cols' in body.csv) {
+                    setMissingColumns(body.csv.missing_cols);
+                }
             }
             setIsUploading(false);
         }, 1000);
 
     };
 
-    const normFile = (event) => {
-        if (Array.isArray(event)) {
-            return event
-        }
-
-        if (event.fileList.length > 1) {
-            event.fileList.shift();
-        }
-        return event && event.fileList
-    };
-
-    const dummyRequest = ({file, onSuccess}) => {
-        setTimeout(() => {
-            onSuccess("ok");
-        }, 0);
-    };
-
     return (
         <>
             {uploadSuccess ? (
-                <Result
-                    className="uploadSuccessFeedback"
-                    status="success"
-                    title="Successfully uploaded planning sheet!"
-                    extra={[
-                        <Button
-                            type="primary"
-                            key="console"
-                            onClick={() => setWindowStep(windowStep + 1)}
-                        >
-                            Next step
-                        </Button>,
-                    ]}
-                />
+                <UploadSuccess windowStep={windowStep} setWindowStep={setWindowStep}/>
+            ) : missingColumns.length > 0 ? (
+                <>
+                    <UploadError missingColumns={missingColumns}/>
+                    <UploadForm onFinish={onFinish} isUploading={isUploading}/>
+                </>
             ) : (
-                <Form
-                    form={form}
-                    layout="vertical"
-                    name="upload_form"
-                    onFinish={onFinish}
-                    initialValues={{
-                        modifier: 'public',
-                    }}
-                    encType="multipart/form-data"
-                    style={{
-                        width: "50%",
-                        margin: "auto"
-                    }}
-                >
-                    <Form.Item>
-                        <Form.Item
-                            name="planningSheet"
-                            valuePropName="fileList"
-                            getValueFromEvent={normFile}
-                            noStyle
-                        >
-                            <Upload.Dragger
-                                name="files"
-                                customRequest={dummyRequest}
-                                multiple={false}
-                                accept=".csv"
-                                style={{padding: "10%"}}
-                            >
-                                <p className="ant-upload-drag-icon">
-                                    <InboxOutlined/>
-                                </p>
-                                <p className="ant-upload-text">Click or drag CSV file to this area to upload</p>
-                            </Upload.Dragger>
-                        </Form.Item>
-                    </Form.Item>
-                    <Form.Item
-                        wrapperCol={{
-                            span: 12,
-                            offset: 6,
-                        }}
-                        shouldUpdate
-                    >
-                        {() => (
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                loading={isUploading}
-                                disabled={!form.getFieldValue("planningSheet")}
-                            >
-                                Upload
-                            </Button>
-                        )}
-                    </Form.Item>
-                </Form>
+                <UploadForm onFinish={onFinish} isUploading={isUploading}/>
             )}
         </>
     );
