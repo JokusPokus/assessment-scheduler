@@ -38,8 +38,21 @@ def create_window(create_phase):
 
 
 @pytest.fixture
-def valid_planning_sheet():
-    f_dir = os.path.dirname(os.path.abspath(__file__))
-    f_name = os.path.join(f_dir, 'files', 'valid_test_sheet.csv')
-    with open(f_name, 'rb') as file:
-        return SimpleUploadedFile('myPlanningSheet.csv', file.read())
+def create_sheet():
+    def make_sheet(csv_name):
+        f_dir = os.path.dirname(os.path.abspath(__file__))
+        f_name = os.path.join(f_dir, 'files', csv_name)
+        with open(f_name, 'rb') as file:
+            return SimpleUploadedFile('myPlanningSheet.csv', file.read())
+
+    return make_sheet
+
+
+@pytest.fixture
+def valid_planning_sheet(create_sheet):
+    return create_sheet('valid_planning_sheet.csv')
+
+
+@pytest.fixture
+def planning_sheet_w_missing_col(create_sheet):
+    return create_sheet('planning_sheet_w_missing_col.csv')
