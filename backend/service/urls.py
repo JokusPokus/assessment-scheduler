@@ -41,7 +41,11 @@ urlpatterns = [
         TokenRefreshView.as_view(),
         name='token_refresh'
     ),
-    re_path(r'^upload/(?P<filename>[^/]+)/$', PlanningSheetUploadView.as_view()),
+    re_path(
+        r'^upload/(?P<filename>[^/]+)/$',
+        PlanningSheetUploadView.as_view(),
+        name='sheet_upload'
+    ),
     path('schedules/', include(schedule_urls.urlpatterns)),
 ]
 
