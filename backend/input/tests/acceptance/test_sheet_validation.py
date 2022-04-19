@@ -55,3 +55,28 @@ class TestSheetValidation:
 
         expected_errors = {'missing_cols': ['assessmentType']}
         assert response.json().get('csv') == expected_errors
+
+    def test_sheet_with_bad_email_format_fails_validation(
+            self,
+            authenticated_client,
+            create_window,
+            planning_sheet_with_non_email_student
+    ):
+        # GIVEN a window instance and a CSV planning sheet with a student
+        # whose identifier is not a CODE email address
+        window = create_window()
+        sheet = planning_sheet_with_non_email_student
+
+        # WHEN the sheet is uploaded via the API
+        response = authenticated_client.post(
+            path=reverse('sheet_upload', args=['myPlanningSheet.csv']),
+            data={'csv': sheet, 'window': window.id},
+            format='multipart'
+        )
+
+        # THEN the sheet is rejected with the hint that the student column
+        # contains a non-email identifier
+        assert response.status_code == HTTP_400_BAD_REQUEST
+
+        expected_errors = {'wrong_email_format': ['student']}
+        assert response.json().get('csv') == expected_errors

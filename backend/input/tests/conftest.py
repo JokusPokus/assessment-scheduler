@@ -56,3 +56,8 @@ def valid_planning_sheet(create_sheet):
 @pytest.fixture
 def planning_sheet_w_missing_col(create_sheet):
     return create_sheet('planning_sheet_w_missing_col.csv')
+
+
+@pytest.fixture
+def planning_sheet_with_non_email_student(create_sheet):
+    return create_sheet('planning_sheet_with_non_email_student.csv')

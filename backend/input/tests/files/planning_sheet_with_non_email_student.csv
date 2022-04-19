@@ -1,0 +1,12 @@
+,assessmentId,student,semester,shortCode,module,assessor,assistant,startTime,endTime,assessmentStyle,assessmentType,proposalStatus,location
+0,test001,STUDENT395@code.berlin,,ID_01,Image Composition,ASSESSOR056@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+1,test002,STUDENT574@code.berlin,,ID_02,Generative Design,ASSESSOR056@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+2,test003,STUDENT551,,ID_02,Generative Design,ASSESSOR056@code.berlin,,,,ALTERNATIVE,NORMAL,REGISTERED,
+3,test004,STUDENT395@code.berlin,,ID_02,Generative Design,ASSESSOR056@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+4,test005,STUDENT574@code.berlin,,ID_03,Editorial Design,ASSESSOR056@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+5,test006,STUDENT551@code.berlin,,ID_03,Editorial Design,ASSESSOR056@code.berlin,,,,ALTERNATIVE,NORMAL,REGISTERED,
+6,test007,STUDENT089@code.berlin,,ID_04,Screen Design,ASSESSOR005@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+7,test008,STUDENT632@code.berlin,,STS_01,Essentials,ASSESSOR031@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+8,test009,STUDENT632@code.berlin,,STS_01,Essentials,ASSESSOR031@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+9,test010,STUDENT030@code.berlin,,ID_04,Screen Design,ASSESSOR005@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
+10,test011,STUDENT429@code.berlin,,SE_07,Collaboration,ASSESSOR010@code.berlin,,,,STANDARD,NORMAL,REGISTERED,
