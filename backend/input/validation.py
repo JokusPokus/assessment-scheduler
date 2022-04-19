@@ -20,6 +20,10 @@ class SheetValidator:
         'assessmentStyle',
         'assessmentType'
     }
+    EMAIL_COLS = {
+        'student',
+        'assessor'
+    }
     STS = 'STS'
 
     def __init__(self, file: str):
@@ -46,6 +50,7 @@ class SheetValidator:
     def _collect_validation_errors(self, data: DataFrame):
         """Orchestrate the execution of validation steps."""
         self._validate_contains_required_cols(data)
+        self._validate_email_format(data)
 
     def _validate_contains_required_cols(self, data: DataFrame) -> None:
         """Record validation error if at least one required column is
@@ -56,4 +61,14 @@ class SheetValidator:
         if missing_cols:
             self.errors['missing_cols'] = list(missing_cols)
 
+    def _validate_email_format(self, data: DataFrame) -> None:
+        """Record validation error if at least one of the person columns
+        (assessor, student) is not in email format.
+        """
+        wrong_format_cols = []
+        for email_col in self.EMAIL_COLS:
+            if not data[email_col].str.contains('@code.berlin').all():
+                wrong_format_cols.append(email_col)
 
+        if wrong_format_cols:
+            self.errors['wrong_email_format'] = wrong_format_cols
