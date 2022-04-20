@@ -26,7 +26,9 @@ const WindowSteps = ({window}) => {
         },
         {
             title: 'Blocks',
-            content: <BlockDashboard/>,
+            content: <BlockDashboard
+                window={window}
+            />,
         },
         {
             title: 'Availabilities',
