@@ -5,7 +5,7 @@ import './UploadFeedback.css';
 
 const {Paragraph, Text} = Typography;
 
-const UploadError = ({missingColumns}) => {
+const UploadError = ({uploadErrors}) => {
     return (
         <Result
             className="uploadFeedback"
@@ -14,10 +14,16 @@ const UploadError = ({missingColumns}) => {
             subTitle="Please solve the following problems and upload again"
         >
             <div className="desc">
-                {missingColumns &&
+                {'missingCols' in uploadErrors &&
                 <Paragraph>
                     <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;The following required
-                    columns are missing: <strong>{missingColumns.join(', ')}</strong>.
+                    columns are missing: <strong>{uploadErrors.missingCols.join(', ')}</strong>.
+                </Paragraph>
+                }
+                {'wrongEmailCols' in uploadErrors &&
+                <Paragraph>
+                    <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;The following
+                    columns need to contain CODE email addresses only: <strong>{uploadErrors.wrongEmailCols.join(', ')}</strong>.
                 </Paragraph>
                 }
             </div>

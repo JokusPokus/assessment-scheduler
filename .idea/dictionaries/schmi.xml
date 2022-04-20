@@ -2,6 +2,7 @@
   <dictionary name="schmi">
     <words>
       <w>dragger</w>
+      <w>incomp</w>
       <w>pytestmark</w>
     </words>
   </dictionary>

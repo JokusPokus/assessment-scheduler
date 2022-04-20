@@ -7,6 +7,7 @@ import UploadForm from "./UploadForm";
 import "./WindowSteps.css"
 
 const {Dragger} = Upload;
+const _ = require('lodash');
 
 const CSVDashboard = ({
                           window,
@@ -14,8 +15,8 @@ const CSVDashboard = ({
                           setWindowStep,
                           uploadSuccess,
                           setUploadSuccess,
-                          missingColumns,
-                          setMissingColumns
+                          uploadErrors,
+                          setUploadErrors
                       }) => {
 
     const [isUploading, setIsUploading] = useState(false);
@@ -33,8 +34,15 @@ const CSVDashboard = ({
                 setUploadSuccess(true);
             } else if (response.status === 400) {
                 const body = await response.json();
-                if ('csv' in body && 'missing_cols' in body.csv) {
-                    setMissingColumns(body.csv.missing_cols);
+                if ('csv' in body) {
+                    let newErrors = {};
+                    if ('missing_cols' in body.csv) {
+                        newErrors.missingCols = body.csv.missing_cols;
+                    }
+                    if ('wrong_email_format' in body.csv) {
+                        newErrors.wrongEmailCols = body.csv.wrong_email_format;
+                    }
+                    setUploadErrors({...uploadErrors, ...newErrors});
                 }
             }
             setIsUploading(false);
@@ -46,10 +54,10 @@ const CSVDashboard = ({
         <>
             {uploadSuccess ? (
                 <UploadSuccess windowStep={windowStep} setWindowStep={setWindowStep}/>
-            ) : missingColumns.length > 0 ? (
+            ) : !_.isEmpty(uploadErrors) ? (
                 <div style={{maxWidth: '50%', margin: 'auto'}}>
                     <UploadError
-                        missingColumns={missingColumns}
+                        uploadErrors={uploadErrors}
                     />
                     <UploadForm
                         onFinish={onFinish}
