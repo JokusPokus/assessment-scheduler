@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Steps, Button, message} from 'antd';
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
+import BlockDashboard from "./blocks/BlockDashboard";
 
 const {Step} = Steps;
 
@@ -25,7 +26,7 @@ const WindowSteps = ({window}) => {
         },
         {
             title: 'Blocks',
-            content: 'Second-content',
+            content: <BlockDashboard/>,
         },
         {
             title: 'Availabilities',
