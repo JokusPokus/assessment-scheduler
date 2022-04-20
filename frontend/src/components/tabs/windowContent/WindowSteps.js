@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Steps, Button, message} from 'antd';
 import './WindowSteps.css'
-import CSVDashboard from "./CSVDashboard";
+import CSVDashboard from "./CSV/CSVDashboard";
 
 const {Step} = Steps;
 
