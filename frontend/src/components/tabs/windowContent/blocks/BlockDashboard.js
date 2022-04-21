@@ -1,6 +1,11 @@
 import React from 'react';
-import {Statistic, Row, Col} from 'antd';
+import {Statistic, Row, Col, TimePicker} from 'antd';
 import {LikeOutlined, CalendarOutlined} from '@ant-design/icons';
+import getDaysArray from "../../../../utils/datetime";
+import moment from 'moment';
+import BlockDateSelector from "./BlockDateSelector";
+
+const format = 'HH:mm';
 
 
 const StatsRow = ({window}) => {
@@ -32,10 +37,26 @@ const StatsRow = ({window}) => {
     );
 };
 
+const StartTimeSelector = () => {
+    return (
+        <TimePicker
+            bordered={false}
+            minuteStep={15}
+            showNow={false}
+            defaultValue={moment('10:00', format)}
+            format={format}
+        />
+    );
+};
 
 const BlockDashboard = ({window}) => {
+
     return (
-        <StatsRow window={window}/>
+        <>
+            <StatsRow window={window}/>
+            <StartTimeSelector/>
+            <BlockDateSelector window={window}/>
+        </>
     );
 };
 
