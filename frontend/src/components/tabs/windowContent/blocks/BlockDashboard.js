@@ -1,11 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Statistic, Row, Col, TimePicker} from 'antd';
 import {LikeOutlined, CalendarOutlined} from '@ant-design/icons';
 import getDaysArray from "../../../../utils/datetime";
 import moment from 'moment';
 import BlockDateSelector from "./BlockDateSelector";
+import {httpGetPhases} from "../../../../hooks/requests";
 
 const format = 'HH:mm';
+const _ = require('lodash');
 
 
 const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
@@ -46,7 +48,6 @@ const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
 const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
     const onChange = (time, timeString) => {
         let newAvailableTimes = [...availableTimes, timeString];
-        console.log(newAvailableTimes);
         newAvailableTimes.sort();
         setAvailableTimes(newAvailableTimes)
     };
@@ -69,7 +70,32 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
 };
 
 const BlockDashboard = ({window}) => {
-    const [availableTimes, setAvailableTimes] = useState(['10:00', '14:00']);
+    const [startTimeData, setStartTimeData] = useState({});
+    const [availableTimes, setAvailableTimes] = useState([]);
+
+    useEffect(() => {
+        if (!_.isEmpty(window)) {
+            setStartTimeData(
+                window.block_slots.reduce((r, a) => {
+                    r[a.date] = r[a.date] || [];
+                    r[a.date].push(a.time);
+                    return r;
+                }, Object.create(null))
+            );
+
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!_.isEmpty(startTimeData)) {
+            setAvailableTimes([...new Set(
+                startTimeData.reduce((r, a) => {
+                    r.push(a.time);
+                    return r;
+                }, [])
+            )]);
+        }
+    }, [startTimeData]);
 
     return (
         <>
@@ -78,7 +104,12 @@ const BlockDashboard = ({window}) => {
                 availableTimes={availableTimes}
                 setAvailableTimes={setAvailableTimes}
             />
-            <BlockDateSelector window={window} availableTimes={availableTimes}/>
+            <BlockDateSelector
+                window={window}
+                startTimeData={startTimeData}
+                setStartTimeData={setStartTimeData}
+                availableTimes={availableTimes}
+            />
         </>
     );
 };

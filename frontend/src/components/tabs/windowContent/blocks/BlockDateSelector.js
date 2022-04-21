@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Tag, Table, Button} from 'antd';
 import {SaveOutlined} from "@ant-design/icons";
 import getDaysArray from "../../../../utils/datetime";
 
 const {CheckableTag} = Tag;
+const _ = require('lodash');
 
 const columns = [
     {
@@ -24,12 +25,19 @@ const columns = [
 ];
 
 
-const StartTimeChecks = ({day, availableTimes}) => {
-    const [selectedTags, setSelectedTags] = useState(availableTimes);
+const StartTimeChecks = ({day, startTimeData, setStartTimeData, availableTimes}) => {
+    const [selectedTags, setSelectedTags] = useState([]);
+
+    useEffect(() => {
+        if (!_.isEmpty(startTimeData)) {
+            setSelectedTags(day in startTimeData ? startTimeData.day : []);
+        }
+    }, [startTimeData]);
 
     const handleChange = (tag, checked) => {
         const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
         setSelectedTags(nextSelectedTags);
+        setStartTimeData({...startTimeData, day: nextSelectedTags})
     };
 
     return (
@@ -51,11 +59,9 @@ const StartTimeChecks = ({day, availableTimes}) => {
     );
 };
 
-const BlockDateSelector = ({window, availableTimes}) => {
+const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTimes}) => {
     const daysArray = getDaysArray(window.start_date, window.end_date);
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    const [startTimeData, setStartTimeData] = useState({});
 
     const dataSource = daysArray.map((date, index) => {
         const weekDayIndex = new Date(date).getDay();
@@ -65,6 +71,8 @@ const BlockDateSelector = ({window, availableTimes}) => {
             date: date,
             startTimes: <StartTimeChecks
                 day={date}
+                startTimeData={startTimeData}
+                setStartTimeData={setStartTimeData}
                 availableTimes={availableTimes}
             />
         }

@@ -40,6 +40,7 @@ const UserPortal = ({requestUrl, refreshRequestBody}) => {
 
     const setPhaseData = async (year, semester) => {
         const newPhase = await httpGetPhase({year: year, semester: semester})();
+        console.log(newPhase);
         setCurrentPhase(newPhase);
     };
 
