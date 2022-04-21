@@ -33,6 +33,8 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                 name="form_in_modal"
                 initialValues={{
                     modifier: 'public',
+                    timeFrame: [moment(), moment()],
+                    blockLength: 180
                 }}
             >
                 <Form.Item
@@ -46,7 +48,6 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                     ]}
                 >
                     <RangePicker
-                        defaultValue={[moment('2015-01-01', dateFormat), moment('2015-01-01', dateFormat)]}
                         format={dateFormat}
                     />
                 </Form.Item>
@@ -60,7 +61,7 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                         },
                     ]}
                 >
-                    <InputNumber min={60} defaultValue={180}/>
+                    <InputNumber min={60}/>
                 </Form.Item>
             </Form>
         </Modal>
