@@ -65,7 +65,7 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
     );
 };
 
-const BlockDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
+const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     const [startTimeData, setStartTimeData] = useState({});
     const [availableTimes, setAvailableTimes] = useState([]);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -143,4 +143,4 @@ const BlockDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     );
 };
 
-export default BlockDashboard;
+export default SlotDashboard;

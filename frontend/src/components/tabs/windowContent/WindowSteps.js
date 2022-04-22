@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Steps} from 'antd';
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
-import BlockDashboard from "./blocks/BlockDashboard";
+import SlotDashboard from "./blocks/SlotDashboard";
 
 const {Step} = Steps;
 
@@ -25,8 +25,8 @@ const WindowSteps = ({window, setPhaseData}) => {
             />,
         },
         {
-            title: 'Blocks',
-            content: <BlockDashboard
+            title: 'Slots',
+            content: <SlotDashboard
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
