@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {Tag, Table, Button} from 'antd';
+import {Tag, Table, Button, Tooltip} from 'antd';
+import {CheckOutlined} from "@ant-design/icons";
 import getDaysArray from "../../../../utils/datetime";
 
 const {CheckableTag} = Tag;
@@ -58,7 +59,17 @@ const StartTimeChecks = ({day, startTimeData, setStartTimeData, availableTimes})
     );
 };
 
-const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTimes, saveTimes}) => {
+const BlockDateSelector = ({
+                               window,
+                               startTimeData,
+                               setStartTimeData,
+                               availableTimes,
+                               saveTimes,
+                               loading,
+                               isSuccess,
+                               windowStep,
+                               setWindowStep
+                           }) => {
     const daysArray = getDaysArray(window.start_date, window.end_date);
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -84,20 +95,43 @@ const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTi
                 columns={columns}
                 pagination={false}
             />
-            <Button
-                type="primary"
-                shape="round"
-                size="large"
-                style={{
-                    marginTop: "30px",
-                    marginBottom: "30px",
-                    marginRight: "20px",
-                    float: "right"
-                }}
-                onClick={saveTimes}
-            >
-                <strong>Save times</strong>
-            </Button>
+            <Tooltip title={_.isEmpty(startTimeData)? "Please add/select start times" : undefined}>
+                <Button
+                    type="primary"
+                    shape="round"
+                    size="large"
+                    style={{
+                        marginTop: "30px",
+                        marginBottom: "30px",
+                        marginLeft: "20px",
+                        float: "right"
+                    }}
+                    onClick={saveTimes}
+                    loading={loading}
+                    disabled={_.isEmpty(startTimeData)}
+                    icon={isSuccess ? <strong><CheckOutlined/> </strong> : null}
+                >
+                    <strong>Save times</strong>
+                </Button>
+            </Tooltip>
+
+            {isSuccess && (
+                <Button
+                    type="primary"
+                    shape="round"
+                    size="large"
+                    style={{
+                        marginTop: "30px",
+                        marginBottom: "30px",
+                        marginRight: "20px",
+                        float: "right"
+                    }}
+                    key="console"
+                    onClick={() => setWindowStep(windowStep + 1)}
+                >
+                    <strong>Next step</strong>
+                </Button>
+            )}
         </>
     );
 };

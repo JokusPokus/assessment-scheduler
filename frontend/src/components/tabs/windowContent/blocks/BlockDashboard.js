@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {Statistic, Row, Col, TimePicker} from 'antd';
+import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../hooks/requests";
+import CSVDashboard from "../CSV/CSVDashboard";
 
 const format = 'HH:mm';
 const _ = require('lodash');
@@ -65,10 +66,11 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
     );
 };
 
-const BlockDashboard = ({window}) => {
+const BlockDashboard = ({window, windowStep, setWindowStep}) => {
     const [startTimeData, setStartTimeData] = useState({});
     const [availableTimes, setAvailableTimes] = useState([]);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!_.isEmpty(window)) {
@@ -95,8 +97,17 @@ const BlockDashboard = ({window}) => {
     }, [startTimeData]);
 
     const saveTimes = async () => {
-        const response = await httpPostBlockSlots(window.id, startTimeData)();
-        console.log(response.status);
+        setLoading(true);
+        setTimeout(async () => {
+            const response = await httpPostBlockSlots(window.id, startTimeData)();
+            if (response.status === 200) {
+                setLoading(false);
+                setIsSuccess(true);
+            } else {
+                message.error("Something went wrong...");
+                setLoading(false);
+            }
+        }, 1000);
     };
 
     return (
@@ -112,6 +123,10 @@ const BlockDashboard = ({window}) => {
                 setStartTimeData={setStartTimeData}
                 availableTimes={availableTimes}
                 saveTimes={saveTimes}
+                loading={loading}
+                isSuccess={isSuccess}
+                windowStep={windowStep}
+                setWindowStep={setWindowStep}
             />
         </>
     );

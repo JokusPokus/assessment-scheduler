@@ -28,6 +28,8 @@ const WindowSteps = ({window}) => {
             title: 'Blocks',
             content: <BlockDashboard
                 window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
             />,
         },
         {
