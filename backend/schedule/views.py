@@ -68,7 +68,9 @@ class WindowViewSet(ModelViewSet):
     @action(
         methods=['post'],
         detail=True,
-        url_name='add-block-slots'
+        url_name='add-block-slots',
+        url_path='add-block-slots'
     )
     def add_block_slots(self, request, pk=None):
-        pass
+        print(request.data)
+        return Response(status=HTTP_200_OK)
