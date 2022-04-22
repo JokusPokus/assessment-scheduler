@@ -12,7 +12,8 @@ from .models import AssessmentPhase, Window
 from .serializers import (
     AssessmentPhaseDetailSerializer,
     AssessmentPhaseListSerializer,
-    WindowSerializer
+    WindowSerializer,
+    BlockSlotSerializer
 )
 
 
@@ -72,5 +73,17 @@ class WindowViewSet(ModelViewSet):
         url_path='add-block-slots'
     )
     def add_block_slots(self, request, pk=None):
-        print(request.data)
+        window = self.get_object()
+
+        for date, start_times in request.data.items():
+            for time in start_times:
+                data = {
+                    'date': date,
+                    'time': time,
+                    'window': window
+                }
+                serializer = BlockSlotSerializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
         return Response(status=HTTP_200_OK)
