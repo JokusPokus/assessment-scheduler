@@ -39,6 +39,10 @@ export const httpPostBlockSlots = (windowId, body) => {
     const path = `schedules/windows/${windowId}/add-block-slots/`;
     return httpApiCall('POST', path, body);
 };
+export const httpGetAssessors = (windowId) => {
+    const path = `staff/assessors/?window=${windowId}`;
+    return httpApiCall('GET', path, null);
+};
 
 export const httpPostPlanningSheet = async (body) => {
     const formData = new FormData();

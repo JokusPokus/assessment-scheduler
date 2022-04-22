@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import getDaysArray from "../../../../../utils/datetime";
 import {Table} from "antd";
+import {httpGetAssessors} from "../../../../../hooks/requests";
 
 const _ = require('lodash');
 
@@ -34,10 +35,11 @@ const AvailDashboard = ({window}) => {
     const [assessors, setAssessors] = useState([]);
 
     useEffect(async() => {
-
-    });
-
-
+        const response = await httpGetAssessors(window.id)();
+        let assess = await response.json();
+        assess.sort();
+        setAssessors((assess).map(ass => ass.email))
+    }, []);
 
     return (
         <>
@@ -45,7 +47,7 @@ const AvailDashboard = ({window}) => {
                 Assessors
             </h1>
             <Table
-                dataSource={null}
+                dataSource={assessors && assessors.map(ass => ({assessor: ass}))}
                 columns={[...assessorColumn, ...daysColumns]}
                 pagination={false}
             />
