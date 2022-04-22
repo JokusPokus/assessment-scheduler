@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import {Steps} from 'antd';
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
-import SlotDashboard from "./blocks/SlotDashboard";
+import SlotDashboard from "./slots/SlotDashboard";
+import AvailDashboard from "./availabilities/AvailDashboard";
 
 const {Step} = Steps;
 
@@ -35,7 +36,9 @@ const WindowSteps = ({window, setPhaseData}) => {
         },
         {
             title: 'Availabilities',
-            content: 'Last-content',
+            content: <AvailDashboard
+                window={window}
+            />
         },
         {
             title: 'Modules',
