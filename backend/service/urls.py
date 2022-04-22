@@ -21,6 +21,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
 from schedule import urls as schedule_urls
+from staff import urls as staff_urls
 from user.views import current_user
 from input.views import PlanningSheetUploadView
 
@@ -47,6 +48,7 @@ urlpatterns = [
         name='sheet_upload'
     ),
     path('schedules/', include(schedule_urls.urlpatterns)),
+    path('staff/', include(staff_urls.urlpatterns)),
 ]
 
 if settings.DEBUG:
