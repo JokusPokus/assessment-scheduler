@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AssessmentPhase, Window
+from .models import AssessmentPhase, Window, BlockSlot
 from input.admin import PlanningSheetInline
 from staff.admin import AssessorInline
 
@@ -9,6 +9,12 @@ class WindowInline(admin.TabularInline):
     model = Window
     fields = ['position', 'start_date', 'end_date', 'block_length']
     show_change_link = True
+    extra = 0
+
+
+class BlockSlotInline(admin.TabularInline):
+    model = BlockSlot
+    fields = ['start_time']
     extra = 0
 
 
@@ -22,7 +28,7 @@ class WindowAdmin(admin.ModelAdmin):
         'block_length'
     ]
     ordering = ['assessment_phase', 'position']
-    inlines = [PlanningSheetInline]
+    inlines = [BlockSlotInline, PlanningSheetInline]
 
 
 @admin.register(AssessmentPhase)
