@@ -41,6 +41,8 @@ const UploadSuccess = ({windowStep, setWindowStep}) => {
                 <Button
                     type="primary"
                     key="console"
+                    shape="round"
+                    size="large"
                     onClick={() => setWindowStep(windowStep + 1)}
                 >
                     Next step

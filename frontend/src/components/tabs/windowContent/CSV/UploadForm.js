@@ -67,6 +67,8 @@ const UploadForm = ({onFinish, isUploading}) => {
                     <Button
                         type="primary"
                         htmlType="submit"
+                        shape="round"
+                        size="large"
                         loading={isUploading}
                         disabled={!form.getFieldValue("planningSheet")}
                     >

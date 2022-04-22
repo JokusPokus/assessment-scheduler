@@ -73,6 +73,14 @@ const BlockDateSelector = ({
     const daysArray = getDaysArray(window.start_date, window.end_date);
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+    const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
+
+    useEffect(() => {
+        setSaveButtonDisabled(
+            Object.values(startTimeData).every(x => x.length === 0)
+        );
+    }, [startTimeData]);
+
     const dataSource = daysArray.map((date, index) => {
         const weekDayIndex = new Date(date).getDay();
         return {
@@ -95,7 +103,7 @@ const BlockDateSelector = ({
                 columns={columns}
                 pagination={false}
             />
-            <Tooltip title={_.isEmpty(startTimeData)? "Please add/select start times" : undefined}>
+            <Tooltip title={saveButtonDisabled? "Please add/select start times" : undefined}>
                 <Button
                     type="primary"
                     shape="round"
@@ -103,12 +111,12 @@ const BlockDateSelector = ({
                     style={{
                         marginTop: "30px",
                         marginBottom: "30px",
-                        marginLeft: "20px",
+                        marginRight: "20px",
                         float: "right"
                     }}
                     onClick={saveTimes}
                     loading={loading}
-                    disabled={_.isEmpty(startTimeData)}
+                    disabled={saveButtonDisabled}
                     icon={isSuccess ? <strong><CheckOutlined/> </strong> : null}
                 >
                     <strong>Save times</strong>

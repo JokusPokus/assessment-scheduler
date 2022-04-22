@@ -13,7 +13,7 @@ const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
         <>
             <Row
                 justify="start"
-                style={{marginTop: "50px", marginBottom: "50px"}}
+                style={{marginTop: "80px", marginBottom: "50px"}}
             >
                 <Col span={6}>
                     <Statistic
