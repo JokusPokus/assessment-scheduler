@@ -64,3 +64,11 @@ class WindowViewSet(ModelViewSet):
         return Window.objects.filter(
             assessment_phase__organization=self.request.user.organization
         )
+
+    @action(
+        methods=['post'],
+        detail=True,
+        url_name='add-block-slots'
+    )
+    def add_block_slots(self, request, pk=None):
+        pass

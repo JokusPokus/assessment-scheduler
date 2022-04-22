@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {Tag, Table, Button} from 'antd';
-import {SaveOutlined} from "@ant-design/icons";
 import getDaysArray from "../../../../utils/datetime";
 
 const {CheckableTag} = Tag;
@@ -30,14 +29,14 @@ const StartTimeChecks = ({day, startTimeData, setStartTimeData, availableTimes})
 
     useEffect(() => {
         if (!_.isEmpty(startTimeData)) {
-            setSelectedTags(day in startTimeData ? startTimeData.day : []);
+            setSelectedTags(day in startTimeData ? startTimeData[day] : []);
         }
     }, [startTimeData]);
 
     const handleChange = (tag, checked) => {
         const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
         setSelectedTags(nextSelectedTags);
-        setStartTimeData({...startTimeData, day: nextSelectedTags})
+        setStartTimeData({...startTimeData, [day]: nextSelectedTags});
     };
 
     return (
@@ -79,7 +78,7 @@ const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTi
     });
 
     const saveTimes = () => {
-        console.log();
+        console.log(startTimeData);
     };
 
     return (

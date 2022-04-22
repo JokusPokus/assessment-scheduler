@@ -60,7 +60,6 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
             <TimePicker
                 minuteStep={15}
                 showNow={false}
-                defaultValue={moment('10:00', format)}
                 format={format}
                 style={{fontSize: "24px"}}
                 onChange={onChange}
@@ -82,18 +81,18 @@ const BlockDashboard = ({window}) => {
                     return r;
                 }, Object.create(null))
             );
-
         }
     }, []);
 
     useEffect(() => {
         if (!_.isEmpty(startTimeData)) {
-            setAvailableTimes([...new Set(
-                startTimeData.reduce((r, a) => {
-                    r.push(a.time);
-                    return r;
-                }, [])
-            )]);
+            let consideredTimes = Object.keys(startTimeData).reduce((r, a) => {
+                r.push(...startTimeData[a]);
+                return r;
+            }, []);
+            consideredTimes.push(...availableTimes);
+            consideredTimes.sort();
+            setAvailableTimes([...new Set(consideredTimes)]);
         }
     }, [startTimeData]);
 
