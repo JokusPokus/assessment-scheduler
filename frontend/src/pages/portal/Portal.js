@@ -1,7 +1,6 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
-import {Link} from 'react-router-dom';
-import {Layout, message, Select} from 'antd';
+import {Layout} from 'antd';
 import './Portal.css'
 import SideBar from '../../components/sideBar/SideBar';
 import PortalHeader from "../../components/header/PortalHeader";
@@ -13,12 +12,10 @@ import Availabilities from "../../components/availabilities/Availabilities";
 import Assessments from "../../components/assessments/Assessments";
 import Rooms from "../../components/rooms/Rooms";
 
-import {httpGetPhase, httpGetPhases, httpGetUser} from "../../hooks/requests";
-import usePhases from "../../hooks/callbacks";
+import {httpGetPhase, httpGetUser} from "../../hooks/requests";
 
 
 const {Header, Content, Footer} = Layout;
-const {Option} = Select;
 
 const UserPortal = ({requestUrl, refreshRequestBody}) => {
     const [currentPhase, setCurrentPhase] = useState({});

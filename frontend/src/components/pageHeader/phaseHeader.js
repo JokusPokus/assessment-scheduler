@@ -1,5 +1,5 @@
 import React from 'react';
-import {PageHeader, Button, Descriptions} from 'antd';
+import {PageHeader} from 'antd';
 import './PhaseHeader.css';
 import WindowTabs from "../tabs/WindowTabs";
 

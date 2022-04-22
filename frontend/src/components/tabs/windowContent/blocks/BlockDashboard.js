@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../hooks/requests";
-import CSVDashboard from "../CSV/CSVDashboard";
 
 const format = 'HH:mm';
 const _ = require('lodash');

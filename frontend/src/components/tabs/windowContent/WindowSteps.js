@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Steps, Button, message} from 'antd';
+import {Steps} from 'antd';
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
 import BlockDashboard from "./blocks/BlockDashboard";
