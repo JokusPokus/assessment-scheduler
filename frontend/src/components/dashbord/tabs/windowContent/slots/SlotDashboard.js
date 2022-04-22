@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../../hooks/requests";
+import {foldSlotData} from "../../../../../utils/slots";
 
 const format = 'HH:mm';
 const _ = require('lodash');
@@ -74,13 +75,7 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
 
     useEffect(() => {
         if (!_.isEmpty(window)) {
-            setStartTimeData(
-                window.block_slots.reduce((r, a) => {
-                    r[a.date] = r[a.date] || [];
-                    r[a.date].push(a.time);
-                    return r;
-                }, Object.create(null))
-            );
+            setStartTimeData(foldSlotData(window.block_slots));
         }
     }, []);
 
