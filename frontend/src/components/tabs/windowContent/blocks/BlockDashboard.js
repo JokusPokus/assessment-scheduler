@@ -100,8 +100,9 @@ const BlockDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
         setLoading(true);
         setTimeout(async () => {
             const response = await httpPostBlockSlots(window.id, startTimeData)();
+            await setPhaseData();
             if (response.status === 200) {
-                await setPhaseData()
+                message.success("You successfully saved the block slots.");
                 setLoading(false);
                 setIsSuccess(true);
                 setIsFailure(false);
