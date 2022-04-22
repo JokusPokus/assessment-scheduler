@@ -6,7 +6,7 @@ import {httpPostWindow} from "../../hooks/requests";
 
 const _ = require('lodash');
 
-const Dashboard = ({currentPhase, newWindowCounter, setNewWindowCounter}) => {
+const Dashboard = ({currentPhase, newWindowCounter, setNewWindowCounter, setPhaseData}) => {
     const [activeComponent, setActiveComponent] = useState(
         <Skeleton active/>
     );
@@ -27,7 +27,11 @@ const Dashboard = ({currentPhase, newWindowCounter, setNewWindowCounter}) => {
             setActiveComponent(
                 currentPhase.windows.length === 0
                     ? <WindowAdder onWindowCreate={onWindowCreate} />
-                    : <PhaseHeader currentPhase={currentPhase} onWindowCreate={onWindowCreate} />
+                    : <PhaseHeader
+                        currentPhase={currentPhase}
+                        onWindowCreate={onWindowCreate}
+                        setPhaseData={setPhaseData}
+                    />
             );
         }
     }, [currentPhase]);

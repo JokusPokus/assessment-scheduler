@@ -6,7 +6,7 @@ import BlockDashboard from "./blocks/BlockDashboard";
 
 const {Step} = Steps;
 
-const WindowSteps = ({window}) => {
+const WindowSteps = ({window, setPhaseData}) => {
     const [current, setCurrent] = useState(0);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadErrors, setUploadErrors] = useState({});
@@ -30,6 +30,7 @@ const WindowSteps = ({window}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
+                setPhaseData={setPhaseData}
             />,
         },
         {

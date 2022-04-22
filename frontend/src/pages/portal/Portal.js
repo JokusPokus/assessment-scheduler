@@ -36,7 +36,7 @@ const UserPortal = ({requestUrl, refreshRequestBody}) => {
         setUserInfo(await response.json());
     }, []);
 
-    const setPhaseData = async (year, semester) => {
+    const setPhaseData = async (year = currentYear, semester = currentSemester) => {
         const response = await httpGetPhase({year: year, semester: semester})();
         setCurrentPhase(await response.json());
     };
@@ -71,6 +71,7 @@ const UserPortal = ({requestUrl, refreshRequestBody}) => {
                         currentPhase={currentPhase}
                         newWindowCounter={newWindowCounter}
                         setNewWindowCounter={setNewWindowCounter}
+                        setPhaseData={setPhaseData}
                     />
                 );
                 break;

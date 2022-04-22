@@ -6,7 +6,7 @@ import WindowContent from "../tabs/windowContent/WindowContent";
 const {TabPane} = Tabs;
 const _ = require('lodash');
 
-const WindowTabs = ({currentPhase, onWindowCreate}) => {
+const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
     const [panes, setPanes] = useState([]);
     const [phaseId, setPhaseId] = useState(undefined);
     const [activeKey, setActiveKey] = useState(undefined);
@@ -53,7 +53,7 @@ const WindowTabs = ({currentPhase, onWindowCreate}) => {
                 >
                     {panes.map(pane => (
                         <TabPane tab={`Week ${pane.position}`} key={`${phaseId}_${pane.position}`} closable={false}>
-                            <WindowContent window={pane}/>
+                            <WindowContent window={pane} setPhaseData={setPhaseData}/>
                         </TabPane>
                     ))}
                 </Tabs>

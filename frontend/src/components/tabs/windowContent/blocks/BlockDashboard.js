@@ -66,10 +66,11 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
     );
 };
 
-const BlockDashboard = ({window, windowStep, setWindowStep}) => {
+const BlockDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     const [startTimeData, setStartTimeData] = useState({});
     const [availableTimes, setAvailableTimes] = useState([]);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isFailure, setIsFailure] = useState(false);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -101,11 +102,20 @@ const BlockDashboard = ({window, windowStep, setWindowStep}) => {
         setTimeout(async () => {
             const response = await httpPostBlockSlots(window.id, startTimeData)();
             if (response.status === 200) {
+                await setPhaseData()
                 setLoading(false);
                 setIsSuccess(true);
+                setIsFailure(false);
+            } else if (response.status === 400) {
+                message.error("At least two slots were overlapping! Check again.");
+                setLoading(false);
+                setIsSuccess(false);
+                setIsFailure(true);
             } else {
                 message.error("Something went wrong...");
                 setLoading(false);
+                setIsSuccess(false);
+                setIsFailure(true);
             }
         }, 1000);
     };
@@ -125,6 +135,7 @@ const BlockDashboard = ({window, windowStep, setWindowStep}) => {
                 saveTimes={saveTimes}
                 loading={loading}
                 isSuccess={isSuccess}
+                isFailure={isFailure}
                 windowStep={windowStep}
                 setWindowStep={setWindowStep}
             />

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Tag, Table, Button, Tooltip} from 'antd';
-import {CheckOutlined} from "@ant-design/icons";
+import {CheckOutlined, WarningOutlined} from "@ant-design/icons";
 import getDaysArray from "../../../../utils/datetime";
 
 const {CheckableTag} = Tag;
@@ -67,6 +67,7 @@ const BlockDateSelector = ({
                                saveTimes,
                                loading,
                                isSuccess,
+                               isFailure,
                                windowStep,
                                setWindowStep
                            }) => {
@@ -103,7 +104,7 @@ const BlockDateSelector = ({
                 columns={columns}
                 pagination={false}
             />
-            <Tooltip title={saveButtonDisabled? "Please add/select start times" : undefined}>
+            <Tooltip title={saveButtonDisabled ? "Please add/select start times" : undefined}>
                 <Button
                     type="primary"
                     shape="round"
@@ -117,7 +118,12 @@ const BlockDateSelector = ({
                     onClick={saveTimes}
                     loading={loading}
                     disabled={saveButtonDisabled}
-                    icon={isSuccess ? <strong><CheckOutlined/> </strong> : null}
+                    icon={isSuccess
+                        ? <strong><CheckOutlined/> </strong>
+                        : isFailure
+                            ? <strong><WarningOutlined/> </strong>
+                            : null
+                    }
                 >
                     <strong>Save times</strong>
                 </Button>

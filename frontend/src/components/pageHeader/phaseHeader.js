@@ -3,7 +3,7 @@ import {PageHeader, Button, Descriptions} from 'antd';
 import './PhaseHeader.css';
 import WindowTabs from "../tabs/WindowTabs";
 
-const PhaseHeader = ({currentPhase, onWindowCreate}) => {
+const PhaseHeader = ({currentPhase, onWindowCreate, setPhaseData}) => {
     return (
         <PageHeader
             className="phase-header"
@@ -12,6 +12,7 @@ const PhaseHeader = ({currentPhase, onWindowCreate}) => {
             <WindowTabs
                 currentPhase={currentPhase}
                 onWindowCreate={onWindowCreate}
+                setPhaseData={setPhaseData}
             />
         </PageHeader>
     );
