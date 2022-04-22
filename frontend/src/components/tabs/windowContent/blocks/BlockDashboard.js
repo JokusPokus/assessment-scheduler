@@ -68,6 +68,7 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
 const BlockDashboard = ({window}) => {
     const [startTimeData, setStartTimeData] = useState({});
     const [availableTimes, setAvailableTimes] = useState([]);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     useEffect(() => {
         if (!_.isEmpty(window)) {
@@ -95,7 +96,7 @@ const BlockDashboard = ({window}) => {
 
     const saveTimes = async () => {
         const response = await httpPostBlockSlots(window.id, startTimeData)();
-        console.log(response);
+        console.log(response.status);
     };
 
     return (

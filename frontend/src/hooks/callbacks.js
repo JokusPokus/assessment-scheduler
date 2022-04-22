@@ -1,7 +1,8 @@
 import { httpGetPhases } from "./requests"
 
 const getFormattedPhases = async () => {
-    const fetchedPhases = await httpGetPhases();
+    const response = await httpGetPhases();
+    const fetchedPhases = await response.json();
     return fetchedPhases.reduce((r, a) => {
         r[a.year] = r[a.year] || [];
         r[a.year].push(a.semester);

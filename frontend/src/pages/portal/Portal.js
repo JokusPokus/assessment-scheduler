@@ -31,17 +31,14 @@ const UserPortal = ({requestUrl, refreshRequestBody}) => {
         <Dashboard currentPhase={currentPhase}/>
     );
 
-    useEffect(() => {
-        httpGetUser()
-            .then(data => {
-                setUserInfo(data);
-            });
+    useEffect(async () => {
+        const response = await httpGetUser()
+        setUserInfo(await response.json());
     }, []);
 
     const setPhaseData = async (year, semester) => {
-        const newPhase = await httpGetPhase({year: year, semester: semester})();
-        console.log(newPhase);
-        setCurrentPhase(newPhase);
+        const response = await httpGetPhase({year: year, semester: semester})();
+        setCurrentPhase(await response.json());
     };
 
     useEffect(async () => {

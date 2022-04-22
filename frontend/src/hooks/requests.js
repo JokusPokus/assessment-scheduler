@@ -14,8 +14,7 @@ function httpApiCall(method, path, body) {
         if (method === 'POST') {
             requestOptions['body'] = JSON.stringify(body)
         }
-        const response = await fetch(`${API_URL}/${path}`, requestOptions);
-        return await response.json();
+        return await fetch(`${API_URL}/${path}`, requestOptions);
     }
 }
 
@@ -29,11 +28,12 @@ function httpGetResourceById(pathTemplate, resourceId) {
 export const httpGetUser = httpApiCall('GET', 'users/current/', null);
 export const httpGetPhases = httpApiCall('GET', 'schedules/assessment-phases/', null);
 export const httpPostPhase = _.partial(httpApiCall, 'POST', 'schedules/assessment-phases/');
+export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
+
 export const httpGetPhase = _.partial(
     httpGetResourceById, ({year, semester}) => {
         return `schedules/assessment-phases/${year}/${semester}/`
     });
-export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
 
 export const httpPostBlockSlots = (windowId, body) => {
     const path = `schedules/windows/${windowId}/add-block-slots/`;
