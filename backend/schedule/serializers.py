@@ -62,6 +62,9 @@ class BlockSlotSerializer(serializers.ModelSerializer):
         start_times = window.block_slots.all().values_list('start_time', flat=True)
 
         for time in start_times:
+            if time in start_times:
+                continue
+
             if abs(time - data.get('start_time')) < min_distance:
                 raise serializers.ValidationError(
                     {'start_time': 'Overlapping block slots'}
