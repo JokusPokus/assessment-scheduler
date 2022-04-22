@@ -1,7 +1,7 @@
 import {Tabs} from 'antd';
 import React, {useState, useEffect} from "react";
-import WindowCreateForm from "../dashbord/WindowCreateForm";
-import WindowContent from "../tabs/windowContent/WindowContent";
+import WindowCreateForm from "../WindowCreateForm";
+import WindowContent from "./windowContent/WindowContent";
 
 const {TabPane} = Tabs;
 const _ = require('lodash');

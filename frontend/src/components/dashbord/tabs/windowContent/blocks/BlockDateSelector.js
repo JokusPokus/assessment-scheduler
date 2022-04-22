@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Tag, Table, Button, Tooltip} from 'antd';
 import {CheckOutlined, WarningOutlined} from "@ant-design/icons";
-import getDaysArray from "../../../../utils/datetime";
+import getDaysArray from "../../../../../utils/datetime";
 
 const {CheckableTag} = Tag;
 const _ = require('lodash');

@@ -1,7 +1,7 @@
 import React from 'react';
 import {PageHeader} from 'antd';
 import './PhaseHeader.css';
-import WindowTabs from "../tabs/WindowTabs";
+import WindowTabs from "../dashbord/tabs/WindowTabs";
 
 const PhaseHeader = ({currentPhase, onWindowCreate, setPhaseData}) => {
     return (
