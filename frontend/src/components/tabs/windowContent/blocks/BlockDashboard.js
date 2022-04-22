@@ -1,10 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Statistic, Row, Col, TimePicker} from 'antd';
-import {LikeOutlined, CalendarOutlined} from '@ant-design/icons';
-import getDaysArray from "../../../../utils/datetime";
-import moment from 'moment';
 import BlockDateSelector from "./BlockDateSelector";
-import {httpGetPhases} from "../../../../hooks/requests";
+import {httpPostBlockSlots} from "../../../../hooks/requests";
 
 const format = 'HH:mm';
 const _ = require('lodash');
@@ -96,6 +93,11 @@ const BlockDashboard = ({window}) => {
         }
     }, [startTimeData]);
 
+    const saveTimes = async () => {
+        const response = await httpPostBlockSlots(window.id, startTimeData)();
+        console.log(response);
+    };
+
     return (
         <>
             <StatsRow
@@ -108,6 +110,7 @@ const BlockDashboard = ({window}) => {
                 startTimeData={startTimeData}
                 setStartTimeData={setStartTimeData}
                 availableTimes={availableTimes}
+                saveTimes={saveTimes}
             />
         </>
     );

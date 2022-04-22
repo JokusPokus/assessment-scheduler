@@ -25,6 +25,7 @@ function httpGetResourceById(pathTemplate, resourceId) {
     return httpApiCall('GET', path, null);
 }
 
+
 export const httpGetUser = httpApiCall('GET', 'users/current/', null);
 export const httpGetPhases = httpApiCall('GET', 'schedules/assessment-phases/', null);
 export const httpPostPhase = _.partial(httpApiCall, 'POST', 'schedules/assessment-phases/');
@@ -33,6 +34,11 @@ export const httpGetPhase = _.partial(
         return `schedules/assessment-phases/${year}/${semester}/`
     });
 export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
+
+export const httpPostBlockSlots = (windowId, body) => {
+    const path = `schedules/windows/${windowId}/add-block-slots/`;
+    return httpApiCall('POST', path, body);
+};
 
 export const httpPostPlanningSheet = async (body) => {
     const formData = new FormData();
@@ -49,3 +55,4 @@ export const httpPostPlanningSheet = async (body) => {
     };
     return await fetch(`${API_URL}/upload/planningSheet.csv/`, requestOptions);
 };
+

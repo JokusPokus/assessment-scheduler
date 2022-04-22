@@ -58,7 +58,7 @@ const StartTimeChecks = ({day, startTimeData, setStartTimeData, availableTimes})
     );
 };
 
-const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTimes}) => {
+const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTimes, saveTimes}) => {
     const daysArray = getDaysArray(window.start_date, window.end_date);
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -76,10 +76,6 @@ const BlockDateSelector = ({window, startTimeData, setStartTimeData, availableTi
             />
         }
     });
-
-    const saveTimes = () => {
-        console.log(startTimeData);
-    };
 
     return (
         <>
