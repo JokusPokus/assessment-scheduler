@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from rest_framework.decorators import action
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.response import Response
@@ -72,8 +74,10 @@ class WindowViewSet(ModelViewSet):
         url_name='add-block-slots',
         url_path='add-block-slots'
     )
+    @transaction.atomic
     def add_block_slots(self, request, pk=None):
         window = self.get_object()
+        window.block_slots.all().delete()
 
         for date, start_times in request.data.items():
             for time in start_times:
