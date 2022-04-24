@@ -33,20 +33,14 @@ const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) =
     };
 
     useEffect(() => {
-        console.log("USED", availData);
         const nextAssessorAvails = {
             [assessor]: {
                 ...(assessor in availData ? availData[assessor] : {}),
                 [day]: selectedTags
             }
         };
-        console.log({...availData, ...nextAssessorAvails});
         setAvailData({...availData, ...nextAssessorAvails});
     }, [selectedTags]);
-
-    useEffect(() => {
-        console.log(availData)
-    }, [availData]);
 
     return (
         <>
@@ -69,7 +63,6 @@ const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) =
 
 
 const AvailDashboard = ({window}) => {
-    console.log("YUPPU");
     const days = getDaysArray(window.start_date, window.end_date);
     const daysColumns = days.map(day => (
         {
@@ -80,14 +73,9 @@ const AvailDashboard = ({window}) => {
     ));
 
     const [assessors, setAssessors] = useState([]);
-    const [assTableSource, setAssTableSource] = useState(null);
     const [availData, setAvailData] = useState({});
 
     const slotData = foldSlotData(window.block_slots);
-
-    useEffect(() => {
-        console.log(availData)
-    }, [availData]);
 
     useEffect(async () => {
         const response = await httpGetAssessors(window.id)();
@@ -97,30 +85,27 @@ const AvailDashboard = ({window}) => {
         setAssessors(assessEmails);
     }, []);
 
-    useEffect(() => {
-        const newAssTableSource = assessors && assessors.map(ass => {
-            let dayElements = days.map(day => (
-                {
-                    [day]: <AvailChecks
-                        key={day}
-                        day={day}
-                        assessor={ass}
-                        availableTimes={slotData[day]}
-                        availData={availData}
-                        setAvailData={setAvailData}
-                    />
-                }
-            ));
-            return Object.assign(
-                {
-                    assessor: ass,
-                    key: ass
-                },
-                ...dayElements
-            );
-        });
-        setAssTableSource(newAssTableSource)
-    }, [assessors]);
+    const assTableSource = assessors && assessors.map(ass => {
+        let dayElements = days.map(day => (
+            {
+                [day]: <AvailChecks
+                    key={day}
+                    day={day}
+                    assessor={ass}
+                    availableTimes={slotData[day]}
+                    availData={availData}
+                    setAvailData={setAvailData}
+                />
+            }
+        ));
+        return Object.assign(
+            {
+                assessor: ass,
+                key: ass
+            },
+            ...dayElements
+        );
+    });
 
     return (
         <>
