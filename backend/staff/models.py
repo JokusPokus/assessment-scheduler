@@ -25,6 +25,7 @@ class Staff(BaseModel):
 
     class Meta:
         abstract = True
+        ordering = ['email']
 
 
 class Assessor(Staff):
