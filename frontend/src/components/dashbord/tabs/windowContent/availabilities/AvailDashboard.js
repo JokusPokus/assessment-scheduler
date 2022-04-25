@@ -49,7 +49,7 @@ const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) =
 
     return (
         <>
-            {availableTimes.map(tag => (
+            {availableTimes && availableTimes.map(tag => (
                 <CheckableTag
                     key={tag}
                     checked={selectedTags.indexOf(tag) > -1}
@@ -91,10 +91,22 @@ const AvailDashboard = ({window}) => {
 
     const slotData = foldSlotData(window.block_slots);
 
-    useEffect(async () => {
+    const getAssessors = async () => {
         const response = await httpGetAssessors(window.id)();
         let assess = await response.json();
+        assess = assess.map(ass => (
+            {
+                ...ass,
+                available_blocks: ass.available_blocks.filter(
+                    block => block.window === window.id
+                )
+            }
+        ));
         setAssessors(assess);
+    };
+
+    useEffect(async () => {
+        await getAssessors();
     }, []);
 
     useEffect(() => {
@@ -116,6 +128,7 @@ const AvailDashboard = ({window}) => {
             if (response.status === 200) {
                 message.success("You successfully saved assessor availabilities.");
                 setStatus(processStatus.SUCCESS);
+                await getAssessors();
             } else {
                 message.error("Something went wrong...");
                 setStatus(processStatus.FAILURE);

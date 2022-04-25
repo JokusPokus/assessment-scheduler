@@ -146,7 +146,9 @@ class WindowViewSet(ModelViewSet):
             window: Window
     ) -> None:
         assessor = Assessor.objects.get(email=assessor_mail)
-        assessor.available_blocks.clear()
+        assessor.available_blocks.remove(
+            *assessor.available_blocks.filter(window=window)
+        )
         for date, times in availabilities.items():
             for time in times:
                 self._add_available_slot(assessor, date, time, window)
