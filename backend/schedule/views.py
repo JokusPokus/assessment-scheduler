@@ -10,13 +10,15 @@ from rest_framework.status import (
 )
 from rest_framework.viewsets import ModelViewSet
 
-from .models import AssessmentPhase, Window
+from .models import AssessmentPhase, Window, BlockSlot
 from .serializers import (
     AssessmentPhaseDetailSerializer,
     AssessmentPhaseListSerializer,
     WindowSerializer,
     BlockSlotSerializer
 )
+from .utils.datetime import combine
+from staff.models import Assessor
 
 
 class AssessmentPhaseViewSet(ModelViewSet):
@@ -91,3 +93,32 @@ class WindowViewSet(ModelViewSet):
                 serializer.save()
 
         return Response(status=HTTP_200_OK)
+
+    @action(
+        methods=['post'],
+        detail=True,
+        url_name='add-assessor-availabilities',
+        url_path='add-assessor-availabilities'
+    )
+    @transaction.atomic
+    def add_assessor_availabilities(self, request, pk=None):
+        window = self.get_object()
+
+        for assessor, availabilities in request.data.items():
+            assessor = Assessor.objects.get(assessor)
+            assessor.available_blocks.filter(window=window).delete()
+
+            for date, times in availabilities.items():
+                for time in times:
+                    self._add_available_slot(assessor, date, time, window)
+
+        return Response(status=HTTP_200_OK)
+
+    @staticmethod
+    def _add_available_slot(assessor, date, time, window):
+        start_time = combine(date, time)
+        slot = BlockSlot.objects.get(
+            window=window,
+            start_time=start_time
+        )
+        assessor.available_blocks.add(slot)
