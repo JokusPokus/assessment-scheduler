@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import getDaysArray from "../../../../../utils/datetime";
 import {Button, message, Table, Tag, Tooltip} from "antd";
 import {httpGetAssessors, httpPostAssessorAvails} from "../../../../../hooks/requests";
-import {foldSlotData} from "../../../../../utils/slots";
+import {foldSlotData, foldAssessorData} from "../../../../../utils/dataTransform";
 import {CheckOutlined, WarningOutlined} from "@ant-design/icons";
 
 const _ = require('lodash');
@@ -31,17 +31,21 @@ const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) =
     const handleChange = (tag, checked) => {
         const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
         setSelectedTags(nextSelectedTags);
-    };
 
-    useEffect(() => {
         const nextAssessorAvails = {
             [assessor]: {
                 ...(assessor in availData ? availData[assessor] : {}),
-                [day]: selectedTags
+                [day]: nextSelectedTags
             }
         };
         setAvailData({...availData, ...nextAssessorAvails});
-    }, [selectedTags]);
+    };
+
+    useEffect(() => {
+        if (assessor in availData && day in availData[assessor]) {
+            setSelectedTags(availData[assessor][day])
+        }
+    }, [availData]);
 
     return (
         <>
@@ -90,10 +94,12 @@ const AvailDashboard = ({window}) => {
     useEffect(async () => {
         const response = await httpGetAssessors(window.id)();
         let assess = await response.json();
-        let assessEmails = assess.map(ass => ass.email);
-        assessEmails.sort();
-        setAssessors(assessEmails);
+        setAssessors(assess);
     }, []);
+
+    useEffect(() => {
+        setAvailData(foldAssessorData(assessors));
+    }, [assessors]);
 
     useEffect(() => {
         const mustDisable = Object.values(availData).map(obj => (
@@ -117,13 +123,13 @@ const AvailDashboard = ({window}) => {
         }, 1000);
     };
 
-    const assTableSource = assessors && assessors.map(ass => {
+    const assTableSource = assessors.length > 0 && assessors.map(ass => {
         let dayElements = days.map(day => (
             {
                 [day]: <AvailChecks
                     key={day}
                     day={day}
-                    assessor={ass}
+                    assessor={ass.email}
                     availableTimes={slotData[day]}
                     availData={availData}
                     setAvailData={setAvailData}
@@ -132,8 +138,8 @@ const AvailDashboard = ({window}) => {
         ));
         return Object.assign(
             {
-                assessor: ass,
-                key: ass
+                assessor: ass.email,
+                key: ass.email
             },
             ...dayElements
         );

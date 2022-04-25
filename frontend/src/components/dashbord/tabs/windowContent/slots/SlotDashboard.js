@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../../hooks/requests";
-import {foldSlotData} from "../../../../../utils/slots";
+import {foldSlotData} from "../../../../../utils/dataTransform";
 
 const format = 'HH:mm';
 const _ = require('lodash');
