@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-from django.utils.timezone import make_aware
 from rest_framework import serializers
 
 from .models import (
@@ -8,6 +7,7 @@ from .models import (
     Window,
     BlockSlot
 )
+from .utils.datetime import combine
 
 
 class BlockSlotSerializer(serializers.ModelSerializer):
@@ -39,12 +39,7 @@ class BlockSlotSerializer(serializers.ModelSerializer):
         """Combine the date and time of a block slot to a proper datetime
         object.
         """
-        date = datetime.strptime(data.pop('date'), '%Y-%m-%d')
-        time = datetime.strptime(data.pop('time'), '%H:%M').time()
-
-        start_time = datetime.combine(date, time)
-        data['start_time'] = make_aware(start_time)
-
+        data['start_time'] = combine(data.pop('date'), data.pop('time'))
         self._validate_time(data)
 
         return data
