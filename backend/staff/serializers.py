@@ -5,8 +5,9 @@ from schedule.serializers import BlockSlotSerializer
 
 
 class AssessorSerializer(serializers.ModelSerializer):
-    available_slots = BlockSlotSerializer(read_only=True, many=True)
+    available_blocks = BlockSlotSerializer(read_only=True, many=True)
 
     class Meta:
         model = Assessor
-        fields = ['email', 'available_slots']
+        fields = ['email', 'available_blocks']
+        depth = 1
