@@ -67,11 +67,16 @@ const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
 };
 
 const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
+    const processStatus = {
+        INITIAL: "initial",
+        LOADING: "loading",
+        SUCCESS: "success",
+        FAILURE: "failure"
+    };
+
     const [startTimeData, setStartTimeData] = useState({});
     const [availableTimes, setAvailableTimes] = useState([]);
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [isFailure, setIsFailure] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState(processStatus.INITIAL);
 
     useEffect(() => {
         if (!_.isEmpty(window)) {
@@ -92,25 +97,19 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     }, [startTimeData]);
 
     const saveTimes = async () => {
-        setLoading(true);
+        setStatus(processStatus.LOADING);
         setTimeout(async () => {
             const response = await httpPostBlockSlots(window.id, startTimeData)();
             await setPhaseData();
             if (response.status === 200) {
                 message.success("You successfully saved the block slots.");
-                setLoading(false);
-                setIsSuccess(true);
-                setIsFailure(false);
+                setStatus(processStatus.SUCCESS);
             } else if (response.status === 400) {
                 message.error("At least two slots were overlapping! Check again.");
-                setLoading(false);
-                setIsSuccess(false);
-                setIsFailure(true);
+                setStatus(processStatus.FAILURE);
             } else {
                 message.error("Something went wrong...");
-                setLoading(false);
-                setIsSuccess(false);
-                setIsFailure(true);
+                setStatus(processStatus.FAILURE);
             }
         }, 1000);
     };
@@ -128,9 +127,7 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
                 setStartTimeData={setStartTimeData}
                 availableTimes={availableTimes}
                 saveTimes={saveTimes}
-                loading={loading}
-                isSuccess={isSuccess}
-                isFailure={isFailure}
+                status={status}
                 windowStep={windowStep}
                 setWindowStep={setWindowStep}
             />

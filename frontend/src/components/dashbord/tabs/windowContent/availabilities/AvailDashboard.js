@@ -109,10 +109,10 @@ const AvailDashboard = ({window}) => {
             const response = await httpPostAssessorAvails(window.id, availData)();
             if (response.status === 200) {
                 message.success("You successfully saved assessor availabilities.");
-                setStatus(processStatus.SUCCESS)
+                setStatus(processStatus.SUCCESS);
             } else {
                 message.error("Something went wrong...");
-                setStatus(processStatus.FAILURE)
+                setStatus(processStatus.FAILURE);
             }
         }, 1000);
     };

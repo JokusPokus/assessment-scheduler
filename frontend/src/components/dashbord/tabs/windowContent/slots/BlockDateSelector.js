@@ -65,9 +65,7 @@ const BlockDateSelector = ({
                                setStartTimeData,
                                availableTimes,
                                saveTimes,
-                               loading,
-                               isSuccess,
-                               isFailure,
+                               status,
                                windowStep,
                                setWindowStep
                            }) => {
@@ -116,11 +114,11 @@ const BlockDateSelector = ({
                         float: "right"
                     }}
                     onClick={saveTimes}
-                    loading={loading}
+                    loading={status === "loading"}
                     disabled={saveButtonDisabled}
-                    icon={isSuccess
+                    icon={status === "success"
                         ? <strong><CheckOutlined/> </strong>
-                        : isFailure
+                        : status === "failure"
                             ? <strong><WarningOutlined/> </strong>
                             : null
                     }
@@ -129,7 +127,7 @@ const BlockDateSelector = ({
                 </Button>
             </Tooltip>
 
-            {isSuccess && (
+            {status === "success" && (
                 <Button
                     type="primary"
                     shape="round"
