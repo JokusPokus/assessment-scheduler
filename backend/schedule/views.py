@@ -48,6 +48,11 @@ class AssessmentPhaseViewSet(ModelViewSet):
         url_name='get-by-attributes'
     )
     def get_by_attributes(self, request, year=None, semester=None):
+        """Return serialized information about an assessment phase.
+
+        The assessment phase can be specified via its year and semester
+        attributes, respectively.
+        """
         try:
             year = int(year)
         except ValueError:
@@ -78,6 +83,11 @@ class WindowViewSet(ModelViewSet):
     )
     @transaction.atomic
     def add_block_slots(self, request, pk=None):
+        """Add block slots to a window.
+
+        Prior block slots configuration is ignored in favor of the new data
+        to be saved.
+        """
         window = self.get_object()
         window.block_slots.all().delete()
 
@@ -102,6 +112,7 @@ class WindowViewSet(ModelViewSet):
     )
     @transaction.atomic
     def add_assessor_availabilities(self, request, pk=None):
+        """Add a new set of block slots to assessors' availabilities."""
         window = self.get_object()
 
         for assessor, availabilities in request.data.items():
