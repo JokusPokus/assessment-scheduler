@@ -4,67 +4,19 @@ import {Button, message, Table, Tag, Tooltip} from "antd";
 import {httpGetAssessors, httpPostAssessorAvails} from "../../../../../hooks/requests";
 import {foldSlotData, foldAssessorData} from "../../../../../utils/dataTransform";
 import {CheckOutlined, WarningOutlined} from "@ant-design/icons";
+import HelpersTable from "./HelpersTable";
+import AvailChecks from "./AvailChecks";
 
 const _ = require('lodash');
-const {CheckableTag} = Tag;
 
 const assessorColumn = [
     {
         title: 'Assessor',
         dataIndex: 'assessor',
         key: 'assessor',
+        width: '25%',
     },
 ];
-
-const helperColumn = [
-    {
-        title: 'Helper',
-        dataIndex: 'helper',
-        key: 'helper',
-    },
-];
-
-
-const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) => {
-    const [selectedTags, setSelectedTags] = useState([]);
-
-    const handleChange = (tag, checked) => {
-        const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
-        setSelectedTags(nextSelectedTags);
-
-        const nextAssessorAvails = {
-            [assessor]: {
-                ...(assessor in availData ? availData[assessor] : {}),
-                [day]: nextSelectedTags
-            }
-        };
-        setAvailData({...availData, ...nextAssessorAvails});
-    };
-
-    useEffect(() => {
-        if (assessor in availData && day in availData[assessor]) {
-            setSelectedTags(availData[assessor][day])
-        }
-    }, [availData]);
-
-    return (
-        <>
-            {availableTimes && availableTimes.map(tag => (
-                <CheckableTag
-                    key={tag}
-                    checked={selectedTags.indexOf(tag) > -1}
-                    onChange={checked => handleChange(tag, checked)}
-                    style={{
-                        padding: "8px",
-                        fontSize: "1.1em"
-                    }}
-                >
-                    {tag}
-                </CheckableTag>
-            ))}
-        </>
-    )
-};
 
 
 const AvailDashboard = ({window}) => {
@@ -168,6 +120,7 @@ const AvailDashboard = ({window}) => {
                 columns={[...assessorColumn, ...daysColumns]}
                 pagination={false}
                 tableLayout={"fixed"}
+                bordered
             />
             <Tooltip title={saveButtonDisabled ? "Please add/select start times" : undefined}>
                 <Button
@@ -197,11 +150,7 @@ const AvailDashboard = ({window}) => {
             <h1 style={{textAlign: 'left', marginTop: '80px', marginLeft: '10px'}}>
                 Helpers
             </h1>
-            <Table
-                dataSource={null}
-                columns={[...helperColumn, ...daysColumns]}
-                pagination={false}
-            />
+            <HelpersTable window={window}/>
         </>
     )
 };
