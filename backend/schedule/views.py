@@ -112,18 +112,39 @@ class WindowViewSet(ModelViewSet):
     )
     @transaction.atomic
     def add_assessor_availabilities(self, request, pk=None):
-        """Add a new set of block slots to assessors' availabilities."""
+        """Add a new set of block slots to assessors' availabilities.
+
+        The request body is expected to contain a key-value pair for each
+        relevant assessor, where the key is the assessor's email and the value
+        is a dictionary with dates as keys and the according block slot
+        starting times as values.
+
+        Consider the following example:
+
+        request.data = {
+            'assessor_1@code.berlin': {
+                '2022-03-31': ['10:00', '14:00'],
+                '2022-04-01': ['10:00']
+            },
+            'assessor_2@code.berlin': {
+                '2022-04-01': ['14:00'],
+                '2022-04-03': ['10:00', '14:00']
+            }
+        }
+        """
         window = self.get_object()
 
         for assessor, availabilities in request.data.items():
-            assessor = Assessor.objects.get(assessor)
-            assessor.available_blocks.filter(window=window).delete()
-
-            for date, times in availabilities.items():
-                for time in times:
-                    self._add_available_slot(assessor, date, time, window)
+            self._add_availabilities_for(assessor, availabilities, window)
 
         return Response(status=HTTP_200_OK)
+
+    def _add_availabilities_for(self, assessor, availabilities, window):
+        assessor = Assessor.objects.get(assessor)
+        assessor.available_blocks.filter(window=window).delete()
+        for date, times in availabilities.items():
+            for time in times:
+                self._add_available_slot(assessor, date, time, window)
 
     @staticmethod
     def _add_available_slot(assessor, date, time, window):
