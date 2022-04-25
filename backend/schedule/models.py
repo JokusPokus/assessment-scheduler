@@ -99,6 +99,9 @@ class Window(BaseModel):
             )
         ]
 
+    def __str__(self):
+        return f"{self.assessment_phase} ({self.position})"
+
     def save(self, *args, **kwargs):
         if not self.position:
             self.position = self.assessment_phase.windows.count() + 1
@@ -122,6 +125,9 @@ class BlockSlot(BaseModel):
         on_delete=models.CASCADE
     )
     start_time = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.window}: {self.start_time.strftime('%Y-%m-%d, %H:%M')}"
 
 
 class Block(BaseModel):

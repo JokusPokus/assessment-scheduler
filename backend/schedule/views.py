@@ -134,20 +134,30 @@ class WindowViewSet(ModelViewSet):
         """
         window = self.get_object()
 
-        for assessor, availabilities in request.data.items():
-            self._add_availabilities_for(assessor, availabilities, window)
+        for assessor_mail, availabilities in request.data.items():
+            self._add_availabilities_for(assessor_mail, availabilities, window)
 
         return Response(status=HTTP_200_OK)
 
-    def _add_availabilities_for(self, assessor, availabilities, window):
-        assessor = Assessor.objects.get(assessor)
-        assessor.available_blocks.filter(window=window).delete()
+    def _add_availabilities_for(
+            self,
+            assessor_mail: str,
+            availabilities: dict,
+            window: Window
+    ) -> None:
+        assessor = Assessor.objects.get(email=assessor_mail)
+        assessor.available_blocks.clear()
         for date, times in availabilities.items():
             for time in times:
                 self._add_available_slot(assessor, date, time, window)
 
     @staticmethod
-    def _add_available_slot(assessor, date, time, window):
+    def _add_available_slot(
+            assessor: Assessor,
+            date: str,
+            time: str,
+            window: Window
+    ) -> None:
         start_time = combine(date, time)
         slot = BlockSlot.objects.get(
             window=window,
