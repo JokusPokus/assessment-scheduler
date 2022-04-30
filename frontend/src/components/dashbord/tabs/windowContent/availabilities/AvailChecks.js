@@ -6,7 +6,6 @@ const {CheckableTag} = Tag;
 
 const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
     const [selectedTags, setSelectedTags] = useState([]);
-    console.log("INIT:", day, staff, availData)
 
     const handleChange = (tag, checked) => {
         const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);

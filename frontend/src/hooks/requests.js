@@ -11,7 +11,7 @@ function httpApiCall(method, path, body) {
                 'Authorization': `Bearer ${window.localStorage.getItem('access')}`
             }
         };
-        if (method === 'POST') {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
             requestOptions['body'] = JSON.stringify(body)
         }
         return await fetch(`${API_URL}/${path}`, requestOptions);
@@ -46,6 +46,12 @@ export const httpGetStaff = (windowId, apiResourceName) => {
 export const httpPostStaffAvails = (windowId, body, apiResourceName) => {
     const path = `schedules/windows/${windowId}/add-staff-availabilities/?resource=${apiResourceName}`;
     return httpApiCall('POST', path, body);
+};
+
+export const httpDeleteHelper = (email, windowId) => {
+    const path = `schedules/windows/${windowId}/remove-staff/`;
+    const body = {email: email};
+    return httpApiCall('DELETE', path, body)
 };
 
 export const httpPostPlanningSheet = async (body) => {

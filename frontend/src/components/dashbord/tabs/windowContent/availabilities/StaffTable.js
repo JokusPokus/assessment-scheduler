@@ -1,7 +1,7 @@
 import React, {useEffect, useState, createRef} from 'react';
 import getDaysArray from "../../../../../utils/datetime";
 import {Button, Input, message, Popconfirm, Table, Tooltip} from "antd";
-import {httpGetStaff, httpPostStaffAvails} from "../../../../../hooks/requests";
+import {httpGetStaff, httpPostStaffAvails, httpDeleteHelper} from "../../../../../hooks/requests";
 import {foldSlotData, foldStaffData} from "../../../../../utils/dataTransform";
 import {CheckOutlined, WarningOutlined, UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
 import AvailChecks from "./AvailChecks";
@@ -100,8 +100,14 @@ const StaffTable = ({window, apiResourceName, extensible}) => {
         setDataSource([...staffTableSource]);
     }, [availData]);
 
-    const handleDelete = (key) => {
+    const handleDelete = async (key) => {
         setDataSource(dataSource.filter((item) => item.key !== key));
+        const response = await httpDeleteHelper(key, window.id)();
+        if (response.status === 200) {
+            message.success(`Helper ${key} successfully deleted`);
+        } else {
+            message.error("Something went wrong...");
+        }
     };
 
     const handleEmailChange = (e) => {
@@ -162,7 +168,11 @@ const StaffTable = ({window, apiResourceName, extensible}) => {
             align: 'center',
             render: (_, record) =>
                 dataSource.length >= 1 ? (
-                    <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
+                    <Popconfirm
+                        title="Sure to delete? This will remove the helper from the entire assessment phase."
+                        onConfirm={() => handleDelete(record.key)}
+                        placement={"topRight"}
+                    >
                         <a><DeleteOutlined style={{fontSize: "1.5em"}}/></a>
                     </Popconfirm>
                 ) : null,
