@@ -107,6 +107,31 @@ class WindowViewSet(ModelViewSet):
         return Response(status=HTTP_200_OK)
 
     @action(
+        methods=['delete'],
+        detail=True,
+        url_name='remove-staff',
+        url_path='remove-staff'
+    )
+    def remove_staff(self, request, pk=None):
+        """Remove a staff member from the current window's planning.
+
+        The staff member is identified by their email address as given
+        in the request body.
+        """
+        window = self.get_object()
+        try:
+            helper = Helper.objects.get(email=request.data.get('email'))
+        except Helper.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        helper.assessment_phases.remove(window.assessment_phase)
+        helper.available_blocks.remove(
+            *helper.available_blocks.filter(window=window)
+        )
+
+        return Response(status=HTTP_200_OK)
+
+    @action(
         methods=['post'],
         detail=True,
         url_name='add-staff-availabilities',
