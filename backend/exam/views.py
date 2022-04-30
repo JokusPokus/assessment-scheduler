@@ -1,3 +1,6 @@
+from django.db import transaction
+
+from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -28,3 +31,24 @@ class ModuleViewSet(ModelViewSet):
             organization=self.request.user.organization
         )
 
+    @action(
+        methods=['post'],
+        detail=False,
+        url_path='add-durations',
+        url_name='add-durations'
+    )
+    @transaction.atomic
+    def add_durations(self, request):
+        """Add or update duration attributes on a set of modules."""
+        modules = request.data
+        for module_data in modules:
+            try:
+                module = Module.objects.get(id=module_data['id'])
+            except Module.DoesNotExist:
+                return Response(status=HTTP_404_NOT_FOUND)
+
+            module.standard_length = module_data['standardAssessment']
+            module.alternative_length = module_data['alternativeAssessment']
+            module.save()
+
+        return Response(status=HTTP_200_OK)
