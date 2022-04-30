@@ -47,8 +47,8 @@ class ModuleViewSet(ModelViewSet):
             except Module.DoesNotExist:
                 return Response(status=HTTP_404_NOT_FOUND)
 
-            module.standard_length = module_data['standardAssessment']
-            module.alternative_length = module_data['alternativeAssessment']
+            module.standard_length = module_data['standard_length']
+            module.alternative_length = module_data['alternative_length']
             module.save()
 
         return Response(status=HTTP_200_OK)
