@@ -5,6 +5,9 @@ from core.models import BaseModel
 from schedule.models import MIN_EXAM_LENGTH, MAX_EXAM_LENGTH
 
 
+DEFAULT_EXAM_LENGTH = 20
+
+
 class Student(BaseModel):
     """A student who is to be assessed in a number of modules."""
 
@@ -30,16 +33,14 @@ class Module(BaseModel):
     code = models.CharField(max_length=32)
     name = models.CharField(max_length=64)
     standard_length = models.IntegerField(
-        null=True,
-        blank=True,
+        default=DEFAULT_EXAM_LENGTH,
         validators=[
             MinValueValidator(MIN_EXAM_LENGTH),
             MaxValueValidator(MAX_EXAM_LENGTH)
         ]
     )
     alternative_length = models.IntegerField(
-        null=True,
-        blank=True,
+        default=DEFAULT_EXAM_LENGTH,
         validators=[
             MinValueValidator(MIN_EXAM_LENGTH),
             MaxValueValidator(MAX_EXAM_LENGTH)
