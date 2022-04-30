@@ -40,12 +40,16 @@ const WindowSteps = ({window, setPhaseData}) => {
             title: 'Assessors',
             content: <AssessorDashboard
                 window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
             />
         },
         {
             title: 'Helpers',
             content: <HelperDashboard
                 window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
             />
         },
         {

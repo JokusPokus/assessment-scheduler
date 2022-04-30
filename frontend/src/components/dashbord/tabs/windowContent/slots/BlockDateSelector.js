@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Tag, Table, Button, Tooltip} from 'antd';
 import {CheckOutlined, WarningOutlined} from "@ant-design/icons";
 import getDaysArray from "../../../../../utils/datetime";
+import {NextStepButton} from "../Buttons";
 
 const {CheckableTag} = Tag;
 const _ = require('lodash');
@@ -127,23 +128,11 @@ const BlockDateSelector = ({
                 </Button>
             </Tooltip>
 
-            {status === "success" && (
-                <Button
-                    type="primary"
-                    shape="round"
-                    size="large"
-                    style={{
-                        marginTop: "30px",
-                        marginBottom: "30px",
-                        marginRight: "20px",
-                        float: "right"
-                    }}
-                    key="console"
-                    onClick={() => setWindowStep(windowStep + 1)}
-                >
-                    <strong>Next step</strong>
-                </Button>
-            )}
+            <NextStepButton
+                windowStep={windowStep}
+                setWindowStep={setWindowStep}
+                status={status}
+            />
         </>
     );
 };

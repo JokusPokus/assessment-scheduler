@@ -5,9 +5,10 @@ import {httpGetStaff, httpPostStaffAvails, httpDeleteHelper} from "../../../../.
 import {foldSlotData, foldStaffData} from "../../../../../utils/dataTransform";
 import {CheckOutlined, WarningOutlined, UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
 import AvailChecks from "./AvailChecks";
+import {NextStepButton} from "../Buttons";
 
 
-const StaffTable = ({window, apiResourceName, extensible}) => {
+const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensible}) => {
     const emailColumn = [
         {
             title: 'Email',
@@ -238,6 +239,11 @@ const StaffTable = ({window, apiResourceName, extensible}) => {
                         <strong>Save availabilities</strong>
                     </Button>
                 </Tooltip>
+                <NextStepButton
+                    windowStep={windowStep}
+                    setWindowStep={setWindowStep}
+                    status={status}
+                />
             </div>
 
         </div>
