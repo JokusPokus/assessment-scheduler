@@ -186,8 +186,11 @@ const HelpersTable = ({window}) => {
             <Button
                 onClick={handleAdd}
                 type="primary"
+                shape="round"
                 style={{
-                    marginBottom: 16,
+                    marginBottom: "30px",
+                    marginLeft: "20px",
+                    float: "left"
                 }}
             >
                 Add a row

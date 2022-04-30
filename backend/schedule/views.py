@@ -1,3 +1,5 @@
+from typing import Type, Union
+
 from django.db import transaction
 
 from rest_framework.decorators import action
@@ -18,7 +20,7 @@ from .serializers import (
     BlockSlotSerializer
 )
 from .utils.datetime import combine
-from staff.models import Assessor
+from staff.models import Assessor, Helper, Staff
 
 
 class AssessmentPhaseViewSet(ModelViewSet):
@@ -107,16 +109,16 @@ class WindowViewSet(ModelViewSet):
     @action(
         methods=['post'],
         detail=True,
-        url_name='add-assessor-availabilities',
-        url_path='add-assessor-availabilities'
+        url_name='add-staff-availabilities',
+        url_path='add-staff-availabilities'
     )
     @transaction.atomic
-    def add_assessor_availabilities(self, request, pk=None):
-        """Add a new set of block slots to assessors' availabilities.
+    def add_staff_availabilities(self, request, pk=None):
+        """Add a new set of block slots to staff availabilities.
 
         The request body is expected to contain a key-value pair for each
-        relevant assessor, where the key is the assessor's email and the value
-        is a dictionary with dates as keys and the according block slot
+        relevant assessor, where the key is the staff member's email and the
+        value is a dictionary with dates as keys and the according block slot
         starting times as values.
 
         Consider the following example:
@@ -134,28 +136,50 @@ class WindowViewSet(ModelViewSet):
         """
         window = self.get_object()
 
-        for assessor_mail, availabilities in request.data.items():
-            self._add_availabilities_for(assessor_mail, availabilities, window)
+        staff_class = {
+            'assessors': Assessor,
+            'helpers': Helper
+        }[request.query_params.get('resource')]
+
+        for email, availabilities in request.data.items():
+            if staff_class == Helper:
+                self._create_or_update_helper(email, request, window)
+
+            self._add_availabilities_for(
+                email,
+                staff_class,
+                availabilities,
+                window
+            )
 
         return Response(status=HTTP_200_OK)
 
+    @staticmethod
+    def _create_or_update_helper(email, request, window):
+        helper, _ = Helper.objects.get_or_create(
+            organization=request.user.organization,
+            email=email
+        )
+        helper.assessment_phases.add(window.assessment_phase)
+
     def _add_availabilities_for(
             self,
-            assessor_mail: str,
+            email: str,
+            staff_class: Type[Staff],
             availabilities: dict,
             window: Window
     ) -> None:
-        assessor = Assessor.objects.get(email=assessor_mail)
-        assessor.available_blocks.remove(
-            *assessor.available_blocks.filter(window=window)
+        staff = staff_class.objects.get(email=email)
+        staff.available_blocks.remove(
+            *staff.available_blocks.filter(window=window)
         )
         for date, times in availabilities.items():
             for time in times:
-                self._add_available_slot(assessor, date, time, window)
+                self._add_available_slot(staff, date, time, window)
 
     @staticmethod
     def _add_available_slot(
-            assessor: Assessor,
+            staff: Staff,
             date: str,
             time: str,
             window: Window
@@ -165,4 +189,4 @@ class WindowViewSet(ModelViewSet):
             window=window,
             start_time=start_time
         )
-        assessor.available_blocks.add(slot)
+        staff.available_blocks.add(slot)

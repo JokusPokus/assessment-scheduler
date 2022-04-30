@@ -19,7 +19,7 @@ const assessorColumn = [
 ];
 
 
-const AvailDashboard = ({window}) => {
+const AssessorDashboard = ({window}) => {
     const days = getDaysArray(window.start_date, window.end_date);
     const daysColumns = days.map(day => (
         {
@@ -155,4 +155,4 @@ const AvailDashboard = ({window}) => {
     )
 };
 
-export default AvailDashboard;
+export default AssessorDashboard;
