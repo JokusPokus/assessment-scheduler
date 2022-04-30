@@ -5,6 +5,7 @@ import CSVDashboard from "./CSV/CSVDashboard";
 import SlotDashboard from "./slots/SlotDashboard";
 import AssessorDashboard from "./availabilities/AssessorDashboard";
 import HelperDashboard from "./availabilities/HelperDashboard";
+import ModuleDashboard from "./modules/ModuleDashboard";
 
 const {Step} = Steps;
 
@@ -54,7 +55,11 @@ const WindowSteps = ({window, setPhaseData}) => {
         },
         {
             title: 'Modules',
-            content: 'Last-content',
+            content: <ModuleDashboard
+                window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
+            />
         },
         {
             title: 'Rooms',
