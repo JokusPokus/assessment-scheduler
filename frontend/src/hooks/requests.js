@@ -29,6 +29,7 @@ export const httpGetUser = httpApiCall('GET', 'users/current/', null);
 export const httpGetPhases = httpApiCall('GET', 'schedules/assessment-phases/', null);
 export const httpPostPhase = _.partial(httpApiCall, 'POST', 'schedules/assessment-phases/');
 export const httpPostWindow = _.partial(httpApiCall, 'POST', 'schedules/windows/');
+export const httpPostModuleDurations = _.partial(httpApiCall, 'POST', 'exams/modules/add-durations/');
 
 export const httpGetPhase = _.partial(
     httpGetResourceById, ({year, semester}) => {

@@ -3,9 +3,9 @@ import getDaysArray from "../../../../../utils/datetime";
 import {Button, Input, message, Popconfirm, Table, Tooltip} from "antd";
 import {httpGetStaff, httpPostStaffAvails, httpDeleteHelper} from "../../../../../hooks/requests";
 import {foldSlotData, foldStaffData} from "../../../../../utils/dataTransform";
-import {CheckOutlined, WarningOutlined, UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
+import {UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
 import AvailChecks from "./AvailChecks";
-import {NextStepButton} from "../Buttons";
+import {NextStepButton, SaveButton} from "../Buttons";
 
 
 const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensible}) => {
@@ -216,28 +216,12 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                 </Input.Group>
                 }
                 <Tooltip title={saveButtonDisabled ? "Please add/select start times" : undefined}>
-                    <Button
-                        type="primary"
-                        shape="round"
-                        size="large"
-                        style={{
-                            marginTop: "30px",
-                            marginBottom: "30px",
-                            marginRight: "20px",
-                            float: "right"
-                        }}
-                        onClick={saveAvails}
-                        loading={status === processStatus.LOADING}
+                    <SaveButton
+                        status={status}
                         disabled={saveButtonDisabled}
-                        icon={status === processStatus.SUCCESS
-                            ? <strong><CheckOutlined/> </strong>
-                            : status === processStatus.FAILURE
-                                ? <strong><WarningOutlined/> </strong>
-                                : null
-                        }
-                    >
-                        <strong>Save availabilities</strong>
-                    </Button>
+                        title="Save availabilities"
+                        onClick={saveAvails}
+                    />
                 </Tooltip>
                 <NextStepButton
                     windowStep={windowStep}

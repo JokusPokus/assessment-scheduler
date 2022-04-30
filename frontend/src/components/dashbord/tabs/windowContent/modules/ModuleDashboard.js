@@ -1,18 +1,30 @@
 import React, {useEffect, useState} from 'react';
-import {httpGetModules} from "../../../../../hooks/requests";
-import {InputNumber, Table} from "antd";
+import {httpGetModules, httpPostModuleDurations} from "../../../../../hooks/requests";
+import {InputNumber, message, Table, Tooltip} from "antd";
 import {ClockCircleOutlined} from "@ant-design/icons";
+import {SaveButton, NextStepButton} from "../Buttons";
 
 
-const DurationInput = () => {
+const DurationInput = ({durationData, initialDuration, setDurationData, assessmentType, code}) => {
+    const [duration, setDuration] = useState(initialDuration);
+
+    const handleChange = (value) => {
+        setDuration(value);
+
+        const index = durationData.findIndex((obj => obj.code === code));
+        durationData[index][`${assessmentType}_length`] = value;
+        setDurationData(durationData);
+    };
+
     return (
         <InputNumber
             min={5}
             max={300}
             step={5}
-            defaultValue={20}
-            addonBefore={<ClockCircleOutlined />}
+            value={duration}
+            addonBefore={<ClockCircleOutlined/>}
             style={{width: "50%"}}
+            onStep={handleChange}
         />
     )
 };
@@ -50,7 +62,6 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
     };
 
     const [status, setStatus] = useState(processStatus.INITIAL);
-    const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [durationData, setDurationData] = useState([]);
 
@@ -65,23 +76,45 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
     }, []);
 
     useEffect(() => {
-        // Are all the durations empty?
-        const mustDisable = durationData.map(obj => (!('duration' in obj)))
-            .every(Boolean);
-        setSaveButtonDisabled(mustDisable);
-    }, [durationData]);
-
-    useEffect(() => {
         const moduleTableSource = durationData.length > 0
             ? durationData.map(module => ({
                 shortCode: module.code,
                 name: module.name,
-                standardAssessment: <DurationInput key={`${module.code}_s`}/>,
-                alternativeAssessment: <DurationInput key={`${module.code}_a`}/>
+                standardAssessment: <DurationInput
+                    key={`${module.code}_s`}
+                    initialDuration={module.standard_length}
+                    durationData={durationData}
+                    setDurationData={setDurationData}
+                    code={module.code}
+                    assessmentType="standard"
+                />,
+                alternativeAssessment: <DurationInput
+                    key={`${module.code}_a`}
+                    initialDuration={module.alternative_length}
+                    durationData={durationData}
+                    setDurationData={setDurationData}
+                    code={module.code}
+                    assessmentType="alternative"
+                />
             }))
             : [];
         setDataSource([...moduleTableSource]);
     }, [durationData]);
+
+    const saveDurations = async () => {
+        setStatus(processStatus.LOADING);
+        setTimeout(async () => {
+            const response = await httpPostModuleDurations(durationData)();
+            if (response.status === 200) {
+                message.success(`You successfully saved module durations.`);
+                setStatus(processStatus.SUCCESS);
+                await getModules();
+            } else {
+                message.error("Something went wrong...");
+                setStatus(processStatus.FAILURE);
+            }
+        }, 1000);
+    };
 
     return (
         <>
@@ -91,6 +124,18 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
                 columns={columns}
                 tableLayout={"fixed"}
                 pagination={false}
+                style={{marginTop: "60px"}}
+            />
+            <SaveButton
+                status={status}
+                disabled={false}
+                title="Save durations"
+                onClick={saveDurations}
+            />
+            <NextStepButton
+                windowStep={windowStep}
+                setWindowStep={setWindowStep}
+                status={status}
             />
         </>
     )
