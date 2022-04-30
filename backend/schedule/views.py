@@ -91,18 +91,14 @@ class WindowViewSet(ModelViewSet):
         to be saved.
         """
         window = self.get_object()
-        window.block_slots.all().delete()
 
+        window_ids = []
         for date, start_times in request.data.items():
             for time in start_times:
-                data = {
-                    'date': date,
-                    'time': time,
-                    'window': window
-                }
-                serializer = BlockSlotSerializer(data=data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+                slot = self._get_or_create_slot(date, time, window)
+                window_ids.append(slot.id)
+
+        self._delete_obsolete_slots(window, window_ids)
 
         return Response(status=HTTP_200_OK)
 
@@ -178,6 +174,22 @@ class WindowViewSet(ModelViewSet):
             )
 
         return Response(status=HTTP_200_OK)
+
+    @staticmethod
+    def _delete_obsolete_slots(window, window_ids):
+        window.block_slots.exclude(id__in=window_ids).delete()
+
+    @staticmethod
+    def _get_or_create_slot(date, time, window):
+        data = {
+            'date': date,
+            'time': time,
+            'window': window
+        }
+        serializer = BlockSlotSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        slot = serializer.save()
+        return slot
 
     @staticmethod
     def _create_or_update_helper(email, request, window):

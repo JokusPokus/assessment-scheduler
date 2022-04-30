@@ -45,6 +45,11 @@ class BlockSlotSerializer(serializers.ModelSerializer):
         return data
 
     @staticmethod
+    def create(validated_data):
+        obj, _ = BlockSlot.objects.get_or_create(**validated_data)
+        return obj
+
+    @staticmethod
     def _validate_time(data):
         """Validate that there is no other block slot interfering with
         the current one.
@@ -57,7 +62,7 @@ class BlockSlotSerializer(serializers.ModelSerializer):
         start_times = window.block_slots.all().values_list('start_time', flat=True)
 
         for time in start_times:
-            if abs(time - data.get('start_time')) < min_distance:
+            if timedelta(0) < abs(time - data.get('start_time')) < min_distance:
                 raise serializers.ValidationError(
                     {'start_time': 'Overlapping block slots'}
                 )
