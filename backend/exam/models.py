@@ -1,6 +1,8 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from core.models import BaseModel
+from schedule.models import MIN_EXAM_LENGTH, MAX_EXAM_LENGTH
 
 
 class Student(BaseModel):
@@ -27,6 +29,22 @@ class Module(BaseModel):
     )
     code = models.CharField(max_length=32)
     name = models.CharField(max_length=64)
+    standard_length = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(MIN_EXAM_LENGTH),
+            MaxValueValidator(MAX_EXAM_LENGTH)
+        ]
+    )
+    alternative_length = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(MIN_EXAM_LENGTH),
+            MaxValueValidator(MAX_EXAM_LENGTH)
+        ]
+    )
 
     def __str__(self):
         return self.code
