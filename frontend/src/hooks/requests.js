@@ -39,10 +39,17 @@ export const httpPostBlockSlots = (windowId, body) => {
     const path = `schedules/windows/${windowId}/add-block-slots/`;
     return httpApiCall('POST', path, body);
 };
+
 export const httpGetStaff = (windowId, apiResourceName) => {
     const path = `staff/${apiResourceName}/?window=${windowId}`;
     return httpApiCall('GET', path, null);
 };
+
+export const httpGetModules = (windowId) => {
+    const path = `exams/modules/?window=${windowId}`;
+    return httpApiCall('GET', path, null);
+};
+
 export const httpPostStaffAvails = (windowId, body, apiResourceName) => {
     const path = `schedules/windows/${windowId}/add-staff-availabilities/?resource=${apiResourceName}`;
     return httpApiCall('POST', path, body);
