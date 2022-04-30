@@ -4,25 +4,27 @@ import {Tag} from "antd";
 const _ = require('lodash');
 const {CheckableTag} = Tag;
 
-const AvailChecks = ({day, assessor, availableTimes, availData, setAvailData}) => {
+const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
     const [selectedTags, setSelectedTags] = useState([]);
+    console.log("INIT:", day, staff, availData)
 
     const handleChange = (tag, checked) => {
         const nextSelectedTags = checked ? [...selectedTags, tag] : selectedTags.filter(t => t !== tag);
         setSelectedTags(nextSelectedTags);
 
         const nextAssessorAvails = {
-            [assessor]: {
-                ...(assessor in availData ? availData[assessor] : {}),
+            [staff]: {
+                ...(staff in availData ? availData[staff] : {}),
                 [day]: nextSelectedTags
             }
         };
         setAvailData({...availData, ...nextAssessorAvails});
+        console.log('new ad:', {...availData, ...nextAssessorAvails})
     };
 
     useEffect(() => {
-        if (assessor in availData && day in availData[assessor]) {
-            setSelectedTags(availData[assessor][day])
+        if (staff in availData && day in availData[staff]) {
+            setSelectedTags(availData[staff][day])
         }
     }, [availData]);
 

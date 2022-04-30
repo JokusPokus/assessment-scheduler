@@ -3,9 +3,11 @@ import {Steps} from 'antd';
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
 import SlotDashboard from "./slots/SlotDashboard";
-import AvailDashboard from "./availabilities/AvailDashboard";
+import AssessorDashboard from "./availabilities/AssessorDashboard";
+import HelperDashboard from "./availabilities/HelperDashboard";
 
 const {Step} = Steps;
+
 
 const WindowSteps = ({window, setPhaseData}) => {
     const [current, setCurrent] = useState(0);
@@ -35,8 +37,14 @@ const WindowSteps = ({window, setPhaseData}) => {
             />,
         },
         {
-            title: 'Availabilities',
-            content: <AvailDashboard
+            title: 'Assessors',
+            content: <AssessorDashboard
+                window={window}
+            />
+        },
+        {
+            title: 'Helpers',
+            content: <HelperDashboard
                 window={window}
             />
         },

@@ -7,7 +7,7 @@ export const foldSlotData = (slots) => (
 );
 
 
-export const foldAssessorData = (assessors) => (
+export const foldStaffData = (assessors) => (
     assessors.reduce((r, a) => {
         r[a.email] = r[a.email] || {};
         r[a.email] = a['available_blocks'].reduce((rr, aa) => {
