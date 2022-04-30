@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from core.views import index
 from schedule import urls as schedule_urls
 from staff import urls as staff_urls
+from exam import urls as exam_urls
 from user.views import current_user
 from input.views import PlanningSheetUploadView
 
@@ -49,6 +50,7 @@ urlpatterns = [
     ),
     path('schedules/', include(schedule_urls.urlpatterns)),
     path('staff/', include(staff_urls.urlpatterns)),
+    path('exams/', include(exam_urls.urlpatterns)),
 ]
 
 if settings.DEBUG:
