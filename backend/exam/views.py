@@ -28,7 +28,8 @@ class ModuleViewSet(ModelViewSet):
             return Response(HTTP_404_NOT_FOUND)
 
         return Module.objects.filter(
-            organization=self.request.user.organization
+            organization=self.request.user.organization,
+            windows=window
         )
 
     @action(
