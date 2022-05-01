@@ -1,5 +1,6 @@
 import React from 'react';
-import {Modal, Form, InputNumber, Select, DatePicker} from 'antd';
+import {Modal, Form, InputNumber, Select, DatePicker, Tooltip} from 'antd';
+import {InfoCircleFilled} from "@ant-design/icons";
 import moment from 'moment';
 
 const {RangePicker} = DatePicker;
@@ -51,7 +52,9 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                         format={dateFormat}
                     />
                 </Form.Item>
-                <Form.Item
+
+                <Tooltip title="Not editable yet." placement="bottomLeft">
+                    <Form.Item
                     name="blockLength"
                     label="Duration of each block in minutes"
                     rules={[
@@ -61,8 +64,9 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
                         },
                     ]}
                 >
-                    <InputNumber min={60}/>
+                    <InputNumber disabled min={60}/>
                 </Form.Item>
+                </Tooltip>
             </Form>
         </Modal>
     );
