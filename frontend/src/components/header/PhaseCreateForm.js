@@ -30,6 +30,8 @@ const PhaseCreateForm = ({visible, onCreate, onCancel}) => {
                 name="form_in_modal"
                 initialValues={{
                     modifier: 'public',
+                    year: new Date().getFullYear(),
+                    semester: "Spring Semester"
                 }}
             >
                 <Form.Item
@@ -42,7 +44,7 @@ const PhaseCreateForm = ({visible, onCreate, onCancel}) => {
                         },
                     ]}
                 >
-                    <InputNumber min={2022} defaultValue={2022}/>
+                    <InputNumber min={2022}/>
                 </Form.Item>
                 <Form.Item
                     name="semester"
@@ -54,7 +56,7 @@ const PhaseCreateForm = ({visible, onCreate, onCancel}) => {
                         },
                     ]}
                 >
-                    <Select defaultValue="Spring Semester">
+                    <Select>
                         <Option value="spring">Spring Semester</Option>
                         <Option value="fall">Fall Semester</Option>
                     </Select>
