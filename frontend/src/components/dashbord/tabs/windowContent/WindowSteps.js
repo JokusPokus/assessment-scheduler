@@ -62,12 +62,12 @@ const WindowSteps = ({window, setPhaseData}) => {
             />
         },
         {
-            title: 'Rooms',
-            content: 'Last-content',
-        },
-        {
             title: 'Schedule',
-            content: 'Last-content',
+            content: <ModuleDashboard
+                window={window}
+                windowStep={current}
+                setWindowStep={setCurrent}
+            />
         },
     ];
 

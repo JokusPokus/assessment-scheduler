@@ -17,13 +17,13 @@ const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
             >
                 <Col span={6}>
                     <Statistic
-                        title="Start Date"
+                        title="Start date"
                         value={window.start_date}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        title="End Date"
+                        title="End date"
                         value={window.end_date}
                     />
                 </Col>
