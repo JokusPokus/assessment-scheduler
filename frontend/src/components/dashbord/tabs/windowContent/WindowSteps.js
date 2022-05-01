@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Steps} from 'antd';
+import {UploadOutlined, DownloadOutlined, HistoryOutlined, TeamOutlined, HeartOutlined, BuildOutlined} from "@ant-design/icons";
 import './WindowSteps.css'
 import CSVDashboard from "./CSV/CSVDashboard";
 import SlotDashboard from "./slots/SlotDashboard";
@@ -27,6 +28,7 @@ const WindowSteps = ({window, setPhaseData}) => {
                 uploadErrors={uploadErrors}
                 setUploadErrors={setUploadErrors}
             />,
+            icon: <UploadOutlined />
         },
         {
             title: 'Slots',
@@ -36,6 +38,7 @@ const WindowSteps = ({window, setPhaseData}) => {
                 setWindowStep={setCurrent}
                 setPhaseData={setPhaseData}
             />,
+            icon: <HistoryOutlined />
         },
         {
             title: 'Assessors',
@@ -43,7 +46,8 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
-            />
+            />,
+            icon: <TeamOutlined />
         },
         {
             title: 'Helpers',
@@ -51,7 +55,8 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
-            />
+            />,
+            icon: <HeartOutlined />
         },
         {
             title: 'Modules',
@@ -59,7 +64,8 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
-            />
+            />,
+            icon: <BuildOutlined />
         },
         {
             title: 'Schedule',
@@ -67,7 +73,8 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
-            />
+            />,
+            icon: <DownloadOutlined />
         },
     ];
 
@@ -79,7 +86,11 @@ const WindowSteps = ({window, setPhaseData}) => {
         <div style={{marginTop: "20px"}}>
             <Steps current={current} onChange={onChange}>
                 {steps.map(item => (
-                    <Step key={item.title} title={item.title}/>
+                    <Step
+                        key={item.title}
+                        title={item.title}
+                        icon={item.icon}
+                    />
                 ))}
             </Steps>
             <div className="steps-content">{steps[current].content}</div>
