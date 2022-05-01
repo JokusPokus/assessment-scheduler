@@ -52,7 +52,7 @@ const CSVDashboard = ({
 
     return (
         <>
-            {uploadSuccess ? (
+            {uploadSuccess || window.csv_uploaded ? (
                 <UploadSuccess windowStep={windowStep} setWindowStep={setWindowStep}/>
             ) : !_.isEmpty(uploadErrors) ? (
                 <div style={{maxWidth: '50%', margin: 'auto'}}>
