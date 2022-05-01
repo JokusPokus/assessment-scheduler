@@ -73,11 +73,12 @@ class SheetProcessor:
         :param modules: DataFrame with [unique identifier, name] of modules
         """
         for _, (short_code, name) in modules.iterrows():
-            Module.objects.get_or_create(
+            module, _ = Module.objects.get_or_create(
                 organization=self.organization,
                 code=short_code,
                 name=name
             )
+            module.windows.add(self.window)
 
     @staticmethod
     def _save_exams(data: DataFrame) -> None:
