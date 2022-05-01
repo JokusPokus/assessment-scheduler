@@ -51,6 +51,9 @@ class Module(BaseModel):
         related_name='modules'
     )
 
+    class Meta:
+        ordering = ['code']
+
     def __str__(self):
         return self.code
 
