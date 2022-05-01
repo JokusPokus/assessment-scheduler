@@ -3,16 +3,16 @@ import { Layout } from "antd";
 import './SideBar.css'
 import SideMenu from "./SideMenu";
 
-const SideBar = ({changeActiveTab}) => {
+const SideBar = () => {
   return (
     <Layout.Sider
       className="sidebar"
       breakpoint={"lg"}
       collapsedWidth={0}
       trigger={null}
-      width={220}
+      width={150}
     >
-        <SideMenu style={{height: "100vh"}} changeActiveTab={changeActiveTab}/>
+        <SideMenu style={{height: "100vh"}} />
     </Layout.Sider>
    );
 };
