@@ -5,7 +5,8 @@ from rest_framework import serializers
 from .models import (
     AssessmentPhase,
     Window,
-    BlockSlot
+    BlockSlot,
+    BlockTemplate
 )
 from .utils.datetime import combine
 
@@ -82,6 +83,26 @@ class WindowSerializer(serializers.ModelSerializer):
             'block_length',
             'block_slots',
         ]
+
+    @staticmethod
+    def create(validated_data, *args, **kwargs):
+        obj = Window.objects.create(**validated_data)
+
+        standard_block_templates = [
+            BlockTemplate.objects.get(
+                block_length=180,
+                exam_length=20,
+                exam_start_times=[0, 20, 40, 80, 100, 140, 160],
+            ),
+            BlockTemplate.objects.get(
+                block_length=180,
+                exam_length=30,
+                exam_start_times=[0, 30, 60, 120, 150],
+            ),
+        ]
+
+        obj.block_templates.add(*standard_block_templates)
+        return obj
 
 
 class AssessmentPhaseListSerializer(serializers.ModelSerializer):

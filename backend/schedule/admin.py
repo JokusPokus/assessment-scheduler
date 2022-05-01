@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AssessmentPhase, Window, BlockSlot
+from .models import AssessmentPhase, Window, BlockSlot, BlockTemplate
 from input.admin import PlanningSheetInline
 from staff.admin import AssessorInline
 
@@ -18,6 +18,12 @@ class BlockSlotInline(admin.TabularInline):
     extra = 0
 
 
+class BlockTemplateInline(admin.TabularInline):
+    model = Window.block_templates.through
+    show_change_link = True
+    extra = 0
+
+
 @admin.register(Window)
 class WindowAdmin(admin.ModelAdmin):
     list_display = [
@@ -28,7 +34,7 @@ class WindowAdmin(admin.ModelAdmin):
         'block_length'
     ]
     ordering = ['assessment_phase', 'position']
-    inlines = [BlockSlotInline, PlanningSheetInline]
+    inlines = [BlockSlotInline, PlanningSheetInline, BlockTemplateInline]
 
 
 @admin.register(AssessmentPhase)
@@ -37,3 +43,8 @@ class AssessmentPhaseAdmin(admin.ModelAdmin):
     search_fields = ['semester', 'year', 'category']
     ordering = ['-year']
     inlines = [WindowInline, AssessorInline]
+
+
+@admin.register(BlockTemplate)
+class BlockTemplateAdmin(admin.ModelAdmin):
+    list_display = ['block_length', 'exam_length', 'exam_start_times']
