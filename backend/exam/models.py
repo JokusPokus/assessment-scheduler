@@ -46,6 +46,10 @@ class Module(BaseModel):
             MaxValueValidator(MAX_EXAM_LENGTH)
         ]
     )
+    windows = models.ManyToManyField(
+        'schedule.Window',
+        related_name='modules'
+    )
 
     def __str__(self):
         return self.code
