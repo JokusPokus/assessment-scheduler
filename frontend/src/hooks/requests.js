@@ -14,6 +14,7 @@ function httpApiCall(method, path, body) {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
             requestOptions['body'] = JSON.stringify(body)
         }
+        console.log(requestOptions)
         return await fetch(`${API_URL}/${path}`, requestOptions);
     }
 }
@@ -60,6 +61,16 @@ export const httpDeleteHelper = (email, windowId) => {
     const path = `schedules/windows/${windowId}/remove-staff/`;
     const body = {email: email};
     return httpApiCall('DELETE', path, body)
+};
+
+export const httpDeleteWindow = (windowId) => {
+    const path = `schedules/windows/${windowId}/`;
+    return httpApiCall('DELETE', path, null)
+};
+
+export const httpPatchWindow = (windowId, body) => {
+    const path = `schedules/windows/${windowId}/`;
+    return httpApiCall('PATCH', path, body)
 };
 
 export const httpPostPlanningSheet = async (body) => {

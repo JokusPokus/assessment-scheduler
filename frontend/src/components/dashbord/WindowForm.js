@@ -1,42 +1,98 @@
-import React from 'react';
-import {Modal, Form, InputNumber, Select, DatePicker, Tooltip} from 'antd';
-import {InfoCircleFilled} from "@ant-design/icons";
+import React, {useEffect} from 'react';
+import {Modal, Form, InputNumber, DatePicker, Tooltip, Button} from 'antd';
 import moment from 'moment';
 
 const {RangePicker} = DatePicker;
 
 const dateFormat = 'YYYY-MM-DD';
 
-const WindowCreateForm = ({visible, onCreate, onCancel}) => {
+const WindowForm = ({
+                        visible,
+                        onConfirm,
+                        onCancel,
+                        type,
+                        confirmLoading,
+                        paneToBeModified = null,
+                        onDelete = null
+                    }) => {
+
+    const title = {
+        create: "Create a new assessment week",
+        modify: `Modify assessment week ${paneToBeModified && paneToBeModified.position}`
+    }[type];
+
+    const okText = {
+        create: "Create",
+        modify: "Save"
+    }[type];
+
+    const timeFrame = paneToBeModified
+        ? [moment(paneToBeModified.start_date), moment(paneToBeModified.end_date)]
+        : [moment(), moment()];
+
+    const blockLength = paneToBeModified
+        ? paneToBeModified.block_length
+        : 180;
+
+    const deleteProps = type === 'modify' && {
+        footer: [
+            <Button key="delete" type="danger" loading={confirmLoading} onClick={onDelete}>
+                Delete
+            </Button>,
+            <Button key="save" type="primary" loading={confirmLoading} onClick={() => {
+                form
+                    .validateFields()
+                    .then((values) => {
+                        form.resetFields();
+                        onConfirm(values);
+                    })
+                    .catch((info) => {
+                        console.log('Validate Failed:', info);
+                    });
+            }}>
+                Save
+            </Button>
+        ]
+    };
+
+    const defaultValues = {
+        modifier: 'public',
+        timeFrame: timeFrame,
+        blockLength: blockLength
+    };
+
+    useEffect(() => {
+        form.setFieldsValue(defaultValues)
+    }, [paneToBeModified]);
+
+
     const [form] = Form.useForm();
     return (
         <Modal
             visible={visible}
-            title="Create a new assessment week"
-            okText="Create"
+            title={title}
+            okText={okText}
             cancelText="Cancel"
             onCancel={onCancel}
+            confirmLoading={confirmLoading}
             onOk={() => {
                 form
                     .validateFields()
                     .then((values) => {
                         form.resetFields();
-                        onCreate(values);
+                        onConfirm(values);
                     })
                     .catch((info) => {
                         console.log('Validate Failed:', info);
                     });
             }}
+            {...deleteProps}
         >
             <Form
                 form={form}
                 layout="vertical"
                 name="form_in_modal"
-                initialValues={{
-                    modifier: 'public',
-                    timeFrame: [moment(), moment()],
-                    blockLength: 180
-                }}
+                initialValues={defaultValues}
             >
                 <Form.Item
                     name="timeFrame"
@@ -55,21 +111,21 @@ const WindowCreateForm = ({visible, onCreate, onCancel}) => {
 
                 <Tooltip title="Not editable yet." placement="bottomLeft">
                     <Form.Item
-                    name="blockLength"
-                    label="Duration of each block in minutes"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please select the duration of each block!',
-                        },
-                    ]}
-                >
-                    <InputNumber disabled min={60}/>
-                </Form.Item>
+                        name="blockLength"
+                        label="Duration of each block in minutes"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please select the duration of each block!',
+                            },
+                        ]}
+                    >
+                        <InputNumber disabled min={60}/>
+                    </Form.Item>
                 </Tooltip>
             </Form>
         </Modal>
     );
 };
 
-export default WindowCreateForm;
+export default WindowForm;

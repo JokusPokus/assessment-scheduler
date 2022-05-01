@@ -1,12 +1,15 @@
 import React, {useState} from 'react';
 import {Empty, Button} from "antd";
-import WindowCreateForm from "./WindowCreateForm";
+import WindowForm from "./WindowForm";
 
 const WindowAdder = ({onWindowCreate}) => {
     const [visible, setVisible] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
 
     const onCreate = async (values) => {
+        setConfirmLoading(true);
         await onWindowCreate(values);
+        setConfirmLoading(false);
         setVisible(false);
     };
 
@@ -24,12 +27,14 @@ const WindowAdder = ({onWindowCreate}) => {
             >
                 Add first week
             </Button>
-            <WindowCreateForm
+            <WindowForm
                 visible={visible}
-                onCreate={onCreate}
+                onConfirm={onCreate}
                 onCancel={() => {
                     setVisible(false);
                 }}
+                type='create'
+                confirmLoading={confirmLoading}
             />
         </Empty>
     );
