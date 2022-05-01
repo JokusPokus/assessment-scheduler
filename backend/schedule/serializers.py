@@ -71,6 +71,14 @@ class BlockSlotSerializer(serializers.ModelSerializer):
 
 class WindowSerializer(serializers.ModelSerializer):
     block_slots = BlockSlotSerializer(many=True, required=False)
+    csv_uploaded = serializers.SerializerMethodField(
+        read_only=True,
+        source='get_csv_uploaded'
+    )
+
+    @staticmethod
+    def get_csv_uploaded(obj):
+        return obj.planning_sheets.all().exists()
 
     class Meta:
         model = Window
@@ -82,6 +90,7 @@ class WindowSerializer(serializers.ModelSerializer):
             'end_date',
             'block_length',
             'block_slots',
+            'csv_uploaded'
         ]
 
     @staticmethod
