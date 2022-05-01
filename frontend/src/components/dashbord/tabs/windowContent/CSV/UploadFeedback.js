@@ -31,13 +31,27 @@ const UploadError = ({uploadErrors}) => {
     );
 };
 
-const UploadSuccess = ({windowStep, setWindowStep}) => {
+const UploadSuccess = ({windowStep, setWindowStep, setDisplaySuccess, setUploadSuccess}) => {
+    const onReplaceRequest = () => {
+        setDisplaySuccess(false);
+        setUploadSuccess(false);
+    };
+
     return (
         <Result
             className="uploadFeedback steps-success"
             status="success"
             title="Successfully uploaded planning sheet!"
             extra={[
+                <Button
+                    key="replace"
+                    shape="round"
+                    size="large"
+                    style={{marginRight: "20px"}}
+                    onClick={() => onReplaceRequest()}
+                >
+                    Replace CSV
+                </Button>,
                 <Button
                     type="primary"
                     key="console"

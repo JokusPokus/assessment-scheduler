@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Upload, Form, Button, Result} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
 import {httpPostPlanningSheet} from "../../../../../hooks/requests";
@@ -20,6 +20,13 @@ const CSVDashboard = ({
                       }) => {
 
     const [isUploading, setIsUploading] = useState(false);
+    const [displaySuccess, setDisplaySuccess] = useState(false);
+
+    useEffect(() => {
+        if (!_.isEmpty(window)) {
+            setDisplaySuccess(window.csv_uploaded)
+        }
+    }, [window]);
 
     const onFinish = async (values) => {
         setIsUploading(true);
@@ -52,8 +59,13 @@ const CSVDashboard = ({
 
     return (
         <>
-            {uploadSuccess || window.csv_uploaded ? (
-                <UploadSuccess windowStep={windowStep} setWindowStep={setWindowStep}/>
+            {uploadSuccess || displaySuccess ? (
+                <UploadSuccess
+                    windowStep={windowStep}
+                    setWindowStep={setWindowStep}
+                    setDisplaySuccess={setDisplaySuccess}
+                    setUploadSuccess={setUploadSuccess}
+                />
             ) : !_.isEmpty(uploadErrors) ? (
                 <div style={{maxWidth: '50%', margin: 'auto'}}>
                     <UploadError
