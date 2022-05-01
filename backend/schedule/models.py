@@ -98,6 +98,7 @@ class Window(BaseModel):
                 name='unique_position_per_phase'
             )
         ]
+        ordering = ['assessment_phase', 'position']
 
     def __str__(self):
         return f"{self.assessment_phase} ({self.position})"
