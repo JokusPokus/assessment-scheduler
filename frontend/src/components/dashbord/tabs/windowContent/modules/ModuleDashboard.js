@@ -23,6 +23,8 @@ const DurationInput = ({durationData, initialDuration, setDurationData, assessme
             step={5}
             value={duration}
             addonBefore={<ClockCircleOutlined/>}
+            formatter={value => `${value} min`}
+            parser={value => value.replace(' min', '')}
             style={{width: "50%"}}
             onStep={handleChange}
         />
