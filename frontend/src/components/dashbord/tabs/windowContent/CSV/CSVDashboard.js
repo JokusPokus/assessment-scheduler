@@ -67,7 +67,7 @@ const CSVDashboard = ({
                     setUploadSuccess={setUploadSuccess}
                 />
             ) : !_.isEmpty(uploadErrors) ? (
-                <div style={{maxWidth: '50%', margin: 'auto'}}>
+                <div className='fade-in' style={{maxWidth: '50%', margin: 'auto'}}>
                     <UploadError
                         uploadErrors={uploadErrors}
                     />
@@ -78,7 +78,7 @@ const CSVDashboard = ({
                     />
                 </div>
             ) : (
-                <div style={{maxWidth: '50%', margin: '64px auto'}}>
+                <div className='fade-in' style={{maxWidth: '50%', margin: '64px auto'}}>
                     <UploadForm
                         style={{maxWidth: '50%'}}
                         onFinish={onFinish}

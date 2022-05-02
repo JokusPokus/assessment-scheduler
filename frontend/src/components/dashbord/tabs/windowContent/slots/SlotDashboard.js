@@ -115,7 +115,7 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     };
 
     return (
-        <>
+        <div className='fade-in'>
             <StatsRow
                 window={window}
                 availableTimes={availableTimes}
@@ -131,7 +131,7 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
                 windowStep={windowStep}
                 setWindowStep={setWindowStep}
             />
-        </>
+        </div>
     );
 };
 

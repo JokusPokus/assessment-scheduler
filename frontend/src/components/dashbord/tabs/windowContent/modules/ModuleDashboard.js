@@ -117,7 +117,7 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
     };
 
     return (
-        <>
+        <div className='fade-in'>
             <Table
                 bordered
                 dataSource={dataSource}
@@ -137,7 +137,7 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
                 setWindowStep={setWindowStep}
                 status={status}
             />
-        </>
+        </div>
     )
 };
 

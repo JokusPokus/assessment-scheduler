@@ -181,7 +181,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
     }
 
     return (
-        <div style={{marginTop: "60px"}}>
+        <div className='fade-in' style={{marginTop: "60px"}}>
             <Table
                 bordered
                 dataSource={dataSource}

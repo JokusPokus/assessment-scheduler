@@ -8,7 +8,7 @@ const {Paragraph, Text} = Typography;
 const UploadError = ({uploadErrors}) => {
     return (
         <Result
-            className="uploadFeedback"
+            className="fade-in"
             status="error"
             title="The sheet was not as expected"
             subTitle="Please solve the following problems and upload again"
@@ -39,7 +39,7 @@ const UploadSuccess = ({windowStep, setWindowStep, setDisplaySuccess, setUploadS
 
     return (
         <Result
-            className="uploadFeedback steps-success"
+            className="fade-in steps-success"
             status="success"
             title="Successfully uploaded planning sheet!"
             extra={[
