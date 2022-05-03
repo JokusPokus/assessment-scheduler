@@ -80,8 +80,7 @@ class SheetProcessor:
             )
             module.windows.add(self.window)
 
-    @staticmethod
-    def _save_exams(data: DataFrame) -> None:
+    def _save_exams(self, data: DataFrame) -> None:
         """Save Exam instances based on the CSV data
 
         :param data: a DataFrame containing exam information
@@ -93,6 +92,7 @@ class SheetProcessor:
 
             Exam.objects.get_or_create(
                 code=row['assessmentId'],
+                window=self.window,
                 assessor=assessor,
                 student=student,
                 module=module
