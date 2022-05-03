@@ -3,6 +3,7 @@ Input collection to working memory for scheduling purposes
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import math
 from typing import Dict, TypedDict, List
 
 from django.db.models import QuerySet
@@ -14,6 +15,10 @@ from staff.models import Assessor, Helper
 
 SlotId = int
 Email = int
+ExamLength = int
+Count = int
+BlockCount = Dict[ExamLength, Count]
+AssessorBlockCounts = Dict[Email, BlockCount]
 
 
 class AvailInfo(TypedDict):
@@ -24,13 +29,7 @@ class AvailInfo(TypedDict):
     helpers: List[Email]
 
 
-class Workload(TypedDict):
-    exam_length: int
-    count: int
-
-
 HelperAvails = Dict[SlotId, AvailInfo]
-AssessorWorkloads = Dict[Email, Workload]
 
 
 @dataclass
@@ -76,7 +75,7 @@ class DBInputCollector(BaseInputCollector):
             exams=self.exams,
             modules=self.modules,
             assessors=self.assessors,
-            assessor_workload=self._assessor_workload,
+            assessor_workload=self._assessor_n_blocks,
             helpers=self.helpers,
             helper_avails=self._helper_avails,
             block_slots=self.block_slots,
@@ -98,7 +97,7 @@ class DBInputCollector(BaseInputCollector):
         return {template.exam_length for template in self.block_templates}
 
     @property
-    def _assessor_workload(self) -> AssessorWorkloads:
+    def _assessor_exam_counts(self):
         def get_workload(assessor: Assessor) -> Workload:
             exams = self.exams.filter(assessor=assessor)
             workload = {}
@@ -119,3 +118,16 @@ class DBInputCollector(BaseInputCollector):
             for assessor in self.assessors
         }
 
+    @property
+    def _assessor_block_counts(self) -> AssessorBlockCounts:
+        workload = self._assessor_exam_counts
+        for length in self._exam_lengths:
+            template = self.block_templates.get(exam_length=length)
+            exams_per_block = len(template.exam_start_times)
+
+            for assessor in workload:
+                workload[assessor][length] = math.ceil(
+                    workload[assessor][length] / exams_per_block
+                )
+
+        return workload
