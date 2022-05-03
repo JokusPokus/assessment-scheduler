@@ -210,7 +210,7 @@ class WindowViewSet(ModelViewSet):
             organization=request.user.organization,
             email=email
         )
-        helper.assessment_phases.add(window.assessment_phase)
+        helper.windows.add(window)
 
     def _add_availabilities_for(
             self,

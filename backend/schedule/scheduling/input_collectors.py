@@ -11,14 +11,6 @@ from exam.models import Exam, Module, Student
 from staff.models import Assessor, Helper
 
 
-class BaseInputCollector(ABC):
-    """Defines an interface for input collector classes."""
-
-    @abstractmethod
-    def collect(self) -> InputData:
-        pass
-
-
 @dataclass
 class InputData:
     """Defines the input data requirements for
@@ -31,6 +23,14 @@ class InputData:
     helpers: QuerySet
     block_slots: QuerySet
     block_templates: QuerySet
+
+
+class BaseInputCollector(ABC):
+    """Defines an interface for input collector classes."""
+
+    @abstractmethod
+    def collect(self) -> InputData:
+        pass
 
 
 class DBInputCollector(BaseInputCollector):
