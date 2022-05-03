@@ -4,7 +4,7 @@ from .models import Assessor, Helper
 
 
 class AssessorInline(admin.TabularInline):
-    model = Assessor.assessment_phases.through
+    model = Assessor.windows.through
     show_change_link = True
     extra = 0
 
