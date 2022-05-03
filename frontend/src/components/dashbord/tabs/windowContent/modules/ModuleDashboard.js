@@ -18,9 +18,9 @@ const DurationInput = ({durationData, initialDuration, setDurationData, assessme
 
     return (
         <InputNumber
-            min={5}
-            max={300}
-            step={5}
+            min={20}
+            max={30}
+            step={10}
             value={duration}
             addonBefore={<ClockCircleOutlined/>}
             formatter={value => `${value} min`}
