@@ -13,6 +13,7 @@ from rest_framework.status import (
 from rest_framework.viewsets import ModelViewSet
 
 from .models import AssessmentPhase, Window, BlockSlot
+from .scheduling import Scheduler
 from .serializers import (
     AssessmentPhaseDetailSerializer,
     AssessmentPhaseListSerializer,
@@ -174,6 +175,18 @@ class WindowViewSet(ModelViewSet):
             )
 
         return Response(status=HTTP_200_OK)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='trigger-scheduling',
+        url_path='trigger-scheduling'
+    )
+    def trigger_scheduling(self, request, pk=None):
+        window = self.get_object()
+        Scheduler(window).run()
+
+        return Response(HTTP_200_OK)
 
     @staticmethod
     def _delete_obsolete_slots(window, window_ids):
