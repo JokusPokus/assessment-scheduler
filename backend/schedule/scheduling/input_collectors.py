@@ -3,12 +3,28 @@ Input collection to working memory for scheduling purposes
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Dict, TypedDict, List
 
 from django.db.models import QuerySet
 
 from schedule.models import Window, BlockSlot, BlockTemplate
-from exam.models import Exam, Module, Student
+from exam.models import Exam, Module, Student, ExamStyle
 from staff.models import Assessor, Helper
+
+
+SlotId = int
+Email = int
+
+
+class AvailInfo(TypedDict):
+    """Data about the number and email ids of helpers available
+    in a given block slot.
+    """
+    count: int
+    helpers: List[Email]
+
+
+HelperAvails = Dict[SlotId, AvailInfo]
 
 
 @dataclass
@@ -20,7 +36,9 @@ class InputData:
     exams: QuerySet
     modules: QuerySet
     assessors: QuerySet
+    assessor_workload: dict
     helpers: QuerySet
+    helper_avails: HelperAvails
     block_slots: QuerySet
     block_templates: QuerySet
 
@@ -40,13 +58,58 @@ class DBInputCollector(BaseInputCollector):
 
     def __init__(self, window):
         self.window = window
+        self.exams = Exam.objects.filter(window=window)
+        self.modules = Module.objects.filter(windows=window)
+        self.assessors = Assessor.objects.filter(windows=window)
+        self.helpers = Helper.objects.filter(windows=window)
+        self.block_slots = BlockSlot.objects.filter(window=window)
+        self.block_templates = BlockTemplate.objects.filter(windows=self.window)
 
     def collect(self) -> InputData:
         return InputData(
-            exams=Exam.objects.filter(window=self.window),
-            modules=Module.objects.filter(windows=self.window),
-            assessors=Assessor.objects.filter(windows=self.window),
-            helpers=Helper.objects.filter(windows=self.window),
-            block_slots=BlockSlot.objects.filter(window=self.window),
-            block_templates=BlockTemplate.objects.filter(windows=self.window)
+            exams=self.exams,
+            modules=self.modules,
+            assessors=self.assessors,
+            assessor_workload=self._assessor_workload,
+            helpers=self.helpers,
+            helper_avails=self._helper_avails,
+            block_slots=self.block_slots,
+            block_templates=self.block_templates,
         )
+
+    @property
+    def _helper_avails(self):
+        return {
+            slot.id: {
+                'count': slot.helper.count(),
+                'helpers': slot.helper.all()
+            }
+            for slot in self.block_slots
+        }
+
+    @property
+    def _exam_lengths(self) -> set:
+        return {template.exam_length for template in self.block_templates}
+
+    @property
+    def _assessor_workload(self) -> dict:
+        def get_workload(assessor: Assessor) -> dict:
+            exams = self.exams.filter(assessor=assessor)
+            workload = {}
+            for length in self._exam_lengths:
+                standard_count = exams.filter(
+                    style=ExamStyle.STANDARD,
+                    module__standard_length=length
+                ).count()
+                alt_count = exams.filter(
+                    style=ExamStyle.ALTERNATIVE,
+                    module__alternative_length=length
+                ).count()
+                workload[length] = standard_count + alt_count
+            return workload
+
+        return {
+            assessor.email: get_workload(assessor)
+            for assessor in self.assessors
+        }
+
