@@ -3,12 +3,24 @@ Implementations of planning algorithms to solve the exam scheduling
 problem.
 """
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime
+from typing import TypedDict, Dict
 
 from ..input_collectors import InputData
 
 
-class Schedule:
-    pass
+ExamId = str
+Email = str
+
+
+class ScheduledInfo(TypedDict):
+    start_time: datetime
+    end_time: datetime
+    helper: Email
+
+
+Schedule = Dict[ExamId, ScheduledInfo]
 
 
 class BaseAlgorithm(ABC):
