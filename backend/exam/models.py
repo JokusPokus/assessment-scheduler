@@ -105,5 +105,12 @@ class Exam(BaseModel):
         blank=True
     )
 
+    @property
+    def length(self):
+        if self.style == ExamStyle.ALTERNATIVE:
+            return self.module.alternative_length
+
+        return self.module.standard_length
+
     def __str__(self):
         return f"<{self.module.code}: {self.student.email}>"

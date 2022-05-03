@@ -24,7 +24,13 @@ class AvailInfo(TypedDict):
     helpers: List[Email]
 
 
+class Workload(TypedDict):
+    exam_length: int
+    count: int
+
+
 HelperAvails = Dict[SlotId, AvailInfo]
+AssessorWorkloads = Dict[Email, Workload]
 
 
 @dataclass
@@ -36,7 +42,7 @@ class InputData:
     exams: QuerySet
     modules: QuerySet
     assessors: QuerySet
-    assessor_workload: dict
+    assessor_workload: AssessorWorkloads
     helpers: QuerySet
     helper_avails: HelperAvails
     block_slots: QuerySet
@@ -92,8 +98,8 @@ class DBInputCollector(BaseInputCollector):
         return {template.exam_length for template in self.block_templates}
 
     @property
-    def _assessor_workload(self) -> dict:
-        def get_workload(assessor: Assessor) -> dict:
+    def _assessor_workload(self) -> AssessorWorkloads:
+        def get_workload(assessor: Assessor) -> Workload:
             exams = self.exams.filter(assessor=assessor)
             workload = {}
             for length in self._exam_lengths:

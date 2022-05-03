@@ -23,6 +23,7 @@ class ExamAdmin(admin.ModelAdmin):
         'id',
         'code',
         'module',
+        'style',
         'assessor',
         'student',
         'helper',
@@ -33,6 +34,6 @@ class ExamAdmin(admin.ModelAdmin):
         'module__code',
         'assessor__email',
         'student__email',
-        'assistant__email'
+        'helper__email'
     ]
     ordering = ['module__code']
