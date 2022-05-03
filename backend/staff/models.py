@@ -14,8 +14,8 @@ class Staff(BaseModel):
         on_delete=models.CASCADE
     )
     email = models.EmailField(unique=True)
-    assessment_phases = models.ManyToManyField(
-        'schedule.AssessmentPhase',
+    windows = models.ManyToManyField(
+        'schedule.Window',
         related_name='%(class)s'
     )
     available_blocks = models.ManyToManyField(
