@@ -41,7 +41,7 @@ class InputData:
     exams: QuerySet
     modules: QuerySet
     assessors: QuerySet
-    assessor_workload: AssessorWorkloads
+    assessor_workload: AssessorBlockCounts
     helpers: QuerySet
     helper_avails: HelperAvails
     block_slots: QuerySet
@@ -56,49 +56,41 @@ class BaseInputCollector(ABC):
         pass
 
 
-class DBInputCollector(BaseInputCollector):
-    """Collects input data from the database used by
-    the Django project.
+class WorkloadCalculator:
+    """Calculates the assessors' workloads in terms of exams and
+    blocks.
     """
 
-    def __init__(self, window):
-        self.window = window
-        self.exams = Exam.objects.filter(window=window)
-        self.modules = Module.objects.filter(windows=window)
-        self.assessors = Assessor.objects.filter(windows=window)
-        self.helpers = Helper.objects.filter(windows=window)
-        self.block_slots = BlockSlot.objects.filter(window=window)
-        self.block_templates = BlockTemplate.objects.filter(windows=self.window)
-
-    def collect(self) -> InputData:
-        return InputData(
-            exams=self.exams,
-            modules=self.modules,
-            assessors=self.assessors,
-            assessor_workload=self._assessor_n_blocks,
-            helpers=self.helpers,
-            helper_avails=self._helper_avails,
-            block_slots=self.block_slots,
-            block_templates=self.block_templates,
-        )
+    def __init__(self, exams, assessors, block_templates):
+        self.exams = exams
+        self.assessors = assessors
+        self.block_templates = block_templates
 
     @property
-    def _helper_avails(self):
-        return {
-            slot.id: {
-                'count': slot.helper.count(),
-                'helpers': slot.helper.all()
-            }
-            for slot in self.block_slots
-        }
+    def assessor_block_counts(self) -> AssessorBlockCounts:
+        """Calculate the number of blocks each assessor has to execute
+        if exams are assigned as efficiently as possible.
 
-    @property
-    def _exam_lengths(self) -> set:
-        return {template.exam_length for template in self.block_templates}
+        Return the result as a dictionary.
+        """
+        workload = self._assessor_exam_counts
+        for length in self._exam_lengths:
+            template = self.block_templates.get(exam_length=length)
+            exams_per_block = len(template.exam_start_times)
+
+            for assessor in workload:
+                workload[assessor][length] = math.ceil(
+                    workload[assessor][length] / exams_per_block
+                )
+
+        return workload
 
     @property
     def _assessor_exam_counts(self):
-        def get_workload(assessor: Assessor) -> Workload:
+        """Calculate the number of exams each assessor has to execute
+        and return the result as a dictionary.
+        """
+        def get_workload(assessor: Assessor) -> Dict[Email, Dict]:
             exams = self.exams.filter(assessor=assessor)
             workload = {}
             for length in self._exam_lengths:
@@ -119,15 +111,48 @@ class DBInputCollector(BaseInputCollector):
         }
 
     @property
-    def _assessor_block_counts(self) -> AssessorBlockCounts:
-        workload = self._assessor_exam_counts
-        for length in self._exam_lengths:
-            template = self.block_templates.get(exam_length=length)
-            exams_per_block = len(template.exam_start_times)
+    def _exam_lengths(self) -> set:
+        return {template.exam_length for template in self.block_templates}
 
-            for assessor in workload:
-                workload[assessor][length] = math.ceil(
-                    workload[assessor][length] / exams_per_block
-                )
 
-        return workload
+class DBInputCollector(BaseInputCollector):
+    """Collects input data from the database used by
+    the Django project.
+    """
+
+    def __init__(self, window, workload_calculator=None):
+        self.window = window
+        self.exams = Exam.objects.filter(window=window)
+        self.modules = Module.objects.filter(windows=window)
+        self.assessors = Assessor.objects.filter(windows=window)
+        self.helpers = Helper.objects.filter(windows=window)
+        self.block_slots = BlockSlot.objects.filter(window=window)
+        self.block_templates = BlockTemplate.objects.filter(windows=self.window)
+
+        self.workload_calc = workload_calculator or WorkloadCalculator(
+            exams=self.exams,
+            assessors=self.assessors,
+            block_templates=self.block_templates
+        )
+
+    def collect(self) -> InputData:
+        return InputData(
+            exams=self.exams,
+            modules=self.modules,
+            assessors=self.assessors,
+            assessor_workload=self.workload_calc.assessor_block_counts,
+            helpers=self.helpers,
+            helper_avails=self._helper_avails,
+            block_slots=self.block_slots,
+            block_templates=self.block_templates,
+        )
+
+    @property
+    def _helper_avails(self):
+        return {
+            slot.id: {
+                'count': slot.helper.count(),
+                'helpers': slot.helper.all()
+            }
+            for slot in self.block_slots
+        }
