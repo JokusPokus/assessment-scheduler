@@ -4,7 +4,7 @@ problem.
 """
 from abc import ABC, abstractmethod
 
-from .input_collectors import InputData
+from ..input_collectors import InputData
 
 
 class Schedule:
