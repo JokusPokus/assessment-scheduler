@@ -62,6 +62,11 @@ class Exam(BaseModel):
     """A concrete module assessment taken by a student."""
 
     code = models.CharField(max_length=64)
+    window = models.ForeignKey(
+        'schedule.Window',
+        related_name='exams',
+        on_delete=models.CASCADE
+    )
     module = models.ForeignKey(
         'exam.Module',
         related_name='exams',
