@@ -26,7 +26,7 @@ class AssessorViewSet(ReadOnlyModelViewSet):
 
         return Assessor.objects.filter(
             organization=self.request.user.organization,
-            assessment_phases=window.assessment_phase
+            window=window
         )
 
 
@@ -45,5 +45,5 @@ class HelperViewSet(ReadOnlyModelViewSet):
 
         return Helper.objects.filter(
             organization=self.request.user.organization,
-            assessment_phases=window.assessment_phase
+            window=window
         )

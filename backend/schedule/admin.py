@@ -34,7 +34,12 @@ class WindowAdmin(admin.ModelAdmin):
         'block_length'
     ]
     ordering = ['assessment_phase', 'position']
-    inlines = [BlockSlotInline, PlanningSheetInline, BlockTemplateInline]
+    inlines = [
+        BlockSlotInline,
+        PlanningSheetInline,
+        BlockTemplateInline,
+        AssessorInline
+    ]
 
 
 @admin.register(AssessmentPhase)
@@ -42,7 +47,7 @@ class AssessmentPhaseAdmin(admin.ModelAdmin):
     list_display = ['id', 'year', 'semester', 'category', 'room_limit']
     search_fields = ['semester', 'year', 'category']
     ordering = ['-year']
-    inlines = [WindowInline, AssessorInline]
+    inlines = [WindowInline]
 
 
 @admin.register(BlockTemplate)

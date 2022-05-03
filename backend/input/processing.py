@@ -52,7 +52,7 @@ class SheetProcessor:
                 organization=self.organization,
                 email=email
             )
-            assessor.assessment_phases.add(self.window.assessment_phase)
+            assessor.windows.add(self.window)
 
     def _save_students(self, emails: List[Email]) -> None:
         """Save a list of unique email identifiers to the database, each as
