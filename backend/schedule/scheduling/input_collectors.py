@@ -68,47 +68,47 @@ class WorkloadCalculator:
 
     @property
     def assessor_block_counts(self) -> AssessorBlockCounts:
-        """Calculate the number of blocks each assessor has to execute
-        if exams are assigned as efficiently as possible.
-
-        Return the result as a dictionary.
+        """Return the number of blocks each assessor has to execute
+        if exams are assigned as efficiently as possible, as a function
+        of exam length.
         """
-        workload = self._assessor_exam_counts
-        for length in self._exam_lengths:
-            template = self.block_templates.get(exam_length=length)
-            exams_per_block = len(template.exam_start_times)
-
-            for assessor in workload:
-                workload[assessor][length] = math.ceil(
-                    workload[assessor][length] / exams_per_block
-                )
-
-        return workload
-
-    @property
-    def _assessor_exam_counts(self):
-        """Calculate the number of exams each assessor has to execute
-        and return the result as a dictionary.
-        """
-        def get_workload(assessor: Assessor) -> Dict[Email, Dict]:
-            exams = self.exams.filter(assessor=assessor)
-            workload = {}
-            for length in self._exam_lengths:
-                standard_count = exams.filter(
-                    style=ExamStyle.STANDARD,
-                    module__standard_length=length
-                ).count()
-                alt_count = exams.filter(
-                    style=ExamStyle.ALTERNATIVE,
-                    module__alternative_length=length
-                ).count()
-                workload[length] = standard_count + alt_count
-            return workload
-
         return {
-            assessor.email: get_workload(assessor)
+            assessor: self._get_block_counts_for(assessor)
             for assessor in self.assessors
         }
+
+    def _get_block_counts_for(self, assessor: Assessor):
+        """Calculate the number of blocks the assessor has to execute
+        as a function of exam length and return the result as a dictionary.
+        """
+        def block_count_for(exam_length) -> int:
+            standard_count = exams.filter(
+                style=ExamStyle.STANDARD,
+                module__standard_length=exam_length
+            ).count()
+            alt_count = exams.filter(
+                style=ExamStyle.STANDARD,
+                module__standard_length=exam_length
+            ).count()
+
+            total_count = standard_count + alt_count
+            return math.ceil(total_count / exams_per_block[exam_length])
+
+        exams = self.exams.filter(assessor=assessor)
+        exams_per_block = {
+            length: self._exams_per_block_of(length)
+            for length in self._exam_lengths
+        }
+
+        return {
+            length: block_count_for(length)
+            for length in self._exam_lengths
+        }
+
+    def _exams_per_block_of(self, length):
+        template = self.block_templates.get(exam_length=length)
+        exams_per_block = len(template.exam_start_times)
+        return exams_per_block
 
     @property
     def _exam_lengths(self) -> set:
