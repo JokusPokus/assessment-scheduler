@@ -7,6 +7,7 @@ import SlotDashboard from "./slots/SlotDashboard";
 import AssessorDashboard from "./availabilities/AssessorDashboard";
 import HelperDashboard from "./availabilities/HelperDashboard";
 import ModuleDashboard from "./modules/ModuleDashboard";
+import ScheduleDashboard from "./schedules/ScheduleDashboard";
 
 const {Step} = Steps;
 
@@ -69,7 +70,7 @@ const WindowSteps = ({window, setPhaseData}) => {
         },
         {
             title: 'Schedule',
-            content: <ModuleDashboard
+            content: <ScheduleDashboard
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}

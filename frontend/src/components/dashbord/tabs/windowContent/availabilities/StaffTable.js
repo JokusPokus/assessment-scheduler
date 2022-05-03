@@ -54,6 +54,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                 )
             }
         ));
+        console.log("Staff:", staffData)
         setStaff(staffData);
     };
 

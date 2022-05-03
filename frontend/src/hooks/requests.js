@@ -14,7 +14,6 @@ function httpApiCall(method, path, body) {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
             requestOptions['body'] = JSON.stringify(body)
         }
-        console.log(requestOptions)
         return await fetch(`${API_URL}/${path}`, requestOptions);
     }
 }
@@ -71,6 +70,11 @@ export const httpDeleteWindow = (windowId) => {
 export const httpPatchWindow = (windowId, body) => {
     const path = `schedules/windows/${windowId}/`;
     return httpApiCall('PATCH', path, body)
+};
+
+export const httpTriggerScheduling = (windowId) => {
+    const path = `schedules/windows/${windowId}/trigger-scheduling`;
+    return httpApiCall('GET', path, null);
 };
 
 export const httpPostPlanningSheet = async (body) => {
