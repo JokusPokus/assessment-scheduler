@@ -2,9 +2,11 @@
 Management and orchestration of the scheduling process
 """
 from typing import Optional
+from pprint import pprint
 
 from schedule.models import Window
 from .input_collectors import BaseInputCollector, DBInputCollector
+from .algorithms import BaseAlgorithm, TabuSearch
 
 
 class Scheduler:
@@ -20,16 +22,18 @@ class Scheduler:
             self,
             window: Window,
             input_collector: Optional[BaseInputCollector] = None,
-            algorithm=None,
+            algorithm: BaseAlgorithm = None,
             evaluator=None,
             output_writer=None
     ):
         self.window = window
-        self.input_collector = input_collector or DBInputCollector(window)
-        self.algorithm = algorithm
+        self.input_collector = input_collector or DBInputCollector
+        self.algorithm = algorithm or TabuSearch
         self.evaluator = evaluator
         self.output_writer = output_writer
 
     def run(self):
-        data = self.input_collector.collect()
-        print(vars(data))
+        data = self.input_collector(self.window).collect()
+        schedule = self.algorithm(data).run()
+        pprint(schedule)
+
