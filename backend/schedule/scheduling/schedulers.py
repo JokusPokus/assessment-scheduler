@@ -33,7 +33,7 @@ class Scheduler:
         self.output_writer = output_writer
 
     def run(self):
+        """Execute all the steps given above."""
         data = self.input_collector(self.window).collect()
         schedule = self.algorithm(data).run()
         pprint(schedule)
-
