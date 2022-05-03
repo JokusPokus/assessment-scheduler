@@ -58,6 +58,11 @@ class Module(BaseModel):
         return self.code
 
 
+class ExamStyle(models.TextChoices):
+    STANDARD = 'standard', 'Standard'
+    ALTERNATIVE = 'alternative', 'Alternative'
+
+
 class Exam(BaseModel):
     """A concrete module assessment taken by a student."""
 
@@ -71,6 +76,10 @@ class Exam(BaseModel):
         'exam.Module',
         related_name='exams',
         on_delete=models.CASCADE
+    )
+    style = models.CharField(
+        max_length=32,
+        choices=ExamStyle.choices
     )
     student = models.ForeignKey(
         'exam.Student',

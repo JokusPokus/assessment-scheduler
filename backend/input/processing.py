@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 from schedule.models import Window
 from staff.models import Assessor
-from exam.models import Student, Module, Exam
+from exam.models import Student, Module, Exam, ExamStyle
 
 
 Email = str
@@ -89,11 +89,19 @@ class SheetProcessor:
             assessor = Assessor.objects.get(email=row['assessor'])
             student = Student.objects.get(email=row['student'])
             module = Module.objects.get(code=row['shortCode'])
+            style = {
+                'STANDARD': ExamStyle.STANDARD,
+                'ALTERNATIVE': ExamStyle.ALTERNATIVE
+            }.get(row['assessmentStyle'])
+
+            if style is None:
+                continue
 
             Exam.objects.get_or_create(
                 code=row['assessmentId'],
                 window=self.window,
                 assessor=assessor,
                 student=student,
-                module=module
+                module=module,
+                style=style
             )
