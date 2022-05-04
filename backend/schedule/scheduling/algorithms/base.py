@@ -43,7 +43,7 @@ class RandomAssignment(BaseAlgorithm):
         """
         exams = self.data.exams.values('code', 'assessor', 'student', 'module')
 
-        # Do n times (with n = num of blocks to be assigned):
+        for _ in range(self._num_blocks_to_assign):
 
         #     1. Pick the most difficult slot:
         #         - lowest number of available assessors
