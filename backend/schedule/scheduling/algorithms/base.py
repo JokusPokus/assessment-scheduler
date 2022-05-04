@@ -2,14 +2,17 @@
 Abstract base class for algorithm implementations.
 """
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import reduce
-from typing import Optional
+from typing import Optional, List, ItemsView, Tuple
+
+from staff.models import Assessor
 
 from ..input_collectors import InputData
 from ..evaluators import Evaluator
-from ..types import Schedule
+from ..types import Schedule, AvailInfo, SlotId, Email
 
 
 class BaseAlgorithm(ABC):
@@ -42,16 +45,12 @@ class RandomAssignment(BaseAlgorithm):
         free of first-order conflicts.
         """
         exams = self.data.exams.values('code', 'assessor', 'student', 'module')
+        avails = self.data.staff_avails.items()
 
         for _ in range(self._num_blocks_to_assign):
+            slot, avail_info = self._most_difficult_slot(avails)
 
-        #     1. Pick the most difficult slot:
-        #         - lowest number of available assessors
-        #         - tie breaker: lowest number of available helpers
-
-        #     2. Among the assessors available for that slot, pick the most
-        #        difficult one:
-        #         - lowest availability surplus := avails - workload
+            assessor = self._most_difficult_assessor(avail_info['assessors'])
 
         #     3. Randomly choose an exam length of that assessor and fill
         #        a block of that length and assessor with random exams to
@@ -73,3 +72,49 @@ class RandomAssignment(BaseAlgorithm):
                 for block_count in self.data.assessor_workload.values()
             ]
         )
+
+    def _most_difficult_slot(
+            self,
+            avails: ItemsView[SlotId, AvailInfo]
+    ) -> Tuple[SlotId, AvailInfo]:
+        """Return a tuple of (slot code, availability info) for the
+        slot that is currently most difficult to schedule.
+
+        The difficulty assessment is based on the slot difficulty score.
+        """
+        return min(avails, key=self._slot_ease_score)
+
+    @staticmethod
+    def _slot_ease_score(slot: tuple) -> tuple:
+        """Return the ease score for a given slot in the shape
+        of a (assessor count, helper count) tuple.
+
+        A lexicographic ordering underlies this score, with higher
+        values indicating a higher potential for conflict-less
+        scheduling.
+        """
+        _, avails = slot
+        return avails['assessor_count'], avails['helper_count']
+
+    def _most_difficult_assessor(self, assessors: List[Assessor]) -> Assessor:
+        """Return the assessor who is most difficult to schedule,
+        as indicated by the assessor difficulty scores.
+        """
+        return min(assessors, key=self._assessor_ease_score)
+
+    def _assessor_ease_score(self, assessor: Assessor) -> int:
+        """Return the assessor's availability surplus.
+
+        The availability surplus is defined as the number of the
+        assessor's available slots minus the blocks she needs to
+        be scheduled for.
+
+        The higher the availability surplus, the easier it is
+        - heuristically - to schedule the assessor.
+        """
+        available_slots = assessor.available_blocks.count()
+
+        workload = self.data.assessor_workload[assessor.email]
+        blocks_to_schedule = sum(workload.values())
+
+        return available_slots - blocks_to_schedule
