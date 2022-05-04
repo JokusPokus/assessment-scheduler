@@ -3,7 +3,7 @@ Abstract base class for algorithm implementations.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from ..input_collectors import InputData
@@ -40,4 +40,12 @@ class RandomAssignment(BaseAlgorithm):
         Return the resulting schedule, which is not guaranteed to be
         free of first-order conflicts.
         """
-        pass
+        return {
+            exam.code: {
+                'start_time': datetime.now(),
+                'length': timedelta(minutes=20),
+                'student': 'student@code.berlin',
+                'assessor': 'assessor@code.berlin',
+            }
+            for exam in self.data.exams
+        }

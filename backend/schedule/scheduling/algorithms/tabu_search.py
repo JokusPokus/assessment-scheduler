@@ -19,14 +19,3 @@ class TabuSearch(BaseAlgorithm):
             self._iterate(schedule)
 
         return schedule
-
-    def _get_random_initialization(self) -> Schedule:
-        return {
-            exam.code: {
-                'start_time': datetime.now(),
-                'length': timedelta(minutes=20),
-                'student': 'student@code.berlin',
-                'assessor': 'assessor@code.berlin',
-            }
-            for exam in self.data.exams
-        }
