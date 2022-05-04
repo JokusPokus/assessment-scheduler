@@ -1,7 +1,7 @@
 """
 Useful type specification for the scheduling process.
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, TypedDict, List
 
 
@@ -24,8 +24,9 @@ class AvailInfo(TypedDict):
 
 class ScheduledInfo(TypedDict):
     start_time: datetime
-    end_time: datetime
-    helper: Email
+    length: timedelta
+    student: Email
+    assessor: Email
 
 
 HelperAvails = Dict[SlotId, AvailInfo]

@@ -1,7 +1,7 @@
 """
 Implementation of the Tabu Search (TS) meta heuristic.
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .base import BaseAlgorithm
 from ..types import Schedule
@@ -24,8 +24,9 @@ class TabuSearch(BaseAlgorithm):
         return {
             exam.code: {
                 'start_time': datetime.now(),
-                'end_time': datetime.now(),
-                'helper': 'helper@code.berlin'
+                'length': timedelta(minutes=20),
+                'student': 'student@code.berlin',
+                'assessor': 'assessor@code.berlin',
             }
             for exam in self.data.exams
         }

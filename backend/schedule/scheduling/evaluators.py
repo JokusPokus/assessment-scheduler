@@ -1,6 +1,8 @@
 """
 Feasibility and quality evaluation of schedules.
 """
+from django.db.models import QuerySet
+
 from .types import Schedule
 
 
