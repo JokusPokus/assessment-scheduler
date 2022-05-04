@@ -7,27 +7,16 @@ from datetime import datetime
 from typing import TypedDict, Dict
 
 from ..input_collectors import InputData
-
-
-ExamId = str
-Email = str
-
-
-class ScheduledInfo(TypedDict):
-    start_time: datetime
-    end_time: datetime
-    helper: Email
-
-
-Schedule = Dict[ExamId, ScheduledInfo]
+from ..evaluators import Evaluator
+from ..types import Schedule
 
 
 class BaseAlgorithm(ABC):
     """Defines an interface for Algorithm implementations."""
 
-    def __init__(self, data: InputData, validator):
+    def __init__(self, data: InputData, evaluator: Evaluator):
         self.data = data
-        self.validator = validator
+        self.evaluator = evaluator
 
     @abstractmethod
     def run(self) -> Schedule:

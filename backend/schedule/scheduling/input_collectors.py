@@ -12,24 +12,7 @@ from schedule.models import Window, BlockSlot, BlockTemplate
 from exam.models import Exam, Module, Student, ExamStyle
 from staff.models import Assessor, Helper
 
-
-SlotId = int
-Email = int
-ExamLength = int
-Count = int
-BlockCount = Dict[ExamLength, Count]
-AssessorBlockCounts = Dict[Email, BlockCount]
-
-
-class AvailInfo(TypedDict):
-    """Data about the number and email ids of helpers available
-    in a given block slot.
-    """
-    count: int
-    helpers: List[Email]
-
-
-HelperAvails = Dict[SlotId, AvailInfo]
+from .types import AssessorBlockCounts, HelperAvails
 
 
 @dataclass
@@ -105,7 +88,7 @@ class WorkloadCalculator:
             for length in self._exam_lengths
         }
 
-    def _exams_per_block_of(self, length):
+    def _exams_per_block_of(self, length) -> int:
         template = self.block_templates.get(exam_length=length)
         exams_per_block = len(template.exam_start_times)
         return exams_per_block

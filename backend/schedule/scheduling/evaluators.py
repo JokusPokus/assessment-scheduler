@@ -1,7 +1,7 @@
 """
 Feasibility and quality evaluation of schedules.
 """
-from .algorithms.base import Schedule
+from .types import Schedule
 
 
 class Evaluator:

@@ -3,7 +3,8 @@ Implementation of the Tabu Search (TS) meta heuristic.
 """
 from datetime import datetime
 
-from .base import BaseAlgorithm, Schedule
+from .base import BaseAlgorithm
+from ..types import Schedule
 
 
 class TabuSearch(BaseAlgorithm):
