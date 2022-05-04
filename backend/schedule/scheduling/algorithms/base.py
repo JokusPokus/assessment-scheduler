@@ -12,7 +12,7 @@ from ..types import Schedule
 
 
 class BaseAlgorithm(ABC):
-    """Defines an interface for Algorithm implementations."""
+    """Defines an interface for algorithm implementations."""
 
     def __init__(
             self,
