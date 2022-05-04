@@ -4,6 +4,7 @@ Abstract base class for algorithm implementations.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from functools import reduce
 from typing import Optional
 
 from ..input_collectors import InputData
@@ -40,4 +41,35 @@ class RandomAssignment(BaseAlgorithm):
         Return the resulting schedule, which is not guaranteed to be
         free of first-order conflicts.
         """
-        pass
+        exams = self.data.exams.values('code', 'assessor', 'student', 'module')
+
+        # Do n times (with n = num of blocks to be assigned):
+
+        #     1. Pick the most difficult slot:
+        #         - lowest number of available assessors
+        #         - tie breaker: lowest number of available helpers
+
+        #     2. Among the assessors available for that slot, pick the most
+        #        difficult one:
+        #         - lowest availability surplus := avails - workload
+
+        #     3. Randomly choose an exam length of that assessor and fill
+        #        a block of that length and assessor with random exams to
+        #        be executed by the assessor.
+
+        #     4. Assign that block to the slot.
+
+        #     5. Update assessor workload, staff availabilities, exam list
+        #
+
+    @property
+    def _num_blocks_to_assign(self) -> int:
+        """Return the total number of blocks that need to be scheduled,
+        that is, the sum of individual assessors' blocks.
+        """
+        return sum(
+            [
+                sum(block_count.values())
+                for block_count in self.data.assessor_workload.values()
+            ]
+        )
