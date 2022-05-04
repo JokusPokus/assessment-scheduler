@@ -84,8 +84,9 @@ class WorkloadCalculator:
         }
 
         return {
-            length: block_count_for(length)
+            length: count
             for length in self._exam_lengths
+            if (count := block_count_for(length))
         }
 
     def _exams_per_block_of(self, length) -> int:

@@ -6,6 +6,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import reduce
+import random
 from typing import Optional, List, ItemsView, Tuple
 
 from staff.models import Assessor
@@ -49,8 +50,13 @@ class RandomAssignment(BaseAlgorithm):
 
         for _ in range(self._num_blocks_to_assign):
             slot, avail_info = self._most_difficult_slot(avails)
-
             assessor = self._most_difficult_assessor(avail_info['assessors'])
+
+            exam_length = self._random_length_for(assessor)
+            template = self.data.block_templates.get(exam_length=exam_length)
+
+            for start_time in template.exam_start_times:
+                # assign exam to block
 
         #     3. Randomly choose an exam length of that assessor and fill
         #        a block of that length and assessor with random exams to
@@ -60,6 +66,13 @@ class RandomAssignment(BaseAlgorithm):
 
         #     5. Update assessor workload, staff availabilities, exam list
         #
+
+    def _random_length_for(self, assessor):
+        """Randomly return one of the possible exam lengths that the
+        schedule still needs to cover for the given assessor.
+        """
+        length_options = self.data.assessor_workload[assessor.email].keys()
+        return random.choice(length_options)
 
     @property
     def _num_blocks_to_assign(self) -> int:
