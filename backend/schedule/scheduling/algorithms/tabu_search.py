@@ -3,7 +3,7 @@ Implementation of the Tabu Search (TS) meta heuristic.
 """
 from datetime import datetime, timedelta
 
-from .base import BaseAlgorithm
+from .base import BaseAlgorithm, RandomAssignment
 from ..types import Schedule
 
 
@@ -13,7 +13,7 @@ class TabuSearch(BaseAlgorithm):
     """
 
     def run(self) -> Schedule:
-        schedule = self._get_random_initialization()
+        schedule = RandomAssignment(self.data).run()
 
         while self.evaluator.has_first_order_conflicts(schedule):
             self._iterate(schedule)
