@@ -148,7 +148,10 @@ class DBInputCollector(BaseInputCollector):
         )
 
     @property
-    def _helper_avails(self):
+    def _helper_avails(self) -> HelperAvails:
+        """Return the number and email ids of available helpers per
+        block slot.
+        """
         return {
             slot.id: {
                 'count': slot.helper.count(),
