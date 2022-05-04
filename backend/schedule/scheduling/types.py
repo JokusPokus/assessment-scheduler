@@ -29,5 +29,10 @@ class ScheduledInfo(TypedDict):
     assessor: Email
 
 
+class Conflict(TypedDict):
+    exams: List[ExamId]
+    student: Email
+
+
 HelperAvails = Dict[SlotId, AvailInfo]
 Schedule = Dict[ExamId, ScheduledInfo]

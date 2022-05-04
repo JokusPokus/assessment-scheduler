@@ -1,9 +1,11 @@
 """
 Feasibility and quality evaluation of schedules.
 """
+from typing import List
+
 from django.db.models import QuerySet
 
-from .types import Schedule
+from .types import Schedule, Conflict
 
 
 class Evaluator:
@@ -13,7 +15,7 @@ class Evaluator:
     """
 
     @staticmethod
-    def has_first_order_conflicts(schedule: Schedule) -> bool:
+    def first_order_conflicts(schedule: Schedule) -> List[Conflict]:
         """Return True if the given schedule has any first-order
         conflicts and False otherwise.
 
