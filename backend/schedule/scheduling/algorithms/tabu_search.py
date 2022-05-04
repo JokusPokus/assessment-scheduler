@@ -12,6 +12,14 @@ class TabuSearch(BaseAlgorithm):
     """
 
     def run(self) -> Schedule:
+        schedule = self._get_random_initialization()
+
+        while self.evaluator.has_first_order_conflicts(schedule):
+            self._iterate(schedule)
+
+        return schedule
+
+    def _get_random_initialization(self) -> Schedule:
         return {
             exam.code: {
                 'start_time': datetime.now(),

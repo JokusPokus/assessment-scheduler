@@ -35,5 +35,5 @@ class Scheduler:
     def run(self):
         """Execute all the steps given above."""
         data = self.input_collector(self.window).collect()
-        pprint(vars(data))
         schedule = self.algorithm(data).run()
+        pprint(schedule)

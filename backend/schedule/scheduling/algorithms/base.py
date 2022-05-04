@@ -25,8 +25,9 @@ Schedule = Dict[ExamId, ScheduledInfo]
 class BaseAlgorithm(ABC):
     """Defines an interface for Algorithm implementations."""
 
-    def __init__(self, data: InputData):
+    def __init__(self, data: InputData, validator):
         self.data = data
+        self.validator = validator
 
     @abstractmethod
     def run(self) -> Schedule:
