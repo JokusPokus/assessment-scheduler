@@ -4,6 +4,8 @@ Useful type specification for the scheduling process.
 from datetime import datetime, timedelta
 from typing import Dict, TypedDict, List
 
+from staff.models import Staff
+
 
 SlotId = int
 Email = int
@@ -19,7 +21,7 @@ class AvailInfo(TypedDict):
     in a given block slot.
     """
     count: int
-    helpers: List[Email]
+    staff: List[Staff]
 
 
 class ScheduledInfo(TypedDict):
@@ -34,5 +36,5 @@ class Conflict(TypedDict):
     student: Email
 
 
-HelperAvails = Dict[SlotId, AvailInfo]
+StaffAvails = Dict[SlotId, AvailInfo]
 Schedule = Dict[ExamId, ScheduledInfo]

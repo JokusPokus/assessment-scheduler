@@ -38,4 +38,4 @@ class Scheduler:
         data = self.input_collector.collect()
         algorithm = self.algorithm_class(data, self.evaluator)
         schedule = algorithm.run()
-        pprint(schedule)
+        pprint(data.staff_avails)

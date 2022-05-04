@@ -12,7 +12,7 @@ from schedule.models import Window, BlockSlot, BlockTemplate
 from exam.models import Exam, Module, Student, ExamStyle
 from staff.models import Assessor, Helper
 
-from .types import AssessorBlockCounts, HelperAvails
+from .types import AssessorBlockCounts, StaffAvails
 
 
 @dataclass
@@ -26,7 +26,7 @@ class InputData:
     assessors: QuerySet
     assessor_workload: AssessorBlockCounts
     helpers: QuerySet
-    helper_avails: HelperAvails
+    staff_avails: StaffAvails
     block_slots: QuerySet
     block_templates: QuerySet
 
@@ -125,20 +125,22 @@ class DBInputCollector(BaseInputCollector):
             assessors=self.assessors,
             assessor_workload=self.workload_calc.assessor_block_counts,
             helpers=self.helpers,
-            helper_avails=self._helper_avails,
+            staff_avails=self._staff_avails,
             block_slots=self.block_slots,
             block_templates=self.block_templates,
         )
 
     @property
-    def _helper_avails(self) -> HelperAvails:
-        """Return the number and email ids of available helpers per
-        block slot.
+    def _staff_avails(self) -> StaffAvails:
+        """Return the number and email ids of available helpers
+        and assessors per block slot.
         """
         return {
             slot.id: {
-                'count': slot.helper.count(),
-                'helpers': slot.helper.all()
+                'helper_count': slot.helper.count(),
+                'helpers': slot.helper.all().values_list('email', flat=True),
+                'assessor_count': slot.assessor.count(),
+                'assessors': slot.assessor.all().values_list('email', flat=True),
             }
             for slot in self.block_slots
         }

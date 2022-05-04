@@ -31,7 +31,7 @@ class BaseAlgorithm(ABC):
 
 
 class RandomAssignment(BaseAlgorithm):
-    """Utility class for algorithm initialization."""
+    """Utility class for pseudo-random algorithm initialization."""
 
     def run(self) -> Schedule:
         """Randomly assign assessor blocks to available slots, and
@@ -40,12 +40,4 @@ class RandomAssignment(BaseAlgorithm):
         Return the resulting schedule, which is not guaranteed to be
         free of first-order conflicts.
         """
-        return {
-            exam.code: {
-                'start_time': datetime.now(),
-                'length': timedelta(minutes=20),
-                'student': 'student@code.berlin',
-                'assessor': 'assessor@code.berlin',
-            }
-            for exam in self.data.exams
-        }
+        pass
