@@ -66,7 +66,7 @@ class RandomAssignment(BaseAlgorithm):
             exam_candidates = self._get_compatible_exams(assessor, template)
             self._randomly_assign_compatible_exams(block, exam_candidates, template)
 
-            schedule[slot] = block
+            schedule[slot] += [block]
 
             self._update_availabilities(assessor, slot)
             self._update_workloads(assessor, template)
