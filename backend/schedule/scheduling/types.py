@@ -2,8 +2,9 @@
 Useful type specification for the scheduling process.
 """
 from datetime import datetime, timedelta
-from typing import Dict, TypedDict, List
+from typing import Dict, TypedDict, List, Optional
 
+from exam.models import Student
 from staff.models import Helper, Assessor
 
 
@@ -26,11 +27,19 @@ class AvailInfo(TypedDict):
     assessors: List[Assessor]
 
 
-class ScheduledInfo(TypedDict):
+class ExamSchedule(TypedDict):
+    exam: ExamId
+    position: int
+    student: Student
+
+
+class BlockSchedule(TypedDict):
     start_time: datetime
-    length: timedelta
-    student: Email
-    assessor: Email
+    exam_start_times: List[timedelta]
+    assessor: Assessor
+    helper: Optional[Helper]
+    exam_length: int
+    exams: List[ExamSchedule]
 
 
 class Conflict(TypedDict):
@@ -39,4 +48,4 @@ class Conflict(TypedDict):
 
 
 StaffAvails = Dict[SlotId, AvailInfo]
-Schedule = Dict[ExamId, ScheduledInfo]
+Schedule = Dict[SlotId, List[BlockSchedule]]

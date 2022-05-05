@@ -42,6 +42,7 @@ class RandomAssignment(BaseAlgorithm):
         Return the resulting schedule, which is not guaranteed to be
         free of first-order conflicts.
         """
+        schedule = {}
         exams = self.data.exams.values('code', 'assessor', 'student', 'module')
         avails = self.data.staff_avails.items()
 
