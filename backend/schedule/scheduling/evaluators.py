@@ -5,8 +5,25 @@ from typing import List
 
 from django.db.models import QuerySet
 
+from exam.models import Exam, Student
+from schedule.models import BlockSlot
+
 from .schedule import Schedule
-from .types import Conflict
+
+
+class Conflict:
+    """Represents a first-order conflict in a schedule, that is,
+    a student being scheduled for more than one exam at the same time.
+    """
+    def __init__(
+            self,
+            exams: List[Exam],
+            student: Student,
+            block_slot: BlockSlot
+    ):
+        self.exams = exams
+        self.student = student
+        self.block_slot = block_slot
 
 
 class Evaluator:
@@ -17,10 +34,10 @@ class Evaluator:
 
     @staticmethod
     def first_order_conflicts(schedule: Schedule) -> List[Conflict]:
-        """Return True if the given schedule has any first-order
-        conflicts and False otherwise.
+        """Return a list of first-order conflicts found in the
+        given schedule.
 
         A first-order conflict exists if a student or assessor
         is scheduled for two exams with overlapping time frames.
         """
-        pass
+        schedule.group_by_start_time()

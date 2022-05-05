@@ -1,11 +1,12 @@
 """
 Schedule specification.
 """
-from collections import UserDict
+from collections import UserDict, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+import itertools
 import pprint
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from exam.models import Student
 from staff.models import Assessor, Helper
@@ -30,7 +31,7 @@ class BlockSchedule:
     """Represents the schedule of a block of exams."""
 
     start_time: datetime
-    exam_start_times: List[timedelta]
+    exam_start_times: List[int]
     assessor: Assessor
     exam_length: int
     exams: List[ExamSchedule] = field(default_factory=list)
@@ -47,9 +48,22 @@ class BlockSchedule:
             }
         )
 
+    @property
+    def start_times(self) -> Set[datetime]:
+        """Return a list of datetime objects, where each one represents
+        a start time in this block"""
+        num_scheduled_exams = len(self.exams)
+        return {
+            self.start_time + timedelta(minutes=offset)
+            for offset in self.exam_start_times[:num_scheduled_exams]
+        }
+
 
 class Schedule(UserDict):
-    """Represents a complete window schedule."""
+    """Represents a complete window schedule.
+
+    Each key is a slot id and its value is a list of BlockSchedules.
+    """
 
     def __setitem__(self, key, value):
         if not isinstance(key, SlotId):
@@ -78,3 +92,23 @@ class Schedule(UserDict):
     def __str__(self):
         pp = pprint.PrettyPrinter()
         return pp.pformat(self.data)
+
+    def group_by_start_time(self):
+        """Return the schedule transformed in such a way that each
+        key represents a start time of some exam. Its value
+        is a list of (student, length) tuples each representing
+        an exam starting at that time.
+
+        Note that a student can appear more than once in such a
+        list if she is scheduled for more than one exam at the
+        same time.
+        """
+        start_times = set().union(
+            *[
+                block.start_times
+                for block in itertools.chain(*self.data.values())
+            ]
+        )
+
+        print(start_times)
+

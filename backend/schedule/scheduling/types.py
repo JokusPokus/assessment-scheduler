@@ -27,9 +27,4 @@ class AvailInfo(TypedDict):
     assessors: List[Assessor]
 
 
-class Conflict(TypedDict):
-    exams: List[ExamId]
-    student: Email
-
-
 StaffAvails = Dict[SlotId, AvailInfo]
