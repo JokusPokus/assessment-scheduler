@@ -31,7 +31,7 @@ const PhaseCreateForm = ({visible, onCreate, onCancel}) => {
                 initialValues={{
                     modifier: 'public',
                     year: new Date().getFullYear(),
-                    semester: "Spring Semester"
+                    semester: "spring"
                 }}
             >
                 <Form.Item

@@ -54,7 +54,7 @@ const PhaseSelector = ({currentYear, setCurrentYear, currentSemester, setCurrent
     const [visible, setVisible] = useState(false);
 
     const onCreate = async (values) => {
-        await httpPostPhase(values)();
+        const resp = await httpPostPhase(values)();
         setNewPhaseCounter(newPhaseCounter + 1);
         setVisible(false);
     };
