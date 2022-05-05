@@ -4,7 +4,7 @@ Implementation of the Tabu Search (TS) meta heuristic.
 from datetime import datetime, timedelta
 
 from .base import BaseAlgorithm, RandomAssignment
-from ..types import Schedule
+from ..schedule import Schedule, BlockSchedule, ExamSchedule
 
 
 class TabuSearch(BaseAlgorithm):

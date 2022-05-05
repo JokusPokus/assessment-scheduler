@@ -5,7 +5,8 @@ from typing import List
 
 from django.db.models import QuerySet
 
-from .types import Schedule, Conflict
+from .schedule import Schedule
+from .types import Conflict
 
 
 class Evaluator:

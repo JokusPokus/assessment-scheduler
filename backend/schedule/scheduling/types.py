@@ -27,25 +27,9 @@ class AvailInfo(TypedDict):
     assessors: List[Assessor]
 
 
-class ExamSchedule(TypedDict):
-    exam: ExamId
-    position: int
-    student: Student
-
-
-class BlockSchedule(TypedDict):
-    start_time: datetime
-    exam_start_times: List[timedelta]
-    assessor: Assessor
-    helper: Optional[Helper]
-    exam_length: int
-    exams: List[ExamSchedule]
-
-
 class Conflict(TypedDict):
     exams: List[ExamId]
     student: Email
 
 
 StaffAvails = Dict[SlotId, AvailInfo]
-Schedule = Dict[SlotId, List[BlockSchedule]]

@@ -10,7 +10,8 @@ from schedule.models import BlockTemplate
 
 from ..input_collectors import InputData
 from ..evaluators import Evaluator
-from ..types import Schedule, AvailInfo, SlotId
+from ..schedule import Schedule, BlockSchedule, ExamSchedule
+from ..types import AvailInfo, SlotId
 
 
 class BaseAlgorithm(ABC):
