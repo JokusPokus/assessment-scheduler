@@ -56,7 +56,7 @@ class WorkloadCalculator:
         of exam length.
         """
         return {
-            assessor: self._get_block_counts_for(assessor)
+            assessor.email: self._get_block_counts_for(assessor)
             for assessor in self.assessors
         }
 
@@ -67,11 +67,11 @@ class WorkloadCalculator:
         def block_count_for(exam_length) -> int:
             standard_count = exams.filter(
                 style=ExamStyle.STANDARD,
-                module__standard_length=exam_length
+                module__standard_length=exam_length,
             ).count()
             alt_count = exams.filter(
-                style=ExamStyle.STANDARD,
-                module__standard_length=exam_length
+                style=ExamStyle.ALTERNATIVE,
+                module__alternative_length=exam_length
             ).count()
 
             total_count = standard_count + alt_count
@@ -139,9 +139,10 @@ class DBInputCollector(BaseInputCollector):
         return {
             slot.id: {
                 'helper_count': slot.helper.count(),
-                'helpers': slot.helper.all().values_list('email', flat=True),
+                'helpers': list(slot.helper.all()),
                 'assessor_count': slot.assessor.count(),
-                'assessors': slot.assessor.all().values_list('email', flat=True),
+                'assessors': list(slot.assessor.all()),
             }
             for slot in self.block_slots
+            if slot.assessor.exists()
         }

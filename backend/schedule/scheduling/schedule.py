@@ -2,8 +2,9 @@
 Schedule specification.
 """
 from collections import UserDict
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
 from exam.models import Student
 from staff.models import Assessor, Helper
@@ -27,9 +28,9 @@ class BlockSchedule:
     start_time: datetime
     exam_start_times: List[timedelta]
     assessor: Assessor
-    helper: Optional[Helper]
     exam_length: int
-    exams: List[ExamSchedule]
+    exams: List[ExamSchedule] = field(default_factory=list)
+    helper: Optional[Helper] = None
 
 
 class Schedule(UserDict):

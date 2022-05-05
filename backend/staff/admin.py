@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Assessor, Helper
+from exam.admin import ExamInline
 
 
 class AssessorInline(admin.TabularInline):
@@ -12,6 +13,7 @@ class AssessorInline(admin.TabularInline):
 @admin.register(Assessor)
 class AssessorAdmin(admin.ModelAdmin):
     list_display = ['email']
+    inlines = [ExamInline]
 
 
 @admin.register(Helper)

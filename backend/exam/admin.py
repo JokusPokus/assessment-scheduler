@@ -3,6 +3,18 @@ from django.contrib import admin
 from .models import Student, Module, Exam
 
 
+class ExamInline(admin.TabularInline):
+    model = Exam
+    fields = ['id', 'module', 'student']
+    read_only_fields = ['length']
+    show_change_link = True
+    extra = 0
+
+    @staticmethod
+    def length(obj):
+        return obj.length
+
+
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ['id', 'email']
@@ -12,7 +24,13 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):
-    list_display = ['id', 'code', 'name']
+    list_display = [
+        'id',
+        'code',
+        'name',
+        'standard_length',
+        'alternative_length'
+    ]
     search_fields = ['code', 'name']
     ordering = ['code']
 
