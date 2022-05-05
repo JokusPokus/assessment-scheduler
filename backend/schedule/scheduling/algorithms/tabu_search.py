@@ -3,7 +3,8 @@ Implementation of the Tabu Search (TS) meta heuristic.
 """
 from datetime import datetime, timedelta
 
-from .base import BaseAlgorithm, RandomAssignment
+from .base import BaseAlgorithm
+from .random import RandomAssignment
 from ..schedule import Schedule, BlockSchedule, ExamSchedule
 
 
