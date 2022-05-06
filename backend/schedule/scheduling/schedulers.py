@@ -38,4 +38,3 @@ class Scheduler:
         data = self.input_collector.collect()
         algorithm = self.algorithm_class(data, self.evaluator)
         schedule = algorithm.run()
-        print(schedule)

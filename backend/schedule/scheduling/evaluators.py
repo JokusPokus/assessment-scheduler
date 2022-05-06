@@ -40,4 +40,4 @@ class Evaluator:
         A first-order conflict exists if a student or assessor
         is scheduled for two exams with overlapping time frames.
         """
-        schedule.group_by_start_time()
+        schedule.group_by_student()
