@@ -37,8 +37,8 @@ class TimeFrame:
         Being precisely back-to-back does not count as an overlap.
         """
         return (
-                self.start_time >= other.end_time
-                or other.start_time >= self.end_time
+                not self.start_time >= other.end_time
+                and not other.start_time >= self.end_time
         )
 
 
@@ -49,9 +49,21 @@ class ExamSchedule:
     exam_code: str
     position: int
     student: Student
+    time_frame: TimeFrame
 
     def __repr__(self):
         return f'{self.position+1}. {self.exam_code}: {self.student.email}'
+
+    def __lt__(self, other):
+        return self.time_frame < other.time_frame
+
+    def overlaps_with(self, other: ExamSchedule):
+        """Return True if self and other overlap in any way,
+        and False otherwise.
+
+        Being precisely back-to-back does not count as an overlap.
+        """
+        return self.time_frame.overlaps_with(other.time_frame)
 
 
 @dataclass
@@ -121,7 +133,7 @@ class Schedule(UserDict):
         pp = pprint.PrettyPrinter()
         return pp.pformat(self.data)
 
-    def group_by_student(self) -> Dict[Student, List[TimeFrame]]:
+    def group_by_student(self) -> Dict[Student, List[ExamSchedule]]:
         """Return the schedule transformed in such a way that each
         key represents a student. Its value is a list of (start_time, end_time)
         tuples each representing one of that student's exams.
@@ -130,12 +142,7 @@ class Schedule(UserDict):
 
         lists_of_blocks = self.data.values()
         for block in itertools.chain(*lists_of_blocks):
-            for start_time, exam in zip(block.start_times, block.exams):
-                by_student[exam.student].append(
-                    TimeFrame(
-                        start_time,
-                        start_time + timedelta(minutes=block.exam_length)
-                    )
-                )
+            for exam in block.exams:
+                by_student[exam.student].append(exam)
 
         return by_student

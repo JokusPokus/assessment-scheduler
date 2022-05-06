@@ -2,6 +2,7 @@
 Utility classes for pseudo-random initialization.
 """
 from copy import deepcopy
+from datetime import datetime, timedelta
 import random
 from typing import Optional, List, ItemsView, Tuple, Dict
 
@@ -13,7 +14,7 @@ from schedule.models import BlockTemplate
 from .base import BaseAlgorithm
 from ..input_collectors import InputData
 from ..evaluators import Evaluator
-from ..schedule import Schedule, BlockSchedule, ExamSchedule
+from ..schedule import Schedule, BlockSchedule, ExamSchedule, TimeFrame
 from ..types import AvailInfo, SlotId
 
 
@@ -80,13 +81,16 @@ class RandomAssignment(BaseAlgorithm):
             del self.data.staff_avails[slot]
 
     def _randomly_assign_compatible_exams(self, block, exam_candidates, template):
-        for i, start_time in enumerate(template.exam_start_times):
+        for i, rel_start_time in enumerate(template.exam_start_times):
             exam = random.choice(exam_candidates)
+            abs_start_time = block.start_time + timedelta(minutes=rel_start_time)
+            abs_end_time = abs_start_time + timedelta(minutes=block.exam_length)
             block.exams.append(
                 ExamSchedule(
                     exam_code=exam.code,
                     student=exam.student,
-                    position=i
+                    position=i,
+                    time_frame=TimeFrame(abs_start_time, abs_end_time)
                 )
             )
             exam_candidates = exam_candidates.exclude(id=exam.id)
