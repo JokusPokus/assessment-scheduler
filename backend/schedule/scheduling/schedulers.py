@@ -6,7 +6,7 @@ from pprint import pprint
 
 from schedule.models import Window
 from .algorithms import BaseAlgorithm, TabuSearch
-from .evaluators import Evaluator
+from .evaluators import Evaluator, ValidationError
 from .input_collectors import BaseInputCollector, DBInputCollector
 
 
@@ -36,5 +36,13 @@ class Scheduler:
     def run(self) -> None:
         """Execute all the steps given above."""
         data = self.input_collector.collect()
+        try:
+            self.evaluator.validate_availabilities(data)
+        except ValidationError as e:
+            print("Insufficient avails:", e.insufficient_avails)
+            print("Helpers needed?", e.helpers_needed)
+            raise e
+
         algorithm = self.algorithm_class(data, self.evaluator)
         schedule = algorithm.run()
+        print(schedule)

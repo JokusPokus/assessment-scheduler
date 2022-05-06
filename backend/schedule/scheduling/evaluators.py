@@ -3,14 +3,16 @@ Feasibility and quality evaluation of schedules.
 """
 from abc import ABC, abstractmethod
 from pprint import pprint
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from django.db.models import QuerySet
 
 from exam.models import Exam, Student
 from schedule.models import BlockSlot
+from staff.models import Assessor, Helper
 
 from .schedule import Schedule, ExamSchedule
+from .input_collectors import InputData
 from .types import ExamId
 
 
@@ -60,6 +62,17 @@ class BruteForce(ConflictSearch):
         return conflicts
 
 
+class ValidationError(BaseException):
+    """Raised if given input data does not allow for a feasible schedule."""
+    def __init__(
+            self,
+            insufficient_avails: Optional[Dict] = None,
+            helpers_needed: bool = False
+    ):
+        self.insufficient_avails = insufficient_avails
+        self.helpers_needed = helpers_needed
+
+
 class Evaluator:
     """Provides evaluation methods to check if a proposed solution
     violates first-order constraints and quantifies a schedule's
@@ -84,3 +97,59 @@ class Evaluator:
             conflicts.extend(student_conflicts)
 
         return conflicts
+
+    def validate_availabilities(self, data: InputData) -> None:
+        """Raise a validation error if the given staff availabilities
+        do not allow for a feasible schedule.
+
+        This happens in any of the following cases:
+        (1) any assessor has less available slots than blocks to be scheduled
+        (2) the total helper availabilities are less than the total blocks
+            to be scheduled, where an 'unnecessary' helper-over-assessor
+            availability surplus does not count (i.e., there is no use in
+            many available helpers for a given slot if the number of
+            available assessors is smaller).
+        """
+        insufficient_avails = self._get_avail_insufficiencies(data)
+        helpers_needed = self._helpers_needed(data)
+
+        if insufficient_avails or helpers_needed:
+            raise ValidationError(
+                insufficient_avails=insufficient_avails,
+                helpers_needed=helpers_needed
+            )
+
+    @staticmethod
+    def _helpers_needed(data) -> bool:
+        """Return True if the number of (relevant) helper availabilities
+        is smaller than the number of blocks that need to be scheduled.
+        Return False otherwise.
+        """
+        num_blocks_w_potential_helper = sum(
+            [
+                max(slot.assessor.count(), slot.helper.count())
+                for slot in data.block_slots
+            ]
+        )
+        return num_blocks_w_potential_helper < data.total_num_blocks
+
+    @staticmethod
+    def _get_avail_insufficiencies(data) -> Dict[Assessor, Dict[str, int]]:
+        """Return information about potentially insufficient assessor
+        availabilities.
+        """
+        insufficient_avails = {}
+
+        for assessor, workload in data.assessor_workload.items():
+            available_slots = assessor.available_blocks.filter(
+                window=data.window
+            ).count()
+            blocks_to_schedule = sum(workload.values())
+
+            if blocks_to_schedule > available_slots:
+                insufficient_avails[assessor] = {
+                    'available_slots': available_slots,
+                    'blocks_to_schedule': blocks_to_schedule
+                }
+
+        return insufficient_avails

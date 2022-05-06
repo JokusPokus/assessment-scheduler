@@ -33,7 +33,7 @@ class RandomAssignment(BaseAlgorithm):
         """
         schedule = Schedule()
 
-        for _ in range(self._num_blocks_to_assign):
+        for _ in range(self.data.total_num_blocks):
             slot, avail_info = self._most_difficult_slot(self.data.staff_avails)
             assessor = self._most_difficult_assessor(avail_info['assessors'])
             template = self._get_random_template_for(assessor)
@@ -104,18 +104,6 @@ class RandomAssignment(BaseAlgorithm):
             .filter(assessor=assessor) \
             .filter(self._fitting_length_query(template.exam_length))
 
-    @property
-    def _num_blocks_to_assign(self) -> int:
-        """Return the total number of blocks that need to be scheduled,
-        that is, the sum of individual assessors' blocks.
-        """
-        return sum(
-            [
-                sum(block_count.values())
-                for block_count in self.data.assessor_workload.values()
-            ]
-        )
-
     def _most_difficult_slot(
             self,
             avails: Dict[SlotId, AvailInfo]
@@ -155,7 +143,9 @@ class RandomAssignment(BaseAlgorithm):
         The higher the availability surplus, the easier it is
         - heuristically - to schedule the assessor.
         """
-        available_slots = assessor.available_blocks.count()
+        available_slots = assessor.available_blocks.filter(
+            window=self.data.window
+        ).count()
 
         workload = self.data.assessor_workload[assessor.email]
         blocks_to_schedule = sum(workload.values())

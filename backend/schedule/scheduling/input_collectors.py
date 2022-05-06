@@ -21,6 +21,7 @@ class InputData:
     any scheduling algorithm.
     """
 
+    window: Window
     exams: QuerySet
     modules: QuerySet
     assessors: QuerySet
@@ -29,6 +30,7 @@ class InputData:
     staff_avails: StaffAvails
     block_slots: QuerySet
     block_templates: QuerySet
+    total_num_blocks: int
 
 
 class BaseInputCollector(ABC):
@@ -56,7 +58,7 @@ class WorkloadCalculator:
         of exam length.
         """
         return {
-            assessor.email: self._get_block_counts_for(assessor)
+            assessor: self._get_block_counts_for(assessor)
             for assessor in self.assessors
         }
 
@@ -118,17 +120,20 @@ class DBInputCollector(BaseInputCollector):
             assessors=self.assessors,
             block_templates=self.block_templates
         )
+        self.assessor_workload = self.workload_calc.assessor_block_counts
 
     def collect(self) -> InputData:
         return InputData(
+            window=self.window,
             exams=self.exams,
             modules=self.modules,
             assessors=self.assessors,
-            assessor_workload=self.workload_calc.assessor_block_counts,
+            assessor_workload=self.assessor_workload,
             helpers=self.helpers,
             staff_avails=self._staff_avails,
             block_slots=self.block_slots,
             block_templates=self.block_templates,
+            total_num_blocks=self._total_num_blocks
         )
 
     @property
@@ -146,3 +151,15 @@ class DBInputCollector(BaseInputCollector):
             for slot in self.block_slots
             if slot.assessor.exists()
         }
+
+    @property
+    def _total_num_blocks(self) -> int:
+        """Return the total number of blocks that need to be scheduled,
+        that is, the sum of individual assessors' blocks.
+        """
+        return sum(
+            [
+                sum(block_count.values())
+                for block_count in self.assessor_workload.values()
+            ]
+        )

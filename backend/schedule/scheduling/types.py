@@ -14,7 +14,7 @@ ExamId = str
 ExamLength = int
 Count = int
 BlockCount = Dict[ExamLength, Count]
-AssessorBlockCounts = Dict[Email, BlockCount]
+AssessorBlockCounts = Dict[Assessor, BlockCount]
 
 
 class AvailInfo(TypedDict):
