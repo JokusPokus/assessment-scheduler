@@ -23,6 +23,13 @@ class TimeFrame:
         self.start_time = start_time
         self.end_time = end_time
 
+    def __lt__(self, other):
+        return self.start_time < other.start_time
+
+    def __repr__(self):
+        return f"{self.start_time.strftime('%d.%m. %H:%M')} - " \
+               f"{self.end_time.strftime('%H:%M')}"
+
     def overlaps_with(self, other: TimeFrame) -> bool:
         """Return True if self and other - both TimeFrames - overlap
         in any way, and False otherwise.

@@ -1,6 +1,7 @@
 """
 Feasibility and quality evaluation of schedules.
 """
+from pprint import pprint
 from typing import List
 
 from django.db.models import QuerySet
@@ -40,4 +41,9 @@ class Evaluator:
         A first-order conflict exists if a student or assessor
         is scheduled for two exams with overlapping time frames.
         """
-        schedule.group_by_student()
+        by_student = schedule.group_by_student()
+
+        for student, exams in by_student.items():
+            exams.sort()
+            print(student.email)
+            pprint(exams)
