@@ -217,3 +217,11 @@ class RandomAssignment(BaseAlgorithm):
         counter.
         """
         self.data.staff_avails[slot].remove(assessor)
+
+
+class HeuristicDFS(BaseAlgorithm):
+    """A depth-first search guided by heuristics to find a feasible
+    assessor-slot assignment (ignoring concrete exams).
+    """
+    def run(self) -> Schedule:
+        pass
