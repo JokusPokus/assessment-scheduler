@@ -249,8 +249,10 @@ class RandomAssignment(BaseAlgorithm):
                     template
                 )
 
-                self._update_availabilities(block.assessor, slot)
-                self._update_workloads(block.assessor, template)
+                self.data.assessor_workload.decrement(
+                    block.assessor,
+                    template.exam_length
+                )
 
         return schedule
 
@@ -333,6 +335,7 @@ class RandomAssignment(BaseAlgorithm):
         block.exams.append(
             ExamSchedule(
                 exam_code=exam.code,
+                module=exam.module,
                 student=exam.student,
                 position=position,
                 time_frame=TimeFrame(abs_start_time, abs_end_time)

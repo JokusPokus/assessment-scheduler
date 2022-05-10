@@ -10,7 +10,7 @@ import itertools
 import pprint
 from typing import Dict, List, Optional, Set
 
-from exam.models import Student
+from exam.models import Student, Module
 from staff.models import Assessor, Helper
 
 from .types import SlotId
@@ -47,12 +47,14 @@ class ExamSchedule:
     """Represents the schedule of a single exam."""
 
     exam_code: str
+    module: Module
     position: int
     student: Student
     time_frame: TimeFrame
 
     def __repr__(self):
-        return f'{self.position+1}. {self.exam_code}: {self.student.email}'
+        return f'{self.position+1}. {self.exam_code} ({self.module.code}): ' \
+               f'{self.student.email}'
 
     def __lt__(self, other):
         return self.time_frame < other.time_frame
