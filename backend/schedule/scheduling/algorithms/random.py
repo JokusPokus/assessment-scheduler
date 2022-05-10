@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import random
 from typing import Optional, List, ItemsView, Tuple, Dict
 
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from staff.models import Assessor
 from schedule.models import BlockTemplate
@@ -54,55 +54,6 @@ class RandomAssignment(BaseAlgorithm):
             self._update_workloads(assessor, template)
 
         return schedule
-
-    def _update_workloads(self, assessor, template):
-        if self.data.assessor_workload[assessor.email][template.exam_length] > 1:
-            self.data.assessor_workload[assessor.email][template.exam_length] -= 1
-        else:
-            if len(self.data.assessor_workload[assessor.email]) == 1:
-                del self.data.assessor_workload[assessor.email]
-
-                for slot, avail_info in deepcopy(self.data.staff_avails).items():
-                    if assessor in avail_info['assessors']:
-                        if avail_info['assessor_count'] > 1:
-                            self.data.staff_avails[slot]['assessors'].remove(assessor)
-                            self.data.staff_avails[slot]['assessor_count'] -= 1
-                        else:
-                            del self.data.staff_avails[slot]
-
-            else:
-                del self.data.assessor_workload[assessor.email][template.exam_length]
-
-    def _update_availabilities(self, assessor, slot):
-        if self.data.staff_avails[slot]['assessor_count'] > 1:
-            self.data.staff_avails[slot]['assessors'].remove(assessor)
-            self.data.staff_avails[slot]['assessor_count'] -= 1
-        else:
-            del self.data.staff_avails[slot]
-
-    def _randomly_assign_compatible_exams(self, block, exam_candidates, template):
-        for i, rel_start_time in enumerate(template.exam_start_times):
-            exam = random.choice(exam_candidates)
-            abs_start_time = block.start_time + timedelta(minutes=rel_start_time)
-            abs_end_time = abs_start_time + timedelta(minutes=block.exam_length)
-            block.exams.append(
-                ExamSchedule(
-                    exam_code=exam.code,
-                    student=exam.student,
-                    position=i,
-                    time_frame=TimeFrame(abs_start_time, abs_end_time)
-                )
-            )
-            exam_candidates = exam_candidates.exclude(id=exam.id)
-            self.data.exams = self.data.exams.exclude(id=exam.id)
-
-            if not exam_candidates:
-                break
-
-    def _get_compatible_exams(self, assessor, template):
-        return self.data.exams \
-            .filter(assessor=assessor) \
-            .filter(self._fitting_length_query(template.exam_length))
 
     def _most_difficult_slot(
             self,
@@ -152,13 +103,55 @@ class RandomAssignment(BaseAlgorithm):
 
         return available_slots - blocks_to_schedule
 
-    def _get_random_template_for(self, assessor) -> BlockTemplate:
+    def _get_random_template_for(self, assessor: Assessor) -> BlockTemplate:
         """Randomly return one of the possible block templates that the
         schedule still needs to cover for the given assessor.
         """
         length_options = self.data.assessor_workload[assessor.email].keys()
         exam_length = random.choice(list(length_options))
         return self.data.block_templates.get(exam_length=exam_length)
+
+    def _get_compatible_exams(
+            self,
+            assessor: Assessor,
+            template: BlockTemplate
+    ) -> Queryset:
+        """Return a queryset of exams that are executed by the assessor
+        and conform with the template's exam length.
+        """
+        return self.data.exams \
+            .filter(assessor=assessor) \
+            .filter(self._fitting_length_query(template.exam_length))
+
+    def _randomly_assign_compatible_exams(
+            self,
+            block: BlockSchedule,
+            exam_candidates: QuerySet,
+            template: BlockTemplate
+    ) -> None:
+        """From the queryset of exam candidates, randomly assign exams to
+        to the block.
+
+        If there are less candidates than exam slots in the template,
+        just stop assigning.
+        """
+        for i, rel_start_time in enumerate(template.exam_start_times):
+            exam = random.choice(exam_candidates)
+            abs_start_time = block.start_time + timedelta(minutes=rel_start_time)
+            abs_end_time = abs_start_time + timedelta(minutes=block.exam_length)
+            block.exams.append(
+                ExamSchedule(
+                    exam_code=exam.code,
+                    student=exam.student,
+                    position=i,
+                    time_frame=TimeFrame(abs_start_time, abs_end_time)
+                )
+            )
+            exam_candidates = exam_candidates.exclude(id=exam.id)
+            self.data.exams = self.data.exams.exclude(id=exam.id)
+
+            if not exam_candidates:
+                break
 
     @staticmethod
     def _fitting_length_query(length: int):
@@ -169,3 +162,44 @@ class RandomAssignment(BaseAlgorithm):
                 (Q(style='alternative') & Q(module__alternative_length=length))
                 | (Q(style='standard') & Q(module__standard_length=length))
         )
+
+    def _update_workloads(
+            self,
+            assessor: Assessor,
+            template: BlockTemplate
+    ) -> None:
+        """Reduce the assessor's workload by one.
+
+        If this leads to empty workloads, delete them altogether.
+        """
+        if self.data.assessor_workload[assessor.email][template.exam_length] > 1:
+            self.data.assessor_workload[assessor.email][template.exam_length] -= 1
+        else:
+            if len(self.data.assessor_workload[assessor.email]) == 1:
+                del self.data.assessor_workload[assessor.email]
+
+                for slot, avail_info in deepcopy(self.data.staff_avails).items():
+                    if assessor in avail_info['assessors']:
+                        if avail_info['assessor_count'] > 1:
+                            self.data.staff_avails[slot]['assessors'].remove(assessor)
+                            self.data.staff_avails[slot]['assessor_count'] -= 1
+                        else:
+                            del self.data.staff_avails[slot]
+
+            else:
+                del self.data.assessor_workload[assessor.email][template.exam_length]
+
+    def _update_availabilities(
+            self,
+            assessor: Assessor,
+            slot: SlotId
+    ) -> None:
+        """Reduce the assessor's availabilities by one.
+
+        If this leads to empty availabilities, delete them altogether.
+        """
+        if self.data.staff_avails[slot]['assessor_count'] > 1:
+            self.data.staff_avails[slot]['assessors'].remove(assessor)
+            self.data.staff_avails[slot]['assessor_count'] -= 1
+        else:
+            del self.data.staff_avails[slot]
