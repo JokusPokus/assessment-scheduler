@@ -1,6 +1,7 @@
 """
 Utility classes for pseudo-random initialization.
 """
+from collections import Counter
 from copy import deepcopy
 from datetime import datetime, timedelta
 import random
@@ -10,6 +11,7 @@ from django.db.models import Q, QuerySet
 
 from staff.models import Assessor
 from schedule.models import BlockTemplate
+from exam.models import Exam, Module
 
 from .base import BaseAlgorithm, UnfeasibleInputError
 from ..input_collectors import InputData, AvailInfo, AssessorWorkload
@@ -231,33 +233,24 @@ class RandomAssignment(BaseAlgorithm):
 
         for slot, blocks in schedule.items():
             for block in blocks:
-                print(f"Assessor {block.assessor.email} was assigned a block in slot {slot}")
+                template = self._get_random_template_for(block.assessor)
 
+                block.start_time = self.data.block_slots.get(id=slot).start_time
+                block.exam_start_times = template.exam_start_times
+                block.exam_length = template.exam_length
 
-            # slot, avail_info = self._most_difficult_slot(
-            #     self.data.staff_avails
-            # )
-            # assessor = self._most_difficult_assessor(avail_info.assessors)
-            # template = self._get_random_template_for(assessor)
-            #
-            # block = BlockSchedule(
-            #     start_time=self.data.block_slots.get(id=slot).start_time,
-            #     exam_start_times=template.exam_start_times,
-            #     assessor=assessor,
-            #     exam_length=template.exam_length
-            # )
-            #
-            # exam_candidates = self._get_compatible_exams(assessor, template)
-            # self._randomly_assign_compatible_exams(
-            #     block,
-            #     exam_candidates,
-            #     template
-            # )
-            #
-            # schedule[slot] += [block]
-            #
-            # self._update_availabilities(assessor, slot)
-            # self._update_workloads(assessor, template)
+                exam_candidates = self._get_compatible_exams(
+                    block.assessor,
+                    template
+                )
+                self._assign_compatible_exams(
+                    block,
+                    exam_candidates,
+                    template
+                )
+
+                self._update_availabilities(block.assessor, slot)
+                self._update_workloads(block.assessor, template)
 
         return schedule
 
@@ -285,36 +278,74 @@ class RandomAssignment(BaseAlgorithm):
             .filter(assessor=assessor) \
             .filter(self._fitting_length_query(template.exam_length))
 
-    def _randomly_assign_compatible_exams(
+    def _assign_compatible_exams(
             self,
             block: BlockSchedule,
             exam_candidates: QuerySet,
             template: BlockTemplate
     ) -> None:
-        """From the queryset of exam candidates, randomly assign exams to
-        to the block and delete scheduled exams from the total list of
+        """From the queryset of exam candidates, pseudo-randomly assign
+        exams to to the block and delete scheduled exams from the total list of
         exams.
+
+        Since assessors shall jump between exam topics as little as
+        possible, group the exam candidates by module and stick with one
+        module as long as possible. Within the module group, exams are
+        assigned randomly.
 
         If there are less candidates than exam slots in the template,
         just stop assigning.
         """
-        for i, rel_start_time in enumerate(template.exam_start_times):
-            exam = random.choice(exam_candidates)
-            abs_start_time = block.start_time + timedelta(minutes=rel_start_time)
-            abs_end_time = abs_start_time + timedelta(minutes=block.exam_length)
-            block.exams.append(
-                ExamSchedule(
-                    exam_code=exam.code,
-                    student=exam.student,
-                    position=i,
-                    time_frame=TimeFrame(abs_start_time, abs_end_time)
-                )
-            )
-            exam_candidates = exam_candidates.exclude(id=exam.id)
-            self.data.exams = self.data.exams.exclude(id=exam.id)
+        def module_group_order(_exam: Exam) -> Tuple:
+            """Return a tuple for lexicographic ordering of exams.
 
-            if not exam_candidates:
+            The random number implements a shuffle within module groups.
+            """
+            ranking = ranked_modules.index(_exam.module)
+            return ranking, random.random()
+
+        candidates = list(exam_candidates)
+        ranked_modules = self._get_modules_quantity_ranking(exam_candidates)
+
+        candidates.sort(key=module_group_order)
+
+        for i, rel_start_time in enumerate(template.exam_start_times):
+            exam = self._add_exam(block, candidates, i, rel_start_time)
+
+            self._update_exams(exam)
+
+            if not candidates:
                 break
+
+    @staticmethod
+    def _add_exam(
+            block: BlockSchedule,
+            candidates: List[Exam],
+            position: int,
+            rel_start_time: int
+    ) -> Exam:
+        """Take the first exam from the candidates list and append it to
+        the block's exam list.
+        """
+        exam = candidates.pop(0)
+        abs_start_time = block.start_time + timedelta(minutes=rel_start_time)
+        abs_end_time = abs_start_time + timedelta(minutes=block.exam_length)
+        block.exams.append(
+            ExamSchedule(
+                exam_code=exam.code,
+                student=exam.student,
+                position=position,
+                time_frame=TimeFrame(abs_start_time, abs_end_time)
+            )
+        )
+        return exam
+
+    @staticmethod
+    def _get_modules_quantity_ranking(
+            exam_candidates: List[Exam]
+    ) -> List[Module]:
+        counter = Counter([exam.module for exam in exam_candidates])
+        return [module for module, count in counter.most_common()]
 
     @staticmethod
     def _fitting_length_query(length: int):
@@ -325,3 +356,9 @@ class RandomAssignment(BaseAlgorithm):
                 (Q(style='alternative') & Q(module__alternative_length=length))
                 | (Q(style='standard') & Q(module__standard_length=length))
         )
+
+    def _update_exams(self, exam: Exam) -> None:
+        """Remove the exam from the queryset of exams s.t. it is no longer
+        considered in the scheduling process.
+        """
+        self.data.exams = self.data.exams.exclude(id=exam.id)
