@@ -12,10 +12,10 @@ from staff.models import Assessor
 from schedule.models import BlockTemplate
 
 from .base import BaseAlgorithm
-from ..input_collectors import InputData
+from ..input_collectors import InputData, AvailInfo, AssessorWorkload
 from ..evaluators import Evaluator
 from ..schedule import Schedule, BlockSchedule, ExamSchedule, TimeFrame
-from ..types import AvailInfo, SlotId
+from ..types import SlotId
 
 
 class RandomAssignment(BaseAlgorithm):
@@ -34,8 +34,10 @@ class RandomAssignment(BaseAlgorithm):
         schedule = Schedule()
 
         for _ in range(self.data.total_num_blocks):
-            slot, avail_info = self._most_difficult_slot(self.data.staff_avails)
-            assessor = self._most_difficult_assessor(avail_info['assessors'])
+            slot, avail_info = self._most_difficult_slot(
+                self.data.staff_avails
+            )
+            assessor = self._most_difficult_assessor(avail_info.assessors)
             template = self._get_random_template_for(assessor)
 
             block = BlockSchedule(
@@ -46,7 +48,11 @@ class RandomAssignment(BaseAlgorithm):
             )
 
             exam_candidates = self._get_compatible_exams(assessor, template)
-            self._randomly_assign_compatible_exams(block, exam_candidates, template)
+            self._randomly_assign_compatible_exams(
+                block,
+                exam_candidates,
+                template
+            )
 
             schedule[slot] += [block]
 
@@ -64,10 +70,15 @@ class RandomAssignment(BaseAlgorithm):
 
         The difficulty assessment is based on the slot difficulty score.
         """
-        return min(avails.items(), key=self._slot_ease_score)
+        non_empty_avails = [
+            (slot, info)
+            for slot, info in avails.items()
+            if info.assessor_count
+        ]
+        return min(non_empty_avails, key=self._slot_ease_score)
 
     @staticmethod
-    def _slot_ease_score(slot: tuple) -> tuple:
+    def _slot_ease_score(slot: Tuple[SlotId, AvailInfo]) -> Tuple[int, int]:
         """Return the ease score for a given slot in the shape
         of a (assessor count, helper count) tuple.
 
@@ -76,13 +87,18 @@ class RandomAssignment(BaseAlgorithm):
         scheduling.
         """
         _, avails = slot
-        return avails['assessor_count'], avails['helper_count']
+        return avails.assessor_count, avails.helper_count
 
     def _most_difficult_assessor(self, assessors: List[Assessor]) -> Assessor:
         """Return the assessor who is most difficult to schedule,
         as indicated by the assessor difficulty scores.
         """
-        return min(assessors, key=self._assessor_ease_score)
+        pending_assessors = [
+            assessor
+            for assessor in assessors
+            if self.data.assessor_workload.remaining_blocks_of(assessor)
+        ]
+        return min(pending_assessors, key=self._assessor_ease_score)
 
     def _assessor_ease_score(self, assessor: Assessor) -> int:
         """Return the assessor's availability surplus.
@@ -94,11 +110,15 @@ class RandomAssignment(BaseAlgorithm):
         The higher the availability surplus, the easier it is
         - heuristically - to schedule the assessor.
         """
-        available_slots = assessor.available_blocks.filter(
-            window=self.data.window
-        ).count()
+        available_slots = sum(
+            [
+                1
+                for info in self.data.staff_avails.values()
+                if assessor in info.assessors
+            ]
+        )
 
-        workload = self.data.assessor_workload[assessor.email]
+        workload = self.data.assessor_workload[assessor]
         blocks_to_schedule = sum(workload.values())
 
         return available_slots - blocks_to_schedule
@@ -107,7 +127,11 @@ class RandomAssignment(BaseAlgorithm):
         """Randomly return one of the possible block templates that the
         schedule still needs to cover for the given assessor.
         """
-        length_options = self.data.assessor_workload[assessor.email].keys()
+        length_options = [
+            length
+            for length, count in self.data.assessor_workload[assessor].items()
+            if count > 0
+        ]
         exam_length = random.choice(list(length_options))
         return self.data.block_templates.get(exam_length=exam_length)
 
@@ -115,7 +139,7 @@ class RandomAssignment(BaseAlgorithm):
             self,
             assessor: Assessor,
             template: BlockTemplate
-    ) -> Queryset:
+    ) -> QuerySet:
         """Return a queryset of exams that are executed by the assessor
         and conform with the template's exam length.
         """
@@ -130,7 +154,8 @@ class RandomAssignment(BaseAlgorithm):
             template: BlockTemplate
     ) -> None:
         """From the queryset of exam candidates, randomly assign exams to
-        to the block.
+        to the block and delete scheduled exams from the total list of
+        exams.
 
         If there are less candidates than exam slots in the template,
         just stop assigning.
@@ -172,34 +197,23 @@ class RandomAssignment(BaseAlgorithm):
 
         If this leads to empty workloads, delete them altogether.
         """
-        if self.data.assessor_workload[assessor.email][template.exam_length] > 1:
-            self.data.assessor_workload[assessor.email][template.exam_length] -= 1
-        else:
-            if len(self.data.assessor_workload[assessor.email]) == 1:
-                del self.data.assessor_workload[assessor.email]
+        self.data.assessor_workload.decrement(assessor, template.exam_length)
 
-                for slot, avail_info in deepcopy(self.data.staff_avails).items():
-                    if assessor in avail_info['assessors']:
-                        if avail_info['assessor_count'] > 1:
-                            self.data.staff_avails[slot]['assessors'].remove(assessor)
-                            self.data.staff_avails[slot]['assessor_count'] -= 1
-                        else:
-                            del self.data.staff_avails[slot]
+        if not self.data.assessor_workload.remaining_blocks_of(assessor):
+            self._remove_assessor_from_all_avails(assessor)
 
-            else:
-                del self.data.assessor_workload[assessor.email][template.exam_length]
+    def _remove_assessor_from_all_avails(self, assessor: Assessor) -> None:
+        """Remove the assessor from all the staff avail assessor lists."""
+        for slot, avail_info in self.data.staff_avails.items():
+            if assessor in avail_info.assessors:
+                self.data.staff_avails[slot].remove(assessor)
 
     def _update_availabilities(
             self,
             assessor: Assessor,
             slot: SlotId
     ) -> None:
-        """Reduce the assessor's availabilities by one.
-
-        If this leads to empty availabilities, delete them altogether.
+        """Remove assessor from the block's avails list and decrement the
+        counter.
         """
-        if self.data.staff_avails[slot]['assessor_count'] > 1:
-            self.data.staff_avails[slot]['assessors'].remove(assessor)
-            self.data.staff_avails[slot]['assessor_count'] -= 1
-        else:
-            del self.data.staff_avails[slot]
+        self.data.staff_avails[slot].remove(assessor)
