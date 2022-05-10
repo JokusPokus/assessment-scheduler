@@ -148,7 +148,7 @@ class BackTracking(BaseAlgorithm):
         non_empty_avails = [
             (slot, info)
             for slot, info in avails.items()
-            if info.assessor_count
+            if info.assessor_count and info.helper_count
         ]
         non_empty_avails.sort(key=self.heuristics.slot_ease_score)
         return [slot for slot, info in non_empty_avails]
@@ -205,10 +205,11 @@ class BackTracking(BaseAlgorithm):
             slot: SlotId,
             assessor: Assessor
     ) -> None:
-        """Remove assessor from the block's avails list and decrement the
-        counter.
+        """Remove assessor from the block's avails list and decrement both
+        the assessor and helper counters.
         """
         staff_avails[slot].remove(assessor)
+        staff_avails[slot].helper_count -= 1
 
 
 class RandomAssignment(BaseAlgorithm):
