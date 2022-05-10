@@ -70,10 +70,10 @@ class ExamSchedule:
 class BlockSchedule:
     """Represents the schedule of a block of exams."""
 
-    start_time: datetime
-    exam_start_times: List[int]
     assessor: Assessor
-    exam_length: int
+    start_time: Optional[datetime] = None
+    exam_start_times: List[int] = field(default_factory=list)
+    exam_length: Optional[int] = None
     exams: List[ExamSchedule] = field(default_factory=list)
     helper: Optional[Helper] = None
 
@@ -81,10 +81,10 @@ class BlockSchedule:
         pp = pprint.PrettyPrinter(indent=4)
         return pp.pformat(
             {
-                'start_time': self.start_time.strftime('%d.%m. %H:%M'),
+                'start_time': self.start_time.strftime('%d.%m. %H:%M') if self.start_time else 't.b.d',
                 'assessor': self.assessor.email,
                 'helper': self.helper.email if self.helper else 't.b.d.',
-                'exams': self.exams
+                'exams': self.exams or 't.b.d'
             }
         )
 
@@ -146,3 +146,8 @@ class Schedule(UserDict):
                 by_student[exam.student].append(exam)
 
         return by_student
+
+    @property
+    def total_blocks_scheduled(self) -> int:
+        """Return the number of total blocks in this schedule."""
+        return sum([len(block_list) for block_list in self.data.values()])

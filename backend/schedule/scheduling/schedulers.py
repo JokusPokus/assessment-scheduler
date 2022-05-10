@@ -5,7 +5,7 @@ from typing import Optional, Type
 from pprint import pprint
 
 from schedule.models import Window
-from .algorithms import BaseAlgorithm, TabuSearch
+from .algorithms import BaseAlgorithm, TabuSearch, UnfeasibleInputError
 from .evaluators import Evaluator, ValidationError
 from .input_collectors import BaseInputCollector, DBInputCollector
 
@@ -44,5 +44,10 @@ class Scheduler:
             raise e
 
         algorithm = self.algorithm_class(data, self.evaluator)
-        schedule = algorithm.run()
+        try:
+            schedule = algorithm.run()
+        except UnfeasibleInputError as e:
+            print("Input does not allow for valid schedule!")
+            raise e
+
         print(schedule)

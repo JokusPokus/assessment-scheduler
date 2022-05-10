@@ -11,74 +11,20 @@ from django.db.models import Q, QuerySet
 from staff.models import Assessor
 from schedule.models import BlockTemplate
 
-from .base import BaseAlgorithm
+from .base import BaseAlgorithm, UnfeasibleInputError
 from ..input_collectors import InputData, AvailInfo, AssessorWorkload
 from ..evaluators import Evaluator
 from ..schedule import Schedule, BlockSchedule, ExamSchedule, TimeFrame
 from ..types import SlotId
 
 
-class RandomAssignment(BaseAlgorithm):
-    """Utility class for pseudo-random algorithm initialization."""
-
-    def __init__(self, data):
-        super().__init__(deepcopy(data))
-
-    def run(self) -> Schedule:
-        """Randomly assign assessor blocks to available slots, and
-        then exams to the blocks.
-
-        Return the resulting schedule, which is not guaranteed to be
-        free of first-order conflicts.
-        """
-        schedule = Schedule()
-
-        for _ in range(self.data.total_num_blocks):
-            slot, avail_info = self._most_difficult_slot(
-                self.data.staff_avails
-            )
-            assessor = self._most_difficult_assessor(avail_info.assessors)
-            template = self._get_random_template_for(assessor)
-
-            block = BlockSchedule(
-                start_time=self.data.block_slots.get(id=slot).start_time,
-                exam_start_times=template.exam_start_times,
-                assessor=assessor,
-                exam_length=template.exam_length
-            )
-
-            exam_candidates = self._get_compatible_exams(assessor, template)
-            self._randomly_assign_compatible_exams(
-                block,
-                exam_candidates,
-                template
-            )
-
-            schedule[slot] += [block]
-
-            self._update_availabilities(assessor, slot)
-            self._update_workloads(assessor, template)
-
-        return schedule
-
-    def _most_difficult_slot(
-            self,
-            avails: Dict[SlotId, AvailInfo]
-    ) -> Tuple[SlotId, AvailInfo]:
-        """Return a tuple of (slot code, availability info) for the
-        slot that is currently most difficult to schedule.
-
-        The difficulty assessment is based on the slot difficulty score.
-        """
-        non_empty_avails = [
-            (slot, info)
-            for slot, info in avails.items()
-            if info.assessor_count
-        ]
-        return min(non_empty_avails, key=self._slot_ease_score)
+class SchedulingHeuristics:
+    """Provides heuristic scores of scheduling difficulty to rank
+    elements of the scheduling process.
+    """
 
     @staticmethod
-    def _slot_ease_score(slot: Tuple[SlotId, AvailInfo]) -> Tuple[int, int]:
+    def slot_ease_score(slot: Tuple[SlotId, AvailInfo]) -> Tuple[int, int]:
         """Return the ease score for a given slot in the shape
         of a (assessor count, helper count) tuple.
 
@@ -89,18 +35,12 @@ class RandomAssignment(BaseAlgorithm):
         _, avails = slot
         return avails.assessor_count, avails.helper_count
 
-    def _most_difficult_assessor(self, assessors: List[Assessor]) -> Assessor:
-        """Return the assessor who is most difficult to schedule,
-        as indicated by the assessor difficulty scores.
-        """
-        pending_assessors = [
-            assessor
-            for assessor in assessors
-            if self.data.assessor_workload.remaining_blocks_of(assessor)
-        ]
-        return min(pending_assessors, key=self._assessor_ease_score)
-
-    def _assessor_ease_score(self, assessor: Assessor) -> int:
+    @staticmethod
+    def assessor_ease_score(
+            assessor: Assessor,
+            staff_avails: Dict[SlotId, AvailInfo],
+            assessor_workload: AssessorWorkload
+    ) -> int:
         """Return the assessor's availability surplus.
 
         The availability surplus is defined as the number of the
@@ -113,15 +53,212 @@ class RandomAssignment(BaseAlgorithm):
         available_slots = sum(
             [
                 1
-                for info in self.data.staff_avails.values()
+                for info in staff_avails.values()
                 if assessor in info.assessors
             ]
         )
-
-        workload = self.data.assessor_workload[assessor]
-        blocks_to_schedule = sum(workload.values())
+        blocks_to_schedule = assessor_workload[assessor]['remaining_workload']
 
         return available_slots - blocks_to_schedule
+
+
+class BackTracking(BaseAlgorithm):
+    """A depth-first back-tracking search guided by heuristics to find
+    a feasible assessor-slot assignment (ignoring concrete exams).
+    """
+    def __init__(self, data, heuristics=None):
+        super().__init__(data)
+        self.heuristics = heuristics or SchedulingHeuristics()
+
+    def run(self) -> Schedule:
+        assessor_workload = self.data.assessor_workload
+        for assessor in assessor_workload:
+            assessor_workload[assessor]['remaining_workload'] = \
+                assessor_workload.remaining_blocks_of(assessor)
+
+        return self.back_track(
+            Schedule(),
+            self.data.staff_avails,
+            assessor_workload
+        )
+
+    def back_track(
+            self,
+            schedule: Schedule,
+            staff_avails: Dict[SlotId, AvailInfo],
+            assessor_workload: AssessorWorkload
+    ):
+        if schedule.total_blocks_scheduled == self.data.total_num_blocks:
+            return schedule
+
+        schedule = deepcopy(schedule)
+        staff_avails = deepcopy(staff_avails)
+        assessor_workload = deepcopy(assessor_workload)
+
+        slots = self._get_ranked_slots(staff_avails)
+
+        if not slots:
+            # This path has lead to a dead end!
+            return None
+
+        for slot in slots:
+            available_assessors = staff_avails[slot].assessors
+            ranked_assessors = self._get_ranked_assessors(
+                available_assessors,
+                staff_avails,
+                assessor_workload
+            )
+            for assessor in ranked_assessors:
+                schedule[slot] += [BlockSchedule(assessor)]
+
+                self._update_avails(
+                    staff_avails,
+                    slot,
+                    assessor
+                )
+                self._update_workload(
+                    assessor_workload,
+                    staff_avails,
+                    assessor
+                )
+
+                solution = self.back_track(
+                    schedule,
+                    staff_avails,
+                    assessor_workload
+                )
+
+                if solution is None:
+                    continue
+
+                return solution
+
+            raise UnfeasibleInputError
+
+    def _get_ranked_slots(
+            self,
+            avails: Dict[SlotId, AvailInfo]
+    ) -> List[SlotId]:
+        """Return a list of slot ids, ranked according to the (heuristic)
+        scheduling difficulty.
+
+        This ranking depends on the current state of the scheduling
+        process, i.e., the current assessor workloads and availabilities.
+        """
+        non_empty_avails = [
+            (slot, info)
+            for slot, info in avails.items()
+            if info.assessor_count
+        ]
+        non_empty_avails.sort(key=self.heuristics.slot_ease_score)
+        return [slot for slot, info in non_empty_avails]
+
+    def _get_ranked_assessors(
+            self,
+            assessors: List[Assessor],
+            staff_avails: Dict[SlotId, AvailInfo],
+            assessor_workload: AssessorWorkload
+    ) -> List[Assessor]:
+        """Return a list of assessors, ranked according to the (heuristic)
+        scheduling difficulty.
+
+        This ranking depends on the current state of the scheduling
+        process, i.e., the current assessor workloads and availabilities.
+        """
+        def assessor_ease(assessor):
+            return self.heuristics.assessor_ease_score(
+                assessor,
+                staff_avails,
+                assessor_workload
+            )
+        return sorted(assessors, key=assessor_ease)
+
+    def _update_workload(
+            self,
+            assessor_workload: AssessorWorkload,
+            staff_avails: Dict[SlotId, AvailInfo],
+            assessor: Assessor,
+    ) -> None:
+        """Reduce the assessor's workload by one.
+
+        If no more blocks are pending for this assessor, remove her from
+        the staff availabilities altogether.
+        """
+        assessor_workload[assessor]['remaining_workload'] -= 1
+
+        if not assessor_workload[assessor]['remaining_workload']:
+            self._remove_assessor_from_all_avails(staff_avails, assessor)
+
+    @staticmethod
+    def _remove_assessor_from_all_avails(
+            staff_avails: Dict[SlotId, AvailInfo],
+            assessor: Assessor
+    ) -> None:
+        """Remove the assessor from all the staff avail assessor lists."""
+        for slot, avail_info in staff_avails.items():
+            if assessor in avail_info.assessors:
+                staff_avails[slot].remove(assessor)
+
+    @staticmethod
+    def _update_avails(
+            staff_avails: Dict[SlotId, AvailInfo],
+            slot: SlotId,
+            assessor: Assessor
+    ) -> None:
+        """Remove assessor from the block's avails list and decrement the
+        counter.
+        """
+        staff_avails[slot].remove(assessor)
+
+
+class RandomAssignment(BaseAlgorithm):
+    """Utility class for pseudo-random algorithm initialization."""
+
+    def __init__(self, data, slot_assigner=None):
+        super().__init__(data)
+        self.slot_assigner = slot_assigner or BackTracking(data)
+
+    def run(self) -> Schedule:
+        """Using a back-tracking result for assessor-slot assignment,
+        randomly assign concrete exams with conforming assessor and
+        exam time.
+
+        Return the resulting schedule, which is not guaranteed to be
+        free of first-order conflicts.
+        """
+        schedule = self.slot_assigner.run()
+
+        for slot, blocks in schedule.items():
+            for block in blocks:
+                print(f"Assessor {block.assessor.email} was assigned a block in slot {slot}")
+
+
+            # slot, avail_info = self._most_difficult_slot(
+            #     self.data.staff_avails
+            # )
+            # assessor = self._most_difficult_assessor(avail_info.assessors)
+            # template = self._get_random_template_for(assessor)
+            #
+            # block = BlockSchedule(
+            #     start_time=self.data.block_slots.get(id=slot).start_time,
+            #     exam_start_times=template.exam_start_times,
+            #     assessor=assessor,
+            #     exam_length=template.exam_length
+            # )
+            #
+            # exam_candidates = self._get_compatible_exams(assessor, template)
+            # self._randomly_assign_compatible_exams(
+            #     block,
+            #     exam_candidates,
+            #     template
+            # )
+            #
+            # schedule[slot] += [block]
+            #
+            # self._update_availabilities(assessor, slot)
+            # self._update_workloads(assessor, template)
+
+        return schedule
 
     def _get_random_template_for(self, assessor: Assessor) -> BlockTemplate:
         """Randomly return one of the possible block templates that the
@@ -187,41 +324,3 @@ class RandomAssignment(BaseAlgorithm):
                 (Q(style='alternative') & Q(module__alternative_length=length))
                 | (Q(style='standard') & Q(module__standard_length=length))
         )
-
-    def _update_workloads(
-            self,
-            assessor: Assessor,
-            template: BlockTemplate
-    ) -> None:
-        """Reduce the assessor's workload by one.
-
-        If this leads to empty workloads, delete them altogether.
-        """
-        self.data.assessor_workload.decrement(assessor, template.exam_length)
-
-        if not self.data.assessor_workload.remaining_blocks_of(assessor):
-            self._remove_assessor_from_all_avails(assessor)
-
-    def _remove_assessor_from_all_avails(self, assessor: Assessor) -> None:
-        """Remove the assessor from all the staff avail assessor lists."""
-        for slot, avail_info in self.data.staff_avails.items():
-            if assessor in avail_info.assessors:
-                self.data.staff_avails[slot].remove(assessor)
-
-    def _update_availabilities(
-            self,
-            assessor: Assessor,
-            slot: SlotId
-    ) -> None:
-        """Remove assessor from the block's avails list and decrement the
-        counter.
-        """
-        self.data.staff_avails[slot].remove(assessor)
-
-
-class HeuristicDFS(BaseAlgorithm):
-    """A depth-first search guided by heuristics to find a feasible
-    assessor-slot assignment (ignoring concrete exams).
-    """
-    def run(self) -> Schedule:
-        pass

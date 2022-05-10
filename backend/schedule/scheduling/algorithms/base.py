@@ -2,6 +2,7 @@
 Abstract base class for algorithm implementations.
 """
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Optional
 
 from ..input_collectors import InputData
@@ -17,7 +18,7 @@ class BaseAlgorithm(ABC):
             data: InputData,
             evaluator: Optional[Evaluator] = None
     ):
-        self.data = data
+        self.data = deepcopy(data)
         self.evaluator = evaluator
 
     @abstractmethod
@@ -26,3 +27,10 @@ class BaseAlgorithm(ABC):
         return the solution as a Schedule instance.
         """
         pass
+
+
+class UnfeasibleInputError(BaseException):
+    """Raised by back-tracking algorithm if the staff availabilities
+    and workloads do not allow for a valid schedule.
+    """
+    pass
