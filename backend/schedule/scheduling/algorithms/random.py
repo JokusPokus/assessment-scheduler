@@ -56,7 +56,7 @@ class SchedulingHeuristics:
             [
                 1
                 for info in staff_avails.values()
-                if assessor in info.assessors
+                if assessor in info.assessors and info.helper_count
             ]
         )
         blocks_to_schedule = assessor_workload[assessor]['remaining_workload']
