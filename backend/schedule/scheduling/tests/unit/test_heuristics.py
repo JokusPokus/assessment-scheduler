@@ -13,10 +13,6 @@ class AvailInfoMock:
         self.helper_count = helper_count
 
 
-class AssessorMock:
-    pass
-
-
 class TestHeuristics:
     """Test collection for the heuristic methods that guide the
     back-tracking search.
@@ -34,10 +30,10 @@ class TestHeuristics:
         expected = (1, 2)
         assert actual == expected
 
-    def test_assessor_ease_score(self):
+    def test_assessor_ease_score(self, assessor_mock):
         # ARRANGE
-        assessor = AssessorMock()
-        other_assessor = AssessorMock()
+        assessor = assessor_mock()
+        other_assessor = assessor_mock()
 
         staff_avails = {
             'slot_1_id': AvailInfo(
@@ -79,9 +75,9 @@ class TestHeuristics:
         expected = assessor_available_blocks - REMAINING_WORKLOAD
         assert actual == expected
 
-    def test_assessor_ease_score_with_lack_of_helpers(self):
+    def test_assessor_ease_score_with_lack_of_helpers(self, assessor_mock):
         # ARRANGE
-        assessor = AssessorMock()
+        assessor = assessor_mock()
 
         staff_avails = {
             'slot_1_id': AvailInfo(
