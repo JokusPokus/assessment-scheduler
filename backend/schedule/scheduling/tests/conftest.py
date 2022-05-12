@@ -11,6 +11,7 @@ from schedule.models import (
     AssessmentPhase,
     Window,
     BlockSlot,
+    BlockTemplate,
     Semester,
     PhaseCategory
 )
@@ -43,7 +44,13 @@ def create_window():
             'block_length': 180,
             **kwargs
         }
-        return Window.objects.create(**attrs)
+        window = Window.objects.create(**attrs)
+        window.block_templates.add(
+            BlockTemplate.objects.get(exam_length=20),
+            BlockTemplate.objects.get(exam_length=30),
+        )
+        return window
+
     return make_window
 
 
@@ -119,7 +126,7 @@ def create_exams(create_window, create_student, create_assessor, create_modules)
                 'code': str(uuid4())[:8],
                 'student': kwargs.get('student') or create_student(),
                 'window': window,
-                'module': create_modules(n=1, window=window),
+                'module': kwargs.get('module') or create_modules(n=1, window=window),
                 'style': ExamStyle.STANDARD,
                 'assessor': kwargs.get('assessor') or create_assessor(),
                 'created': now(),
@@ -129,3 +136,11 @@ def create_exams(create_window, create_student, create_assessor, create_modules)
             exams.append(Exam(**attrs))
         return Exam.objects.bulk_create(exams)
     return make_exams
+
+
+@pytest.fixture
+def workload_calc_mock():
+    class CalcMock:
+        assessor_block_counts = {}
+
+    return CalcMock()

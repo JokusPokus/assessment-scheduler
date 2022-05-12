@@ -209,7 +209,7 @@ class DBInputCollector(BaseInputCollector):
         self.assessors = Assessor.objects.filter(windows=window)
         self.helpers = Helper.objects.filter(windows=window)
         self.block_slots = BlockSlot.objects.filter(window=window)
-        self.block_templates = BlockTemplate.objects.filter(windows=self.window)
+        self.block_templates = BlockTemplate.objects.filter(windows=window)
 
         self.workload_calc = workload_calculator or WorkloadCalculator(
             exams=self.exams,
