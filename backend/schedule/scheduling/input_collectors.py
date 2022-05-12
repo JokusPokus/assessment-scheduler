@@ -91,6 +91,11 @@ class AssessorWorkload(UserDict):
         """Return the number of blocks remaining to be scheduled for
         the assessor.
         """
+        if assessor not in self.data:
+            raise ValueError(
+                f'The assessor {assessor} is not considered for this schedule'
+            )
+
         return sum(self.data[assessor].values())
 
 

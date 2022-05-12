@@ -1,5 +1,7 @@
 import pytest
 
+from staff.models import Assessor
+
 
 @pytest.fixture
 def assessor_mock():
