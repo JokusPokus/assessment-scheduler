@@ -93,3 +93,33 @@ class TestAssessmentWorkload:
         # ACT / ASSERT
         with pytest.raises(ValueError):
             workload.decrement(assessor_2, 30)
+
+    def test_remaining_blocks_calculation(self):
+        # ARRANGE
+        assessor = Assessor()
+        assessor.pk = 1
+        workload = AssessorWorkload()
+        workload[assessor] = {
+            20: 3,
+            30: 5,
+        }
+
+        # ACT
+        actual = workload.remaining_blocks_of(assessor)
+
+        # ASSERT
+        assert actual == 3 + 5
+
+    def test_remaining_blocks_of_absent_assessor_throws_error(self):
+        # ARRANGE
+        assessor_1 = Assessor()
+        assessor_1.pk = 1
+        assessor_2 = Assessor()
+        assessor_2.pk = 2
+
+        workload = AssessorWorkload()
+        workload[assessor_1] = {30: 5}
+
+        # ACT / ASSERT
+        with pytest.raises(ValueError):
+            workload.remaining_blocks_of(assessor_2)
