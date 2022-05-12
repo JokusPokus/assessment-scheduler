@@ -1,6 +1,6 @@
 import pytest
 
-from schedule.scheduling.algorithms.random import SchedulingHeuristics
+from schedule.scheduling.algorithms.back_tracking import SchedulingHeuristics
 from schedule.scheduling.input_collectors import AvailInfo
 
 
