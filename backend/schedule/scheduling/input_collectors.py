@@ -117,14 +117,6 @@ class InputData:
     total_num_blocks: int
 
 
-class BaseInputCollector(ABC):
-    """Defines an interface for input collector classes."""
-
-    @abstractmethod
-    def collect(self) -> InputData:
-        pass
-
-
 class WorkloadCalculator:
     """Calculates the assessors' workloads in terms of exams and
     blocks.
@@ -195,6 +187,14 @@ class WorkloadCalculator:
         this scheduling window.
         """
         return {template.exam_length for template in self.block_templates}
+
+
+class BaseInputCollector(ABC):
+    """Defines an interface for input collector classes."""
+
+    @abstractmethod
+    def collect(self) -> InputData:
+        pass
 
 
 class DBInputCollector(BaseInputCollector):
