@@ -94,6 +94,8 @@ class BlockSchedule:
     def start_times(self) -> List[datetime]:
         """Return a list of datetime objects, where each one represents
         a start time in this block"""
+        assert self.start_time, 'No start time given yet'
+
         num_scheduled_exams = len(self.exams)
         return [
             self.start_time + timedelta(minutes=offset)
