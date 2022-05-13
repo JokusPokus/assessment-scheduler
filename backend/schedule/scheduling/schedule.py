@@ -129,9 +129,10 @@ class Schedule(UserDict):
 
     def __getitem__(self, key):
         """Make self.data a default dict."""
-        if key in self.data:
-            return self.data[key]
-        return []
+        if key not in self.data:
+            self.data[key] = []
+
+        return self.data[key]
 
     def __str__(self):
         pp = pprint.PrettyPrinter()

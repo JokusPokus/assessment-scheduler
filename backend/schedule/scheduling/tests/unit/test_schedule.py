@@ -72,3 +72,24 @@ class TestSchedule:
 
         # ACT / ASSERT
         assert schedule.total_blocks_scheduled == 3 + 5
+
+    def test_num_total_blocks_of_empty_schedule(self):
+        # ARRANGE
+        schedule = Schedule()
+
+        # ACT / ASSERT
+        assert schedule.total_blocks_scheduled == 0
+
+    def test_append_block_to_schedule(self):
+        # ARRANGE
+        ass = Assessor()
+        schedule = Schedule()
+        schedule[1] = [BlockSchedule(assessor=ass)]
+
+        # ACT
+        schedule[1].append(BlockSchedule(assessor=ass))
+        schedule[2].append(BlockSchedule(assessor=ass))
+
+        # ASSERT
+        assert len(schedule[1]) == 2
+        assert len(schedule[2]) == 1
