@@ -6,7 +6,9 @@ from exam.models import Exam
 
 from schedule.scheduling.schedule import TimeFrame, BlockSchedule
 
+
 pytestmark = pytest.mark.unit
+
 
 TIME_FRAMES = [
     (
@@ -174,3 +176,20 @@ class TestBlockSchedule:
             datetime(2022, 1, 1, 10, 20),
             datetime(2022, 1, 1, 11, 20),
         ]
+
+    def test_start_times_without_block_start_time_throws_error(
+            self,
+            assessor_mock
+    ):
+        # ARRANGE
+        NUM_EXAMS = 3
+
+        block_schedule = BlockSchedule(
+            assessor=assessor_mock(),
+            exam_start_times=[0, 20, 80, 100, 120],
+            exams=[Exam()] * NUM_EXAMS
+        )
+
+        # ACT / ASSERT
+        with pytest.raises(AssertionError):
+            block_schedule.start_times
