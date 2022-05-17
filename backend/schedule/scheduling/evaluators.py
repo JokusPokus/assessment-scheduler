@@ -126,6 +126,10 @@ class Evaluator:
     violates first-order constraints and quantifies a schedule's
     quality.
     """
+    penalty_0 = 300
+    penalty_1 = 100
+    penalty_2 = 10
+    penalty_3 = 1
 
     def __init__(self, conflict_search: Optional[ConflictSearch] = None):
         self.conflict_search = conflict_search or BruteForce()
@@ -137,12 +141,17 @@ class Evaluator:
         by_student = schedule.group_by_student()
         return self.conflict_search.run(by_student)
 
-    @staticmethod
-    def utility(schedule: Schedule) -> int:
+    def utility(self, schedule: Schedule) -> int:
         """Return the utility value (the value of the objective function)
         for a given schedule.
         """
-        return 1
+        conflicts = self.conflicts(schedule)
+        return sum([
+            len(conflicts['first_order']) * self.penalty_0,
+            len(conflicts['shortly_followed']) * self.penalty_1,
+            len(conflicts['same_day']) * self.penalty_2,
+            len(conflicts['consecutive_days']) * self.penalty_3,
+        ])
 
     def validate_availabilities(self, data: InputData) -> None:
         """Raise a validation error if the given staff availabilities
