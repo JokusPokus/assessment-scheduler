@@ -7,6 +7,7 @@ from exam.models import Student, Module
 from schedule.scheduling.evaluators import BruteForce, Conflict
 from schedule.scheduling.schedule import ExamSchedule, TimeFrame
 
+
 pytestmark = pytest.mark.unit
 
 

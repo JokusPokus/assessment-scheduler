@@ -28,6 +28,10 @@ class Conflict:
         self.exams = exams
         self.student = student
 
+    def __repr__(self):
+        first, second = self.exams
+        return f"<{self.student.id}: {first} vs. {second}>"
+
 
 class ConflictSearch(ABC):
     """Defines an interface for conflict search algorithms."""
