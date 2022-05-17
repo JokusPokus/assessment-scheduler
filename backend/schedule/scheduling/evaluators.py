@@ -48,12 +48,12 @@ class ConflictSearch(ABC):
         Each key indicates a category of conflicts with different degrees
         of severity:
 
-        *  'first-order': a student is scheduled for two exams with
+        *  'first_order': a student is scheduled for two exams with
            overlapping time frames.
-        *  'three-hour': a student is scheduled for two exams with less than
+        *  'three_hour': a student is scheduled for two exams with less than
            three hours in between.
-        *  'same-day': a student has two exams on the same day.
-        *  'consecutive-days': a student has two exams on consecutive days.
+        *  'same_day': a student has two exams on the same day.
+        *  'consecutive_days': a student has two exams on consecutive days.
         """
         pass
 
@@ -61,8 +61,8 @@ class ConflictSearch(ABC):
 class BruteForce(ConflictSearch):
     """Simple brute-force algorithm to find conflicting time frames."""
 
-    @staticmethod
     def run(
+            self,
             by_student: Dict[Student, List[ExamSchedule]],
     ) -> Dict[str, List[Conflict]]:
         conflicts = defaultdict(list)
@@ -72,19 +72,9 @@ class BruteForce(ConflictSearch):
 
             for i, first in enumerate(exams[:-1]):
                 for second in exams[i + 1:]:
-                    if first.time_frame.overlaps_with(second.time_frame):
-                        category = 'first_order'
+                    category = self._get_conflict_category(first, second)
 
-                    elif first.time_frame.shortly_followed_by(second.time_frame):
-                        category = 'shorty_followed'
-
-                    elif first.time_frame.same_day_as(second.time_frame):
-                        category = 'same_day'
-
-                    elif first.time_frame.on_consecutive_days(second.time_frame):
-                        category = 'consecutive_days'
-
-                    else:
+                    if not category:
                         continue
 
                     conflicts[category].append(
@@ -95,6 +85,28 @@ class BruteForce(ConflictSearch):
                     )
 
         return conflicts
+
+    @staticmethod
+    def _get_conflict_category(
+            first: ExamSchedule,
+            second: ExamSchedule
+    ) -> Optional[str]:
+        """If a conflict is found between the exam schedules, return the
+        category of the conflict. Else, return None.
+        """
+        if first.time_frame.overlaps_with(second.time_frame):
+            return 'first_order'
+
+        if first.time_frame.shortly_followed_by(second.time_frame):
+            return 'shorty_followed'
+
+        if first.time_frame.same_day_as(second.time_frame):
+            return 'same_day'
+
+        if first.time_frame.on_consecutive_days(second.time_frame):
+            return 'consecutive_days'
+
+        return None
 
 
 class ValidationError(BaseException):
@@ -119,17 +131,8 @@ class Evaluator:
         self.conflict_search = conflict_search or BruteForce()
 
     def conflicts(self, schedule: Schedule) -> Dict[str, List[Conflict]]:
-        """Return a dictionary of conflicts found in the given schedule.
-
-        Each key indicates a category of conflicts with different degrees
-        of severity:
-
-        *  'first_order': a student is scheduled for two exams with
-           overlapping time frames.
-        *  'shortly_followed': a student is scheduled for two exams with
-           less than a minimal desirable break.
-        *  'same_day': a student has two exams on the same day.
-        *  'consecutive_days': a student has two exams on consecutive days.
+        """Return a dictionary of conflicts found
+        in the given schedule.
         """
         by_student = schedule.group_by_student()
         return self.conflict_search.run(by_student)
