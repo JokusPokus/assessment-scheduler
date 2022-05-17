@@ -91,7 +91,8 @@ class SheetProcessor:
             module = Module.objects.get(code=row['shortCode'])
             style = {
                 'STANDARD': ExamStyle.STANDARD,
-                'ALTERNATIVE': ExamStyle.ALTERNATIVE
+                'ALTERNATIVE': ExamStyle.ALTERNATIVE,
+                'STS': ExamStyle.STANDARD
             }.get(row['assessmentStyle'])
 
             if style is None:

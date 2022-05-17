@@ -68,7 +68,8 @@ class RandomAssignment(BaseAlgorithm):
             for length, count in self.data.assessor_workload[assessor].items()
             if count > 0
         ]
-        exam_length = random.choice(list(length_options))
+
+        exam_length = random.choice(length_options)
         return self.data.block_templates.get(exam_length=exam_length)
 
     def _get_compatible_exams(
