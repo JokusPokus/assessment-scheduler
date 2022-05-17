@@ -16,7 +16,13 @@ class TabuSearch(BaseAlgorithm):
     def run(self) -> Schedule:
         schedule = RandomAssignment(self.data).run()
 
-        print("CONFLICTS:", self.evaluator.first_order_conflicts(schedule))
-        #     schedule = RandomAssignment(self.data).run()
+        while self.evaluator.first_order_conflicts(schedule):
+            self._iterate(schedule)
 
         return schedule
+
+    def _iterate(self, schedule: Schedule):
+        """Modify the schedule according to the tabu search algorithm, such
+        that the resulting schedule is a neighbor of the current one.
+        """
+        pass

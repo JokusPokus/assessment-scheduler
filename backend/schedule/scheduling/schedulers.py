@@ -50,4 +50,4 @@ class Scheduler:
             print("Input does not allow for valid schedule!")
             raise e
 
-        print(schedule)
+        # print(schedule)
