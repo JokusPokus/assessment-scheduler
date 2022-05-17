@@ -16,6 +16,9 @@ from staff.models import Assessor, Helper
 from .types import SlotId
 
 
+MINIMAL_DESIRABLE_BREAK = timedelta(minutes=180)
+
+
 class TimeFrame:
     """A time frame specified by its start and end time."""
 
@@ -41,6 +44,29 @@ class TimeFrame:
                 and not other.start_time >= self.end_time
         )
 
+    def shortly_followed_by(self, other: TimeFrame) -> bool:
+        """Return True if other's start time follows self's end time, but
+        by less than the specified minimal break.
+        """
+        if self.end_time > other.start_time:
+            return False
+
+        _break = other.start_time - self.end_time
+        return _break < MINIMAL_DESIRABLE_BREAK
+
+    def same_day_as(self, other: TimeFrame) -> bool:
+        """Return True if the two time frames' start times are on the same
+        day.
+        """
+        return self.start_time.date() == other.start_time.date()
+
+    def on_consecutive_days(self, other: TimeFrame) -> bool:
+        """Return True if the two time frames' start times are on consecutive
+        days.
+        """
+        day_distance = abs(self.start_time.date() - other.start_time.date())
+        return day_distance == timedelta(days=1)
+
 
 @dataclass
 class ExamSchedule:
@@ -58,14 +84,6 @@ class ExamSchedule:
 
     def __lt__(self, other):
         return self.time_frame < other.time_frame
-
-    def overlaps_with(self, other: ExamSchedule):
-        """Return True if self and other overlap in any way,
-        and False otherwise.
-
-        Being precisely back-to-back does not count as an overlap.
-        """
-        return self.time_frame.overlaps_with(other.time_frame)
 
 
 @dataclass
