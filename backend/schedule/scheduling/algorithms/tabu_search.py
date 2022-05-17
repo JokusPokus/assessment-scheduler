@@ -16,7 +16,7 @@ class TabuSearch(BaseAlgorithm):
     def run(self) -> Schedule:
         schedule = RandomAssignment(self.data).run()
 
-        # while self.evaluator.first_order_conflicts(schedule):
+        print("CONFLICTS:", self.evaluator.first_order_conflicts(schedule))
         #     schedule = RandomAssignment(self.data).run()
 
         return schedule
