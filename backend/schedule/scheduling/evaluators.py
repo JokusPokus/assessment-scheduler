@@ -98,7 +98,7 @@ class BruteForce(ConflictSearch):
             return 'first_order'
 
         if first.time_frame.shortly_followed_by(second.time_frame):
-            return 'shorty_followed'
+            return 'shortly_followed'
 
         if first.time_frame.same_day_as(second.time_frame):
             return 'same_day'
