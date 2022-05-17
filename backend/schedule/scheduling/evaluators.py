@@ -2,6 +2,7 @@
 Feasibility and quality evaluation of schedules.
 """
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from pprint import pprint
 from typing import List, Optional, Dict
 
@@ -20,6 +21,7 @@ class Conflict:
     """Represents a first-order conflict in a schedule, that is,
     a student being scheduled for more than one exam at the same time.
     """
+
     def __init__(
             self,
             exams: List[ExamId],
@@ -38,9 +40,20 @@ class ConflictSearch(ABC):
 
     @staticmethod
     @abstractmethod
-    def run(student: Student, exams: List[ExamSchedule]) -> List[Conflict]:
-        """Return a list of conflicts, each one representing a pair
-        of overlapping exams in the exams list.
+    def run(
+            by_student: Dict[Student, List[ExamSchedule]],
+    ) -> Dict[str, List[Conflict]]:
+        """Return a dictionary of conflicts found in the given schedule.
+
+        Each key indicates a category of conflicts with different degrees
+        of severity:
+
+        *  'first-order': a student is scheduled for two exams with
+           overlapping time frames.
+        *  'three-hour': a student is scheduled for two exams with less than
+           three hours in between.
+        *  'same-day': a student has two exams on the same day.
+        *  'consecutive-days': a student has two exams on consecutive days.
         """
         pass
 
@@ -49,14 +62,32 @@ class BruteForce(ConflictSearch):
     """Simple brute-force algorithm to find conflicting time frames."""
 
     @staticmethod
-    def run(student: Student, exams: List[ExamSchedule]) -> List[Conflict]:
-        exams.sort()
+    def run(
+            by_student: Dict[Student, List[ExamSchedule]],
+    ) -> Dict[str, List[Conflict]]:
+        conflicts = defaultdict(list)
 
-        conflicts = []
-        for i, first in enumerate(exams[:-1]):
-            for second in exams[i+1:]:
-                if first.overlaps_with(second):
-                    conflicts.append(
+        for student, exams in by_student.items():
+            exams.sort()
+
+            for i, first in enumerate(exams[:-1]):
+                for second in exams[i + 1:]:
+                    if first.time_frame.overlaps_with(second.time_frame):
+                        category = 'first_order'
+
+                    elif first.time_frame.shortly_followed_by(second.time_frame):
+                        category = 'shorty_followed'
+
+                    elif first.time_frame.same_day_as(second.time_frame):
+                        category = 'same_day'
+
+                    elif first.time_frame.on_consecutive_days(second.time_frame):
+                        category = 'consecutive_days'
+
+                    else:
+                        continue
+
+                    conflicts[category].append(
                         Conflict(
                             exams=[first.exam_code, second.exam_code],
                             student=student
@@ -68,6 +99,7 @@ class BruteForce(ConflictSearch):
 
 class ValidationError(BaseException):
     """Raised if given input data does not allow for a feasible schedule."""
+
     def __init__(
             self,
             insufficient_avails: Optional[Dict] = None,
@@ -86,21 +118,28 @@ class Evaluator:
     def __init__(self, conflict_search: Optional[ConflictSearch] = None):
         self.conflict_search = conflict_search or BruteForce()
 
-    def first_order_conflicts(self, schedule: Schedule) -> List[Conflict]:
-        """Return a list of first-order conflicts found in the
-        given schedule.
+    def conflicts(self, schedule: Schedule) -> Dict[str, List[Conflict]]:
+        """Return a dictionary of conflicts found in the given schedule.
 
-        A first-order conflict exists if a student or assessor
-        is scheduled for two exams with overlapping time frames.
+        Each key indicates a category of conflicts with different degrees
+        of severity:
+
+        *  'first_order': a student is scheduled for two exams with
+           overlapping time frames.
+        *  'shortly_followed': a student is scheduled for two exams with
+           less than a minimal desirable break.
+        *  'same_day': a student has two exams on the same day.
+        *  'consecutive_days': a student has two exams on consecutive days.
         """
         by_student = schedule.group_by_student()
+        return self.conflict_search.run(by_student)
 
-        conflicts = []
-        for student, exams in by_student.items():
-            student_conflicts = self.conflict_search.run(student, exams)
-            conflicts.extend(student_conflicts)
-
-        return conflicts
+    @staticmethod
+    def utility(schedule: Schedule) -> int:
+        """Return the utility value (the value of the objective function)
+        for a given schedule.
+        """
+        return 1
 
     def validate_availabilities(self, data: InputData) -> None:
         """Raise a validation error if the given staff availabilities
