@@ -60,9 +60,9 @@ NON_OVERLAP_TEST_FRAMES = [
 
 
 class TestBruteForceAlgorithm:
-    def test_existing_conflicts_are_found(self):
+    def test_existing_first_order_conflicts_are_found(self):
         # ARRANGE
-        student = Student()
+        student = Student(id=1)
 
         first_time_frame = TimeFrame(
             datetime(2022, 1, 1, 10, 0),
@@ -91,19 +91,19 @@ class TestBruteForceAlgorithm:
         ]
 
         # ACT
-        conflicts = BruteForce.run(student, exams)
+        conflicts = BruteForce.run({student: exams})
 
         # ASSERT
-        assert len(conflicts) == 1
+        assert len(conflicts['first_order']) == 1
 
-        conflict = conflicts[0]
+        conflict = conflicts['first_order'][0]
         assert isinstance(conflict, Conflict)
         assert conflict.student == student
         assert set(conflict.exams) == {'exam_1', 'exam_2'}
 
     def test_conflicts_are_recorded_pairwise(self):
         # ARRANGE
-        student = Student()
+        student = Student(id=1)
 
         first_tf = TimeFrame(
             datetime(2022, 1, 1, 10, 0),
@@ -143,14 +143,14 @@ class TestBruteForceAlgorithm:
         ]
 
         # ACT
-        conflicts = BruteForce.run(student, exams)
+        conflicts = BruteForce.run({student: exams})
 
         # ASSERT
-        assert len(conflicts) == 3
+        assert len(conflicts['first_order']) == 3
 
         conflicting_exam_pairs = {
             frozenset(conflict.exams)
-            for conflict in conflicts
+            for conflict in conflicts['first_order']
         }
         expected = {
             frozenset({'exam_1', 'exam_2'}),
@@ -167,7 +167,7 @@ class TestBruteForceAlgorithm:
             second_tf
     ):
         # ARRANGE
-        student = Student()
+        student = Student(id=1)
 
         exams = [
             ExamSchedule(
@@ -187,7 +187,7 @@ class TestBruteForceAlgorithm:
         ]
 
         # ACT
-        conflicts = BruteForce.run(student, exams)
+        conflicts = BruteForce.run({student: exams})
 
         # ASSERT
-        assert not conflicts
+        assert not conflicts['first_order']

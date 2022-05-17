@@ -116,14 +116,14 @@ class TestEvaluator:
         schedule[0] = blocks
 
         # ACT
-        conflicts = Evaluator().first_order_conflicts(schedule)
+        conflicts = Evaluator().conflicts(schedule)
 
         # ASSERT
-        assert len(conflicts) == 2
+        assert len(conflicts['first_order']) == 2
 
         conflicting_exam_pairs = {
             frozenset(conflict.exams)
-            for conflict in conflicts
+            for conflict in conflicts['first_order']
         }
         expected = {
             frozenset({'exam_1_1', 'exam_2_1'}),
