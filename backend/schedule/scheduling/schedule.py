@@ -120,6 +120,11 @@ class BlockSchedule:
             for offset in self.exam_start_times[:num_scheduled_exams]
         ]
 
+    @property
+    def delta(self) -> timedelta:
+        """Return a timedelta with the size of the block's exam length."""
+        return timedelta(minutes=self.exam_length)
+
 
 class Schedule(UserDict):
     """Represents a complete window schedule.
