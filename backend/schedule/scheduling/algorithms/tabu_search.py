@@ -4,6 +4,7 @@ Implementation of the Tabu Search (TS) meta heuristic.
 from collections import deque
 from copy import deepcopy
 from datetime import datetime, timedelta
+from pprint import pprint
 from typing import List, Tuple
 
 from .base import BaseAlgorithm
@@ -20,34 +21,34 @@ class Actions:
     def swap_blocks(
             self,
             schedule: Schedule,
-            blocks: List[Tuple[SlotId, BlockSchedule]]
+            block_indeces: List[Tuple[SlotId, int]]
     ) -> Schedule:
         """Swap the given blocks and return a modified
         copy of the schedule.
         """
-        (slot_id_1, first), (slot_id_2, second) = deepcopy(blocks)
-
         schedule = deepcopy(schedule)
-        self._remove_blocks(schedule, first, second, slot_id_1, slot_id_2)
+
+        first, second = self._pop_blocks(schedule, block_indeces)
         self._swap_start_times(first, second)
 
         for block in [first, second]:
             self._update_exam_time_frames_of(block)
 
-        self._add_updated_blocks(schedule, first, second, slot_id_1, slot_id_2)
+        self._add_updated_blocks(schedule, first, second, block_indeces)
         return schedule
 
     @staticmethod
-    def _remove_blocks(
+    def _pop_blocks(
             schedule: Schedule,
-            first: BlockSchedule,
-            second: BlockSchedule,
-            slot_id_1: SlotId,
-            slot_id_2: SlotId
-    ) -> None:
-        """Remove the blocks from the schedule."""
-        schedule[slot_id_1].remove(first)
-        schedule[slot_id_2].remove(second)
+            block_indices: List[Tuple[SlotId, int]]
+    ) -> Tuple[BlockSchedule]:
+        """Pop the blocks from the schedule and return them."""
+        (slot_id_1, first_id), (slot_id_2, second_id) = block_indices
+
+        first = schedule[slot_id_1].pop(first_id)
+        second = schedule[slot_id_2].pop(second_id)
+
+        return first, second
 
     @staticmethod
     def _swap_start_times(first: BlockSchedule, second: BlockSchedule) -> None:
@@ -66,10 +67,11 @@ class Actions:
             schedule: Schedule,
             first: BlockSchedule,
             second: BlockSchedule,
-            slot_id_1: SlotId,
-            slot_id_2: SlotId
+            block_indices: List[Tuple[SlotId, int]]
     ) -> None:
         """Add the updated blocks to the schedule."""
+        (slot_id_1, _), (slot_id_2, _) = block_indices
+
         schedule[slot_id_1].append(second)
         schedule[slot_id_2].append(first)
 
@@ -96,7 +98,8 @@ class TabuSearch(BaseAlgorithm):
     def run(self) -> Schedule:
         schedule = RandomAssignment(self.data).run()
 
-        print(self.evaluator.utility(schedule))
+        pprint(self.evaluator.conflicts(schedule))
+        print("UTILITY:", self.evaluator.utility(schedule))
 
         return schedule
 
