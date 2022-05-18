@@ -58,6 +58,9 @@ class Actions:
     @staticmethod
     def _update_exam_time_frames_of(block: BlockSchedule) -> None:
         """Update the exams' time frames according to the new start times."""
+        if len(block.exam_start_times) < len(block.exams):
+            raise ValueError('Not enough exam start times given for this block')
+
         for exam, start_time in zip(block.exams, block.start_times):
             exam.time_frame.start_time = start_time
             exam.time_frame.end_time = start_time + block.delta
