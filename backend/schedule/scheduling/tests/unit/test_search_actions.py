@@ -41,12 +41,12 @@ class TestSearchActions:
                 datetime(2022, 1, 2, 14, 20),
             ),
             TimeFrame(
-                datetime(2022, 1, 1, 14, 20),
-                datetime(2022, 1, 1, 14, 40),
+                datetime(2022, 1, 2, 14, 20),
+                datetime(2022, 1, 2, 14, 40),
             ),
             TimeFrame(
-                datetime(2022, 1, 1, 14, 40),
-                datetime(2022, 1, 1, 15, 0),
+                datetime(2022, 1, 2, 14, 40),
+                datetime(2022, 1, 2, 15, 0),
             ),
         ]
         block_3_time_frames = [
@@ -118,29 +118,69 @@ class TestSearchActions:
             ),
         ]
 
-        block_1 = BlockSchedule(assessor=Assessor(), exams=block_1_exams)
-        block_2 = BlockSchedule(assessor=Assessor(), exams=block_2_exams)
-        block_3 = BlockSchedule(assessor=Assessor(), exams=block_3_exams)
-
-        # To verify later that this block is not modified
-        block_3_deepcopy = deepcopy(block_3)
+        block_1 = BlockSchedule(
+            assessor=Assessor(),
+            exams=block_1_exams,
+            exam_length=30,
+            start_time=block_1_time_frames[0].start_time,
+            exam_start_times=[0, 30]
+        )
+        block_2 = BlockSchedule(
+            assessor=Assessor(),
+            exams=block_2_exams,
+            exam_length=20,
+            start_time=block_2_time_frames[0].start_time,
+            exam_start_times=[0, 20, 40]
+        )
+        block_3 = BlockSchedule(
+            assessor=Assessor(),
+            exams=block_3_exams,
+            exam_length=30,
+            start_time=block_3_time_frames[0].start_time,
+            exam_start_times=[0, 30]
+        )
 
         schedule[0] = [block_1, block_3]
         schedule[1] = [block_2]
 
+        # To verify later that the original schedule is not modified
+        schedule_deepcopy = deepcopy(schedule)
+
         # ACT
         new_schedule = Actions().swap_blocks(
             schedule=schedule,
-            blocks=[(0, block_1), (1, block_2)]
+            block_indeces=[(0, 0), (1, 0)]
         )
 
         # ASSERT
         # The original schedule has not been changed
-        assert schedule != new_schedule
+        assert schedule == schedule_deepcopy
         assert schedule[0] == [block_1, block_3]
         assert schedule[1] == [block_2]
 
         # Block 3 in the new schedule has not been changed
-        assert new_schedule[0][0] == block_3_deepcopy
+        new_block_3 = new_schedule[0][0]
+        old_block_3 = schedule_deepcopy[0][1]
+        assert new_block_3 == old_block_3
 
+        # Block 1 and 2 have been swapped and updated correctly
+        new_block_1 = new_schedule[1][0]
+        assert new_block_1.start_time == block_2.start_time
+        assert new_block_1.exam_length == block_1.exam_length
 
+        delta = block_2.start_time - block_1.start_time
+        for new_exam, old_exam in zip(new_block_1.exams, block_1.exams):
+            expected_start_time = old_exam.time_frame.start_time + delta
+            expected_end_time = expected_start_time + block_1.delta
+            assert new_exam.time_frame.start_time == expected_start_time
+            assert new_exam.time_frame.end_time == expected_end_time
+
+        new_block_2 = new_schedule[0][1]
+        assert new_block_2.start_time == block_1.start_time
+        assert new_block_2.exam_length == block_2.exam_length
+
+        for new_exam, old_exam in zip(new_block_2.exams, block_2.exams):
+            expected_start_time = old_exam.time_frame.start_time - delta
+            expected_end_time = expected_start_time + block_2.delta
+            assert new_exam.time_frame.start_time == expected_start_time
+            assert new_exam.time_frame.end_time == expected_end_time
