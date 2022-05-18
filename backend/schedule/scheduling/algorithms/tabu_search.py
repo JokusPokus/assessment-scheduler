@@ -141,7 +141,7 @@ class TabuSearch(BaseAlgorithm):
         schedule = RandomAssignment(self.data).run()
 
         pprint(self.evaluator.conflicts(schedule))
-        print("UTILITY:", self.evaluator.utility(schedule))
+        print("UTILITY:", self.evaluator.penalty(schedule))
 
         return schedule
 

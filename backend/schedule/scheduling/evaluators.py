@@ -141,8 +141,8 @@ class Evaluator:
         by_student = schedule.group_by_student()
         return self.conflict_search.run(by_student)
 
-    def utility(self, schedule: Schedule) -> int:
-        """Return the utility value (the value of the objective function)
+    def penalty(self, schedule: Schedule) -> int:
+        """Return the penalty value (the value of the objective function)
         for a given schedule.
         """
         conflicts = self.conflicts(schedule)
