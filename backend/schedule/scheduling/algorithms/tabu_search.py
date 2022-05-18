@@ -4,7 +4,7 @@ Implementation of the Tabu Search (TS) meta heuristic.
 from collections import deque
 from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Tuple
 
 from .base import BaseAlgorithm
 from .random import RandomAssignment
@@ -25,9 +25,9 @@ class Actions:
         """Swap the given blocks and return a modified
         copy of the schedule.
         """
-        schedule = deepcopy(schedule)
         (slot_id_1, first), (slot_id_2, second) = deepcopy(blocks)
 
+        schedule = deepcopy(schedule)
         self._remove_blocks(schedule, first, second, slot_id_1, slot_id_2)
         self._swap_start_times(first, second)
 
