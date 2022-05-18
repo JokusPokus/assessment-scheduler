@@ -37,6 +37,21 @@ class Actions:
         self._add_updated_blocks(schedule, first, second, block_indeces)
         return schedule
 
+    def swap_exams(
+            self,
+            schedule: Schedule,
+            exam_indices: List[Tuple[SlotId, int, int]]
+    ):
+        """Swap the given exams and return a modified
+        copy of the schedule.
+        """
+        schedule = deepcopy(schedule)
+
+        first, second = self._get_exams(schedule, exam_indices)
+        self._swap_attributes(first, second)
+
+        return schedule
+
     @staticmethod
     def _pop_blocks(
             schedule: Schedule,
@@ -77,6 +92,30 @@ class Actions:
 
         schedule[slot_id_1].append(second)
         schedule[slot_id_2].append(first)
+
+    @staticmethod
+    def _get_exams(
+            schedule: Schedule,
+            exam_indices: List[Tuple[SlotId, int, int]]
+    ) -> Tuple[ExamSchedule]:
+        """Return the two exam schedules corresponding to the given
+        indices.
+        """
+        (slot_1, block_1, exam_1), (slot_2, block_2, exam_2) = exam_indices
+        first = schedule[slot_1][block_1].exams[exam_1]
+        second = schedule[slot_2][block_2].exams[exam_2]
+        return first, second
+
+    @staticmethod
+    def _swap_attributes(first: ExamSchedule, second: ExamSchedule) -> None:
+        """Swap the dynamic attributes that change when two exams
+        are swapped.
+
+        The position and time frame remain the same.
+        """
+        first.exam_code, second.exam_code = second.exam_code, first.exam_code
+        first.student, second.student = second.student, first.student
+        first.module, second.module = second.module, first.module
 
 
 class Neighborhood:
