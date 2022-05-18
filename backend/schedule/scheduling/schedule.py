@@ -26,6 +26,12 @@ class TimeFrame:
         self.start_time = start_time
         self.end_time = end_time
 
+    def __eq__(self, other):
+        return (
+            self.start_time == other.start_time
+            and self.end_time == other.end_time
+        )
+
     def __lt__(self, other):
         return self.start_time < other.start_time
 
@@ -85,6 +91,12 @@ class ExamSchedule:
     def __lt__(self, other):
         return self.time_frame < other.time_frame
 
+    def __eq__(self, other):
+        return (
+            self.exam_code == other.exam_code
+            and self.time_frame == other.time_frame
+        )
+
 
 @dataclass
 class BlockSchedule:
@@ -106,6 +118,15 @@ class BlockSchedule:
                 'helper': self.helper.email if self.helper else 't.b.d.',
                 'exams': self.exams or 't.b.d'
             }
+        )
+
+    def __eq__(self, other):
+        return (
+            self.assessor.id == other.assessor.id
+            and self.start_time == other.start_time
+            and self.exam_start_times == other.exam_start_times
+            and self.exams == other.exams
+            and self.helper == other.helper
         )
 
     @property
