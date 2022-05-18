@@ -184,3 +184,15 @@ class TestSearchActions:
             expected_end_time = expected_start_time + block_2.delta
             assert new_exam.time_frame.start_time == expected_start_time
             assert new_exam.time_frame.end_time == expected_end_time
+
+    def test_swapping_non_existing_block_does_not_fail_silently(self):
+        # ARRANGE
+        assessor = Assessor()
+
+        schedule = Schedule()
+        schedule[0] = [BlockSchedule(assessor)]
+        schedule[1] = [BlockSchedule(assessor)]
+
+        # ACT / ASSERT
+        with pytest.raises(IndexError):
+            Actions().swap_blocks(schedule, [(0, 0), (1, 1)])
