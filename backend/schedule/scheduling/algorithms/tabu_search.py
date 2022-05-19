@@ -5,7 +5,7 @@ from collections import deque
 from copy import deepcopy
 from datetime import datetime, timedelta
 from pprint import pprint
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from .base import BaseAlgorithm
 from .random import RandomAssignment
@@ -129,7 +129,8 @@ class Neighborhood:
         whose assessor is also available in A's slot
       * Swap two exams of the same assessor and length
     """
-    pass
+    def __init__(self, actions: Optional[Actions]):
+        self.actions = actions or Actions()
 
 
 class TabuSearch(BaseAlgorithm):
