@@ -155,7 +155,7 @@ class TestBruteForceAlgorithm:
         conflicts = BruteForce().run({student: exams})
 
         # ASSERT
-        assert len(conflicts[conflict_category]) == 1
+        assert len(conflicts[conflict_category][student]) == 1
 
         categories = [
             'first_order',
@@ -167,9 +167,8 @@ class TestBruteForceAlgorithm:
         for cat in categories:
             assert not conflicts[cat]
 
-        conflict = conflicts[conflict_category][0]
+        conflict = conflicts[conflict_category][student][0]
         assert isinstance(conflict, Conflict)
-        assert conflict.student == student
         assert set(conflict.exams) == {'exam_1', 'exam_2'}
 
     def test_conflicts_are_recorded_pairwise(self):
@@ -217,11 +216,11 @@ class TestBruteForceAlgorithm:
         conflicts = BruteForce().run({student: exams})
 
         # ASSERT
-        assert len(conflicts['first_order']) == 3
+        assert len(conflicts['first_order'][student]) == 3
 
         conflicting_exam_pairs = {
             frozenset(conflict.exams)
-            for conflict in conflicts['first_order']
+            for conflict in conflicts['first_order'][student]
         }
         expected = {
             frozenset({'exam_1', 'exam_2'}),

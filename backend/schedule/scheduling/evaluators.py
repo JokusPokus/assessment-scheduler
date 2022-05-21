@@ -25,14 +25,12 @@ class Conflict:
     def __init__(
             self,
             exams: List[ExamId],
-            student: Student,
     ):
         self.exams = exams
-        self.student = student
 
     def __repr__(self):
         first, second = self.exams
-        return f"<{self.student.id}: {first} vs. {second}>"
+        return f"<{first} vs. {second}>"
 
 
 class ConflictSearch(ABC):
@@ -64,8 +62,8 @@ class BruteForce(ConflictSearch):
     def run(
             self,
             by_student: Dict[Student, List[ExamSchedule]],
-    ) -> Dict[str, List[Conflict]]:
-        conflicts = defaultdict(list)
+    ) -> Dict[str, Dict[Student, List[Conflict]]]:
+        conflicts = defaultdict(lambda: defaultdict(list))
 
         for student, exams in by_student.items():
             exams.sort()
@@ -77,10 +75,9 @@ class BruteForce(ConflictSearch):
                     if not category:
                         continue
 
-                    conflicts[category].append(
+                    conflicts[category][student].append(
                         Conflict(
                             exams=[first.exam_code, second.exam_code],
-                            student=student
                         )
                     )
 
@@ -134,9 +131,12 @@ class Evaluator:
     def __init__(self, conflict_search: Optional[ConflictSearch] = None):
         self.conflict_search = conflict_search or BruteForce()
 
-    def conflicts(self, schedule: Schedule) -> Dict[str, List[Conflict]]:
-        """Return a dictionary of conflicts found
-        in the given schedule.
+    def conflicts(
+            self,
+            schedule: Schedule
+    ) -> Dict[str, Dict[Student, List[Conflict]]]:
+        """Return a dictionary of conflicts found in the given schedule,
+        split by conflict category and student.
         """
         by_student = schedule.group_by_student()
         return self.conflict_search.run(by_student)
@@ -145,12 +145,18 @@ class Evaluator:
         """Return the penalty value (the value of the objective function)
         for a given schedule.
         """
+        def total(cat_conflicts: Dict) -> int:
+            """Return the total amount of conflicts in the
+            category conflicts.
+            """
+            return sum([len(confs) for confs in cat_conflicts.values()])
+
         conflicts = self.conflicts(schedule)
         return sum([
-            len(conflicts['first_order']) * self.penalty_0,
-            len(conflicts['shortly_followed']) * self.penalty_1,
-            len(conflicts['same_day']) * self.penalty_2,
-            len(conflicts['consecutive_days']) * self.penalty_3,
+            total(conflicts['first_order']) * self.penalty_0,
+            total(conflicts['shortly_followed']) * self.penalty_1,
+            total(conflicts['same_day']) * self.penalty_2,
+            total(conflicts['consecutive_days']) * self.penalty_3,
         ])
 
     def validate_availabilities(self, data: InputData) -> None:

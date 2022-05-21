@@ -119,15 +119,12 @@ class TestEvaluator:
         conflicts = Evaluator().conflicts(schedule)
 
         # ASSERT
-        assert len(conflicts['first_order']) == 2
+        total_first_order_conflicts = sum(
+            [len(confs) for confs in conflicts['first_order'].values()]
+        )
+        assert total_first_order_conflicts == 2
 
-        conflicting_exam_pairs = {
-            frozenset(conflict.exams)
-            for conflict in conflicts['first_order']
-        }
-        expected = {
-            frozenset({'exam_1_1', 'exam_2_1'}),
-            frozenset({'exam_1_2', 'exam_2_3'}),
-        }
-
-        assert conflicting_exam_pairs == expected
+        assert frozenset(conflicts['first_order'][student_1][0].exams) \
+            == frozenset({'exam_1_1', 'exam_2_1'})
+        assert frozenset(conflicts['first_order'][student_2][0].exams) \
+            == frozenset({'exam_1_2', 'exam_2_3'})
