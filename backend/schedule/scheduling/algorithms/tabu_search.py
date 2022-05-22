@@ -6,6 +6,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from pprint import pprint
 from typing import List, Tuple, Optional
+from uuid import uuid4
 
 from .base import BaseAlgorithm
 from .random import RandomAssignment
@@ -27,6 +28,7 @@ class Actions:
         copy of the schedule.
         """
         schedule = deepcopy(schedule)
+        schedule.__key = uuid4()
 
         first, second = self._pop_blocks(schedule, block_indeces)
         self._swap_start_times(first, second)
@@ -46,6 +48,7 @@ class Actions:
         copy of the schedule.
         """
         schedule = deepcopy(schedule)
+        schedule.__key = uuid4()
 
         first, second = self._get_exams(schedule, exam_indices)
         self._swap_attributes(first, second)
@@ -144,7 +147,6 @@ class TabuSearch(BaseAlgorithm):
         tabu_exam = deque(maxlen=10)
 
         current_best = [schedule, self.evaluator.penalty(schedule)]
-        print(current_best[1])
 
         for _ in range(10):
             # EXAM iteration:
