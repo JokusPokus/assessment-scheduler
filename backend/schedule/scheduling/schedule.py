@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import itertools
 import pprint
 from typing import Dict, List, Optional, Set
+from uuid import uuid4
 
 from exam.models import Student, Module
 from staff.models import Assessor, Helper
@@ -152,6 +153,9 @@ class Schedule(UserDict):
 
     Each key is a slot id and its value is a list of BlockSchedules.
     """
+    def __init__(self):
+        super().__init__(self)
+        self.__key = uuid4()
 
     def __setitem__(self, key, value):
         if not isinstance(key, SlotId):
@@ -177,6 +181,12 @@ class Schedule(UserDict):
             self.data[key] = []
 
         return self.data[key]
+
+    def __hash__(self):
+        return hash(self.__key)
+
+    def __eq__(self, other):
+        return self.__key == other.__key
 
     def __str__(self):
         pp = pprint.PrettyPrinter()

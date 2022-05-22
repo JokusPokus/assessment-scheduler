@@ -225,10 +225,10 @@ class Evaluator:
         def total_penalty(student_conf: Dict[int, List[Conflict]]) -> int:
             """Return a given student's total penalty."""
             return sum([
-                student_conf[ConflictDegree.FIRST_ORDER] * self.penalty_0,
-                student_conf[ConflictDegree.SHORTLY_FOLLOWED] * self.penalty_1,
-                student_conf[ConflictDegree.SAME_DAY] * self.penalty_2,
-                student_conf[ConflictDegree.CONSECUTIVE_DAYS] * self.penalty_3
+                len(student_conf[ConflictDegree.FIRST_ORDER]) * self.penalty_0,
+                len(student_conf[ConflictDegree.SHORTLY_FOLLOWED]) * self.penalty_1,
+                len(student_conf[ConflictDegree.SAME_DAY]) * self.penalty_2,
+                len(student_conf[ConflictDegree.CONSECUTIVE_DAYS]) * self.penalty_3
             ])
 
         conflicts = self.conflicts(schedule)

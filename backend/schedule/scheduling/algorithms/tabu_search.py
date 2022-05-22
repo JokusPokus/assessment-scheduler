@@ -143,12 +143,13 @@ class TabuSearch(BaseAlgorithm):
 
         tabu_exam = deque(maxlen=10)
 
-        current_best = (schedule, self.evaluator.penalty(schedule))
+        current_best = [schedule, self.evaluator.penalty(schedule)]
+        print(current_best[1])
 
         for _ in range(10):
             # EXAM iteration:
-            conflicts = self.evaluator.conflicts(schedule)
-
+            #conflicts = self.evaluator.conflicts(schedule)
+            continue
             # Get most conflicted student
             # For one of their most penalized exams, evaluate all possible
             # exam swaps.
