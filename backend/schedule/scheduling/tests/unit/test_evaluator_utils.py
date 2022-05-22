@@ -4,7 +4,7 @@ from datetime import datetime
 
 from exam.models import Student, Module
 
-from schedule.scheduling.evaluators import BruteForce, Conflict
+from schedule.scheduling.evaluators import BruteForce, Conflict, ConflictDegree
 from schedule.scheduling.schedule import ExamSchedule, TimeFrame
 
 pytestmark = pytest.mark.unit
@@ -66,7 +66,7 @@ CONFLICT_CATEGORIES_TEST_DATA = [
             datetime(2022, 1, 1, 10, 10),
             datetime(2022, 1, 1, 10, 30)
         ),
-        'first_order',
+        ConflictDegree.FIRST_ORDER,
         id='first_order'
     ),
     pytest.param(
@@ -78,7 +78,7 @@ CONFLICT_CATEGORIES_TEST_DATA = [
             datetime(2022, 1, 1, 13, 10),
             datetime(2022, 1, 1, 13, 40)
         ),
-        'shortly_followed',
+        ConflictDegree.SHORTLY_FOLLOWED,
         id='shortly_followed'
     ),
     pytest.param(
@@ -90,7 +90,7 @@ CONFLICT_CATEGORIES_TEST_DATA = [
             datetime(2022, 1, 1, 10, 20),
             datetime(2022, 1, 1, 10, 40)
         ),
-        'shortly_followed',
+        ConflictDegree.SHORTLY_FOLLOWED,
         id='back_to_back'
     ),
     pytest.param(
@@ -102,7 +102,7 @@ CONFLICT_CATEGORIES_TEST_DATA = [
             datetime(2022, 1, 1, 13, 20),
             datetime(2022, 1, 1, 13, 40)
         ),
-        'same_day',
+        ConflictDegree.SAME_DAY,
         id='same_day_minimal_break'
     ),
     pytest.param(
@@ -114,7 +114,7 @@ CONFLICT_CATEGORIES_TEST_DATA = [
             datetime(2022, 1, 2, 10, 10),
             datetime(2022, 1, 2, 10, 30)
         ),
-        'consecutive_days',
+        ConflictDegree.CONSECUTIVE_DAYS,
         id='consecutive_days'
     ),
 ]
@@ -155,19 +155,19 @@ class TestBruteForceAlgorithm:
         conflicts = BruteForce().run({student: exams})
 
         # ASSERT
-        assert len(conflicts[conflict_category][student]) == 1
+        assert len(conflicts[student][conflict_category]) == 1
 
         categories = [
-            'first_order',
-            'shortly_followed',
-            'same_day',
-            'consecutive_days'
+            ConflictDegree.FIRST_ORDER,
+            ConflictDegree.SHORTLY_FOLLOWED,
+            ConflictDegree.SAME_DAY,
+            ConflictDegree.CONSECUTIVE_DAYS
         ]
         categories.remove(conflict_category)
         for cat in categories:
-            assert not conflicts[cat]
+            assert not conflicts[student][cat]
 
-        conflict = conflicts[conflict_category][student][0]
+        conflict = conflicts[student][conflict_category][0]
         assert isinstance(conflict, Conflict)
         assert set(conflict.exams) == {'exam_1', 'exam_2'}
 
@@ -216,11 +216,11 @@ class TestBruteForceAlgorithm:
         conflicts = BruteForce().run({student: exams})
 
         # ASSERT
-        assert len(conflicts['first_order'][student]) == 3
+        assert len(conflicts[student][ConflictDegree.FIRST_ORDER]) == 3
 
         conflicting_exam_pairs = {
             frozenset(conflict.exams)
-            for conflict in conflicts['first_order'][student]
+            for conflict in conflicts[student][ConflictDegree.FIRST_ORDER]
         }
         expected = {
             frozenset({'exam_1', 'exam_2'}),
@@ -231,7 +231,7 @@ class TestBruteForceAlgorithm:
         assert conflicting_exam_pairs == expected
 
     @pytest.mark.parametrize('first_tf, second_tf', NON_OVERLAP_TEST_FRAMES)
-    def test_feasible_schedule_does_not_produce_conflicts(
+    def test_feasible_schedule_does_not_produce_first_order_conflicts(
             self,
             first_tf,
             second_tf
@@ -260,4 +260,4 @@ class TestBruteForceAlgorithm:
         conflicts = BruteForce().run({student: exams})
 
         # ASSERT
-        assert not conflicts['first_order']
+        assert not conflicts[student][ConflictDegree.FIRST_ORDER]

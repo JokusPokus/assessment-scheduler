@@ -3,8 +3,9 @@ Feasibility and quality evaluation of schedules.
 """
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from functools import lru_cache
 from pprint import pprint
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 
 from django.db.models import QuerySet
 
@@ -15,6 +16,13 @@ from staff.models import Assessor, Helper
 from .schedule import Schedule, ExamSchedule
 from .input_collectors import InputData
 from .types import ExamId
+
+
+class ConflictDegree:
+    FIRST_ORDER = 0
+    SHORTLY_FOLLOWED = 1
+    SAME_DAY = 2
+    CONSECUTIVE_DAYS = 3
 
 
 class Conflict:
@@ -48,8 +56,8 @@ class ConflictSearch(ABC):
 
         *  'first_order': a student is scheduled for two exams with
            overlapping time frames.
-        *  'three_hour': a student is scheduled for two exams with less than
-           three hours in between.
+        *  'shortly_followed': a student is scheduled for two exams with
+           less than three hours in between.
         *  'same_day': a student has two exams on the same day.
         *  'consecutive_days': a student has two exams on consecutive days.
         """
@@ -62,7 +70,7 @@ class BruteForce(ConflictSearch):
     def run(
             self,
             by_student: Dict[Student, List[ExamSchedule]],
-    ) -> Dict[str, Dict[Student, List[Conflict]]]:
+    ) -> Dict[Student, Dict[int, List[Conflict]]]:
         conflicts = defaultdict(lambda: defaultdict(list))
 
         for student, exams in by_student.items():
@@ -72,10 +80,10 @@ class BruteForce(ConflictSearch):
                 for second in exams[i + 1:]:
                     category = self._get_conflict_category(first, second)
 
-                    if not category:
+                    if category is None:
                         continue
 
-                    conflicts[category][student].append(
+                    conflicts[student][category].append(
                         Conflict(
                             exams=[first.exam_code, second.exam_code],
                         )
@@ -87,21 +95,21 @@ class BruteForce(ConflictSearch):
     def _get_conflict_category(
             first: ExamSchedule,
             second: ExamSchedule
-    ) -> Optional[str]:
+    ) -> Optional[int]:
         """If a conflict is found between the exam schedules, return the
         category of the conflict. Else, return None.
         """
         if first.time_frame.overlaps_with(second.time_frame):
-            return 'first_order'
+            return ConflictDegree.FIRST_ORDER
 
         if first.time_frame.shortly_followed_by(second.time_frame):
-            return 'shortly_followed'
+            return ConflictDegree.SHORTLY_FOLLOWED
 
         if first.time_frame.same_day_as(second.time_frame):
-            return 'same_day'
+            return ConflictDegree.SAME_DAY
 
         if first.time_frame.on_consecutive_days(second.time_frame):
-            return 'consecutive_days'
+            return ConflictDegree.CONSECUTIVE_DAYS
 
         return None
 
@@ -134,7 +142,7 @@ class Evaluator:
     def conflicts(
             self,
             schedule: Schedule
-    ) -> Dict[str, Dict[Student, List[Conflict]]]:
+    ) -> Dict[Student, Dict[int, List[Conflict]]]:
         """Return a dictionary of conflicts found in the given schedule,
         split by conflict category and student.
         """
@@ -145,19 +153,13 @@ class Evaluator:
         """Return the penalty value (the value of the objective function)
         for a given schedule.
         """
-        def total(cat_conflicts: Dict) -> int:
-            """Return the total amount of conflicts in the
-            category conflicts.
-            """
-            return sum([len(confs) for confs in cat_conflicts.values()])
+        penalties = self._penalties_by_student(schedule)
+        return sum([penalty for _, penalty in penalties])
 
-        conflicts = self.conflicts(schedule)
-        return sum([
-            total(conflicts['first_order']) * self.penalty_0,
-            total(conflicts['shortly_followed']) * self.penalty_1,
-            total(conflicts['same_day']) * self.penalty_2,
-            total(conflicts['consecutive_days']) * self.penalty_3,
-        ])
+    def most_conflicted_student(self, schedule: Schedule) -> Student:
+        """Return the student who scores the highest penalty."""
+        penalties = self._penalties_by_student(schedule)
+        return max(penalties, key=lambda x: x[1])[0]
 
     def validate_availabilities(self, data: InputData) -> None:
         """Raise a validation error if the given staff availabilities
@@ -214,3 +216,24 @@ class Evaluator:
                 }
 
         return insufficient_avails
+
+    @lru_cache
+    def _penalties_by_student(
+            self,
+            schedule: Schedule
+    ) -> List[Tuple[Student, int]]:
+        def total_penalty(student_conf: Dict[int, List[Conflict]]) -> int:
+            """Return a given student's total penalty."""
+            return sum([
+                student_conf[ConflictDegree.FIRST_ORDER] * self.penalty_0,
+                student_conf[ConflictDegree.SHORTLY_FOLLOWED] * self.penalty_1,
+                student_conf[ConflictDegree.SAME_DAY] * self.penalty_2,
+                student_conf[ConflictDegree.CONSECUTIVE_DAYS] * self.penalty_3
+            ])
+
+        conflicts = self.conflicts(schedule)
+
+        return [
+            (student, total_penalty(conf))
+            for student, conf in conflicts.items()
+        ]

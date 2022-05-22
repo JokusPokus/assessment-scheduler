@@ -5,7 +5,7 @@ from datetime import datetime
 from exam.models import Student, Module
 from staff.models import Assessor
 
-from schedule.scheduling.evaluators import Evaluator, Conflict
+from schedule.scheduling.evaluators import Evaluator, Conflict, ConflictDegree
 from schedule.scheduling.schedule import (
     ExamSchedule,
     BlockSchedule,
@@ -120,11 +120,14 @@ class TestEvaluator:
 
         # ASSERT
         total_first_order_conflicts = sum(
-            [len(confs) for confs in conflicts['first_order'].values()]
+            [
+                len(confs[ConflictDegree.FIRST_ORDER])
+                for confs in conflicts.values()
+            ]
         )
         assert total_first_order_conflicts == 2
 
-        assert frozenset(conflicts['first_order'][student_1][0].exams) \
+        assert frozenset(conflicts[student_1][ConflictDegree.FIRST_ORDER][0].exams) \
             == frozenset({'exam_1_1', 'exam_2_1'})
-        assert frozenset(conflicts['first_order'][student_2][0].exams) \
+        assert frozenset(conflicts[student_2][ConflictDegree.FIRST_ORDER][0].exams) \
             == frozenset({'exam_1_2', 'exam_2_3'})

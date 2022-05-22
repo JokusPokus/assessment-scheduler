@@ -141,17 +141,19 @@ class TabuSearch(BaseAlgorithm):
     def run(self) -> Schedule:
         schedule = RandomAssignment(self.data).run()
 
-        # Initialize BLOCK and EXAM tabu lists
-        # Calculate schedule penalty and set as best solution so far
+        tabu_exam = deque(maxlen=10)
 
-        # While criterion is not met:
+        current_best = (schedule, self.evaluator.penalty(schedule))
 
-        # EXAM iteration:
-        # Get most conflicted student
-        # For one of their most penalized exams, evaluate all possible
-        # exam swaps.
-        # Select the best non-tabu one and put the exam on the tabu list.
-        # (Unless aspiration criterion met)
+        for _ in range(10):
+            # EXAM iteration:
+            conflicts = self.evaluator.conflicts(schedule)
+
+            # Get most conflicted student
+            # For one of their most penalized exams, evaluate all possible
+            # exam swaps.
+            # Select the best non-tabu one and put the exam on the tabu list.
+            # (Unless aspiration criterion met)
 
         return schedule
 
