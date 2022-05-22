@@ -3,6 +3,7 @@ import pytest
 from datetime import datetime
 
 from exam.models import Student, Module
+from staff.models import Assessor
 
 from schedule.scheduling.evaluators import BruteForce, Conflict, ConflictDegree
 from schedule.scheduling.schedule import ExamSchedule, TimeFrame
@@ -139,6 +140,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1',
                 time_frame=first_tf
             ),
@@ -146,6 +148,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2',
                 time_frame=second_tf
             ),
@@ -193,6 +196,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1',
                 time_frame=first_tf
             ),
@@ -200,6 +204,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2',
                 time_frame=second_tf
             ),
@@ -207,6 +212,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_3',
                 time_frame=third_tf
             ),
@@ -241,6 +247,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1',
                 time_frame=first_tf
             ),
@@ -248,6 +255,7 @@ class TestBruteForceAlgorithm:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2',
                 time_frame=second_tf
             ),

@@ -30,6 +30,7 @@ class TestSchedule:
                 ExamSchedule(
                     exam_code=f'block_{i}_student_{student.id}',
                     module=Module(),
+                    assessor=Assessor(),
                     position=j,
                     student=student,
                     time_frame=TimeFrame(

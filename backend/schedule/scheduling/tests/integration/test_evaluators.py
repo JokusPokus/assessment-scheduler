@@ -66,6 +66,7 @@ class TestEvaluator:
                 student=student_1,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1_1',
                 time_frame=block_1_time_frames[0]
             ),
@@ -73,6 +74,7 @@ class TestEvaluator:
                 student=student_2,
                 position=1,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1_2',
                 time_frame=block_1_time_frames[1]
             ),
@@ -83,6 +85,7 @@ class TestEvaluator:
                 student=student_1,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_1',
                 time_frame=block_2_time_frames[0]
             ),
@@ -90,6 +93,7 @@ class TestEvaluator:
                 student=student_3,
                 position=1,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_2',
                 time_frame=block_2_time_frames[1]
             ),
@@ -97,6 +101,7 @@ class TestEvaluator:
                 student=student_2,
                 position=2,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_3',
                 time_frame=block_2_time_frames[2]
             ),

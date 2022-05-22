@@ -6,6 +6,7 @@ from collections import deque, UserList
 from copy import deepcopy
 from datetime import datetime, timedelta
 from pprint import pprint
+import random
 from typing import List, Tuple, Optional
 from uuid import uuid4
 
@@ -30,7 +31,7 @@ class Actions:
         copy of the schedule.
         """
         schedule = deepcopy(schedule)
-        schedule.__key = uuid4()
+        schedule._key = uuid4()
 
         first, second = self._pop_blocks(schedule, block_indeces)
         self._swap_start_times(first, second)
@@ -50,7 +51,7 @@ class Actions:
         copy of the schedule.
         """
         schedule = deepcopy(schedule)
-        schedule.__key = uuid4()
+        schedule._key = uuid4()
 
         first, second = self._get_exams(schedule, exam_indices)
         self._swap_attributes(first, second)
@@ -169,13 +170,18 @@ class ExamNeighborhood(Neighborhood):
 
         for slot, blocks in self.schedule.items():
             for i, block in enumerate(blocks):
+                if not self._compatible_lengths(block, exam_to_swap):
+                    continue
+
                 for j, exam in enumerate(block.exams):
                     if self._swappable(exam, exam_to_swap):
+
                         exam_indices = [exam_to_swap_index, (slot, i, j)]
                         neighbor = self.actions.swap_exams(
                             self.schedule,
                             exam_indices
                         )
+
                         self.data.append(neighbor)
 
     def _exam_to_swap(self) -> ExamSchedule:
@@ -201,6 +207,13 @@ class ExamNeighborhood(Neighborhood):
         return min(conflicts[student].keys())
 
     @staticmethod
+    def _compatible_lengths(block: BlockSchedule, exam: ExamSchedule) -> bool:
+        """Return True if the block's exam length is the same as the
+        exam's length.
+        """
+        return block.exam_length == exam.time_frame.length(as_int=True)
+
+    @staticmethod
     def _swappable(first: ExamSchedule, second: ExamSchedule) -> bool:
         """Return True if the two exams are swappable according to the
         neighborhood definition.
@@ -208,7 +221,6 @@ class ExamNeighborhood(Neighborhood):
         return (
             first != second
             and first.student != second.student
-            and first.length == second.length
             and first.assessor == second.assessor
             and first.module == second.module
         )
@@ -220,7 +232,7 @@ class ExamNeighborhood(Neighborhood):
         The indeces are returned as a tuple (slot_id, block_position,
         exam_position).
         """
-        for slot in self.schedule:
+        for slot, blocks in self.schedule.items():
             for i, block in enumerate(blocks):
                 for j, exam in enumerate(block.exams):
                     if exam == exam_to_find:
@@ -239,7 +251,7 @@ class TabuSearch(BaseAlgorithm):
 
         current_best = [schedule, self.evaluator.penalty(schedule)]
 
-        for _ in range(10):
+        for _ in range(1):
             for neighbor in ExamNeighborhood(schedule):
                 continue
 

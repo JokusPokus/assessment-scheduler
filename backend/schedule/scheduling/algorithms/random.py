@@ -140,6 +140,7 @@ class RandomAssignment(BaseAlgorithm):
             ExamSchedule(
                 exam_code=exam.code,
                 module=exam.module,
+                assessor=exam.assessor,
                 student=exam.student,
                 position=position,
                 time_frame=TimeFrame(abs_start_time, abs_end_time)

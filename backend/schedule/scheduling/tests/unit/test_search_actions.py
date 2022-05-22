@@ -65,6 +65,7 @@ class TestSearchActions:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1_1',
                 time_frame=block_1_time_frames[0]
             ),
@@ -72,6 +73,7 @@ class TestSearchActions:
                 student=student,
                 position=1,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_1_2',
                 time_frame=block_1_time_frames[1]
             ),
@@ -82,6 +84,7 @@ class TestSearchActions:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_1',
                 time_frame=block_2_time_frames[0]
             ),
@@ -89,6 +92,7 @@ class TestSearchActions:
                 student=student,
                 position=1,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_2',
                 time_frame=block_2_time_frames[1]
             ),
@@ -96,6 +100,7 @@ class TestSearchActions:
                 student=student,
                 position=2,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_2_3',
                 time_frame=block_2_time_frames[2]
             ),
@@ -106,6 +111,7 @@ class TestSearchActions:
                 student=student,
                 position=0,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_3_1',
                 time_frame=block_3_time_frames[0]
             ),
@@ -113,6 +119,7 @@ class TestSearchActions:
                 student=student,
                 position=1,
                 module=Module(),
+                assessor=Assessor(),
                 exam_code='exam_3_2',
                 time_frame=block_3_time_frames[1]
             ),
@@ -229,6 +236,7 @@ class TestSearchActions:
                 student=student_1,
                 position=0,
                 module=module_1,
+                assessor=Assessor(),
                 exam_code='exam_1',
                 time_frame=time_frames[0]
             ),
@@ -236,6 +244,7 @@ class TestSearchActions:
                 student=student_2,
                 position=1,
                 module=module_2,
+                assessor=Assessor(),
                 exam_code='exam_2',
                 time_frame=time_frames[1]
             ),
@@ -243,6 +252,7 @@ class TestSearchActions:
                 student=student_3,
                 position=2,
                 module=module_3,
+                assessor=Assessor(),
                 exam_code='exam_3',
                 time_frame=time_frames[2]
             ),

@@ -40,6 +40,14 @@ class TimeFrame:
         return f"{self.start_time.strftime('%d.%m. %H:%M')} - " \
                f"{self.end_time.strftime('%H:%M')}"
 
+    def length(self, as_int: bool = False):
+        delta = self.end_time - self.start_time
+
+        if as_int:
+            return delta.seconds // 60
+
+        return delta
+
     def overlaps_with(self, other: TimeFrame) -> bool:
         """Return True if self and other - both TimeFrames - overlap
         in any way, and False otherwise.
@@ -81,6 +89,7 @@ class ExamSchedule:
 
     exam_code: str
     module: Module
+    assessor: Assessor
     position: int
     student: Student
     time_frame: TimeFrame
@@ -155,7 +164,7 @@ class Schedule(UserDict):
     """
     def __init__(self):
         super().__init__(self)
-        self.__key = uuid4()
+        self._key = uuid4()
 
     def __setitem__(self, key, value):
         if not isinstance(key, SlotId):
@@ -183,10 +192,10 @@ class Schedule(UserDict):
         return self.data[key]
 
     def __hash__(self):
-        return hash(self.__key)
+        return hash(self._key)
 
     def __eq__(self, other):
-        return self.__key == other.__key
+        return self._key == other._key
 
     def __str__(self):
         pp = pprint.PrettyPrinter()
