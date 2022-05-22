@@ -231,9 +231,7 @@ class Evaluator:
                 len(student_conf[ConflictDegree.CONSECUTIVE_DAYS]) * self.penalty_3
             ])
 
-        conflicts = self.conflicts(schedule)
-
         return [
             (student, total_penalty(conf))
-            for student, conf in conflicts.items()
+            for student, conf in self.conflicts(schedule).items()
         ]
