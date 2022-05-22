@@ -169,7 +169,7 @@ class TestBruteForceAlgorithm:
 
         conflict = conflicts[student][conflict_category][0]
         assert isinstance(conflict, Conflict)
-        assert set(conflict.exams) == {'exam_1', 'exam_2'}
+        assert conflict.exams == [exams[0], exams[1]]
 
     def test_conflicts_are_recorded_pairwise(self):
         # ARRANGE
@@ -218,17 +218,14 @@ class TestBruteForceAlgorithm:
         # ASSERT
         assert len(conflicts[student][ConflictDegree.FIRST_ORDER]) == 3
 
-        conflicting_exam_pairs = {
-            frozenset(conflict.exams)
+        conflicting_exam_pairs = [
+            conflict.exams
             for conflict in conflicts[student][ConflictDegree.FIRST_ORDER]
-        }
-        expected = {
-            frozenset({'exam_1', 'exam_2'}),
-            frozenset({'exam_1', 'exam_3'}),
-            frozenset({'exam_2', 'exam_3'}),
-        }
+        ]
 
-        assert conflicting_exam_pairs == expected
+        assert [exams[0], exams[1]] in conflicting_exam_pairs
+        assert [exams[1], exams[2]] in conflicting_exam_pairs
+        assert [exams[0], exams[2]] in conflicting_exam_pairs
 
     @pytest.mark.parametrize('first_tf, second_tf', NON_OVERLAP_TEST_FRAMES)
     def test_feasible_schedule_does_not_produce_first_order_conflicts(

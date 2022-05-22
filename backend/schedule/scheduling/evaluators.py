@@ -32,7 +32,7 @@ class Conflict:
 
     def __init__(
             self,
-            exams: List[ExamId],
+            exams: List[ExamSchedule],
     ):
         self.exams = exams
 
@@ -85,7 +85,7 @@ class BruteForce(ConflictSearch):
 
                     conflicts[student][category].append(
                         Conflict(
-                            exams=[first.exam_code, second.exam_code],
+                            exams=[first, second],
                         )
                     )
 

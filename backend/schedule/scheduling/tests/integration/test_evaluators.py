@@ -127,7 +127,7 @@ class TestEvaluator:
         )
         assert total_first_order_conflicts == 2
 
-        assert frozenset(conflicts[student_1][ConflictDegree.FIRST_ORDER][0].exams) \
-            == frozenset({'exam_1_1', 'exam_2_1'})
-        assert frozenset(conflicts[student_2][ConflictDegree.FIRST_ORDER][0].exams) \
-            == frozenset({'exam_1_2', 'exam_2_3'})
+        assert conflicts[student_1][ConflictDegree.FIRST_ORDER][0].exams \
+            == [block_1_exams[0], block_2_exams[0]]
+        assert conflicts[student_2][ConflictDegree.FIRST_ORDER][0].exams \
+            == [block_1_exams[1], block_2_exams[2]]

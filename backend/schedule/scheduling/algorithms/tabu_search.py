@@ -1,7 +1,8 @@
 """
 Implementation of the Tabu Search (TS) meta heuristic.
 """
-from collections import deque
+from abc import ABC, abstractmethod
+from collections import deque, UserList
 from copy import deepcopy
 from datetime import datetime, timedelta
 from pprint import pprint
@@ -12,6 +13,7 @@ from .base import BaseAlgorithm
 from .random import RandomAssignment
 from ..schedule import Schedule, BlockSchedule, ExamSchedule, TimeFrame
 from ..types import SlotId
+from ..evaluators import Evaluator
 
 
 class Actions:
@@ -121,7 +123,7 @@ class Actions:
         first.module, second.module = second.module, first.module
 
 
-class Neighborhood:
+class Neighborhood(ABC, UserList):
     """Defines the neighborhood structure that underlies the search
     problem.
 
@@ -132,8 +134,79 @@ class Neighborhood:
         whose assessor is also available in A's slot
       * Swap two exams of the same assessor and length
     """
-    def __init__(self, actions: Optional[Actions]):
+
+    def __init__(
+            self,
+            schedule: Schedule,
+            actions: Optional[Actions] = None,
+            evaluator: Optional[Evaluator] = None
+    ):
+        super().__init__(self)
+        self.schedule = schedule
         self.actions = actions or Actions()
+        self.evaluator = evaluator or Evaluator()
+
+        self._set_neighbors()
+
+    @abstractmethod
+    def _set_neighbors(self) -> None:
+        """Set the self.data attribute with all neighbors of the schedule
+        that shall be considered in the search's next iteration.
+        """
+        pass
+
+
+class ExamNeighborhood(Neighborhood):
+    """Defines the neighborhood of a schedule w.r.t. swapping single exams.
+
+    An exam neighbor of a schedule is obtained by swapping two exams of the
+    same assessor and length.
+    """
+
+    def _set_neighbors(self) -> None:
+        exam_to_swap = self._exam_to_swap()
+
+        for slot, blocks in self.schedule.items():
+            for i, block in enumerate(blocks):
+                for j, exam in enumerate(block.exams):
+                    if self._swappable(exam, exam_to_swap):
+                        pass
+
+
+    def _exam_to_swap(self) -> str:
+        """Return the exam that is to be swapped to get the schedule's
+        neighbors.
+
+        The exam is randomly selected from the set of most severely
+        punished conflicts of the most-punished student.
+        """
+        mc_student = self.evaluator.most_conflicted_student(self.schedule)
+
+        conflicts = self.evaluator.conflicts(self.schedule)
+        category = self._most_severe_category(conflicts, mc_student)
+        mc_exams = conflicts[mc_student][category]
+
+        return random.choice(random.choice(mc_exams).exams)
+
+    @staticmethod
+    def _most_severe_category(conflicts, student):
+        """Return the most severe degree of conflict that the student
+        is involved in.
+        """
+        return min(conflicts[student].keys())
+
+    @staticmethod
+    def _swappable(first: ExamSchedule, second: ExamSchedule) -> bool:
+        """Return True if the two exams are swappable according to the
+        neighborhood definition.
+        """
+        return (
+            first != second
+            and first.student != second.student
+            and first.length == second.length
+            and first.assessor == second.assessor
+            and first.module == second.module
+        )
 
 
 class TabuSearch(BaseAlgorithm):
@@ -149,14 +222,11 @@ class TabuSearch(BaseAlgorithm):
         current_best = [schedule, self.evaluator.penalty(schedule)]
 
         for _ in range(10):
-            # EXAM iteration:
-            #conflicts = self.evaluator.conflicts(schedule)
-            continue
-            # Get most conflicted student
-            # For one of their most penalized exams, evaluate all possible
-            # exam swaps.
-            # Select the best non-tabu one and put the exam on the tabu list.
-            # (Unless aspiration criterion met)
+            for neighbor in ExamNeighborhood(schedule):
+                continue
+
+        # Select the best non-tabu one and put the exam on the tabu list.
+        # (Unless aspiration criterion met)
 
         return schedule
 
