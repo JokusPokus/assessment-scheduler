@@ -160,20 +160,25 @@ class ExamNeighborhood(Neighborhood):
     """Defines the neighborhood of a schedule w.r.t. swapping single exams.
 
     An exam neighbor of a schedule is obtained by swapping two exams of the
-    same assessor and length.
+    same assessor, module, and length.
     """
 
     def _set_neighbors(self) -> None:
         exam_to_swap = self._exam_to_swap()
+        exam_to_swap_index = self._get_index_of(exam_to_swap)
 
         for slot, blocks in self.schedule.items():
             for i, block in enumerate(blocks):
                 for j, exam in enumerate(block.exams):
                     if self._swappable(exam, exam_to_swap):
-                        pass
+                        exam_indices = [exam_to_swap_index, (slot, i, j)]
+                        neighbor = self.actions.swap_exams(
+                            self.schedule,
+                            exam_indices
+                        )
+                        self.data.append(neighbor)
 
-
-    def _exam_to_swap(self) -> str:
+    def _exam_to_swap(self) -> ExamSchedule:
         """Return the exam that is to be swapped to get the schedule's
         neighbors.
 
@@ -207,6 +212,19 @@ class ExamNeighborhood(Neighborhood):
             and first.assessor == second.assessor
             and first.module == second.module
         )
+
+    def _get_index_of(self, exam_to_find: ExamSchedule) -> Tuple[int]:
+        """Return the index information to find the given exam schedule
+        within the self.schedule.
+
+        The indeces are returned as a tuple (slot_id, block_position,
+        exam_position).
+        """
+        for slot in self.schedule:
+            for i, block in enumerate(blocks):
+                for j, exam in enumerate(block.exams):
+                    if exam == exam_to_find:
+                        return slot, i, j
 
 
 class TabuSearch(BaseAlgorithm):
