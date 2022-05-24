@@ -182,6 +182,7 @@ class ExamNeighborhood(Neighborhood):
                             exam_indices
                         )
 
+                        neighbor.swapped_exam = exam
                         self.data.append(neighbor)
 
     def _exam_to_swap(self) -> ExamSchedule:
@@ -245,20 +246,48 @@ class TabuSearch(BaseAlgorithm):
     """
 
     def run(self) -> Schedule:
-        schedule = RandomAssignment(self.data).run()
+        current_solution = RandomAssignment(self.data).run()
 
-        tabu_exam = deque(maxlen=10)
+        tabu_exams = deque(maxlen=8)
 
-        current_best = [schedule, self.evaluator.penalty(schedule)]
+        current_best = [
+            current_solution,
+            self.evaluator.penalty(current_solution)
+        ]
 
-        for _ in range(1):
-            for neighbor in ExamNeighborhood(schedule):
-                continue
+        consecutive_runs_without_improvement = 0
 
-        # Select the best non-tabu one and put the exam on the tabu list.
-        # (Unless aspiration criterion met)
+        while consecutive_runs_without_improvement < 10:
+            scored_neighbors = sorted(
+                [
+                    [neighbor, self.evaluator.penalty(neighbor)]
+                    for neighbor in ExamNeighborhood(current_solution)
+                ],
+                key=lambda x: x[1]
+            )
 
-        return schedule
+            for neighbor, penalty in scored_neighbors:
+                print(current_best[1])
+                print(tabu_exams)
+                if (
+                        neighbor.swapped_exam.exam_code not in tabu_exams
+                        or penalty < current_best[1]
+                ):
+                    current_solution = neighbor
+                    tabu_exams.append(current_solution.swapped_exam.exam_code)
+
+                    if penalty < current_best[1]:
+                        current_best = [neighbor, penalty]
+                        consecutive_runs_without_improvement = 0
+
+                    else:
+                        consecutive_runs_without_improvement += 1
+
+                    break
+            else:
+                consecutive_runs_without_improvement += 1
+
+        return current_solution
 
     def _iterate(self, schedule: Schedule):
         """Modify the schedule according to the tabu search algorithm, such
