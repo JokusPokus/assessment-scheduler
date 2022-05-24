@@ -2,9 +2,10 @@
 Implementation of the Tabu Search (TS) meta heuristic.
 """
 from abc import ABC, abstractmethod
-from collections import deque, UserList
+from collections import deque, UserList, defaultdict
 from copy import deepcopy
 from datetime import datetime, timedelta
+import math
 from pprint import pprint
 import random
 from typing import List, Tuple, Optional
@@ -244,40 +245,47 @@ class ExamNeighborhood(Neighborhood):
 
 
 class BlockNeighborhood(Neighborhood):
+    """Defines the neighborhood of a schedule w.r.t. swapping entire blocks.
+
+    A block neighbor of a schedule is obtained by swapping two blocks of
+    the same assessor.
+    """
+
     def _set_neighbors(self) -> None:
-        block_to_swap = self._block_to_swap()
-        block_to_swap_index = self._get_index_of(exam_to_swap)
+        block_to_swap = self.evaluator.most_conflicted_block(self.schedule)
+        block_to_swap_index = self._get_index_of(block_to_swap)
 
         for slot, blocks in self.schedule.items():
             for i, block in enumerate(blocks):
-                if not self._compatible_lengths(block, exam_to_swap):
-                    continue
+                if self._swappable(block, block_to_swap):
+                    block_indices = [block_to_swap_index, (slot, i)]
+                    neighbor = self.actions.swap_blocks(
+                        self.schedule,
+                        block_indices
+                    )
+                    neighbor.swapped_block = block
+                    self.data.append(neighbor)
 
-                for j, exam in enumerate(block.exams):
-                    if self._swappable(exam, exam_to_swap):
-                        exam_indices = [exam_to_swap_index, (slot, i, j)]
-                        neighbor = self.actions.swap_exams(
-                            self.schedule,
-                            exam_indices
-                        )
+    def _get_index_of(self, block_to_find: BlockSchedule) -> Tuple[int]:
+        """Return the index information to find the given block schedule
+        within the self.schedule.
 
-                        neighbor.swapped_exam = exam
-                        self.data.append(neighbor)
-
-    def _exam_to_swap(self) -> BlockSchedule:
-        """Return the block that is to be swapped to get the schedule's
-        neighbors.
-
-        The block is randomly selected from the set of most severely
-        punished blocks.
+        The indeces are returned as a tuple (slot_id, block_position).
         """
-        mc_student = self.evaluator.most_conflicted_student(self.schedule)
+        for slot, blocks in self.schedule.items():
+            try:
+                index = blocks.index(block_to_find)
+            except ValueError:
+                pass
+            else:
+                return slot, index
 
-        conflicts = self.evaluator.conflicts(self.schedule)
-        category = self._most_severe_category(conflicts, mc_student)
-        mc_exams = conflicts[mc_student][category]
-
-        return random.choice(random.choice(mc_exams).exams)
+    @staticmethod
+    def _swappable(first: BlockSchedule, second: BlockSchedule) -> bool:
+        """Return True if the two blocks are swappable according to the
+        neighborhood definition.
+        """
+        return first != second and first.assessor == second.assessor
 
 
 class TabuSearch(BaseAlgorithm):
@@ -295,49 +303,80 @@ class TabuSearch(BaseAlgorithm):
             self.evaluator.penalty(current_solution)
         ]
 
+        best_block_neighbor_penalties = {current_solution: current_best[1]}
+        improved = True
         consecutive_block_swaps_without_improvement = 0
 
-        while consecutive_block_swaps_without_improvement < 10:
-            scored_block_neighbors = sorted(
-                [
-                    [neighbor, self.evaluator.penalty(neighbor)]
-                    for neighbor in BlockNeighborhood(current_solution)
-                ],
+        while True:
+
+            best_block_neighbor, lowest_penalty = min(
+                best_block_neighbor_penalties.items(),
                 key=lambda x: x[1]
             )
 
-            consecutive_exam_swaps_without_improvement = 0
+            if not improved:
+                consecutive_block_swaps_without_improvement += 1
+                if consecutive_block_swaps_without_improvement > 2:
+                    break
+            else:
+                consecutive_block_swaps_without_improvement = 0
 
-            while consecutive_exam_swaps_without_improvement < 10:
-                scored_neighbors = sorted(
-                    [
-                        [neighbor, self.evaluator.penalty(neighbor)]
-                        for neighbor in ExamNeighborhood(current_solution)
-                    ],
-                    key=lambda x: x[1]
-                )
+            for schedule, penalty in best_block_neighbor_penalties.items():
+                print(f"{str(schedule._key)[:5]}: {penalty}")
 
-                for neighbor, penalty in scored_neighbors:
-                    exam_code = neighbor.swapped_exam.exam_code
-                    if (
-                            exam_code not in tabu_exams
-                            or penalty < current_best[1]
-                    ):
-                        current_solution = neighbor
-                        tabu_exams.append(exam_code)
+            improved = False
+            best_block_neighbor_penalties = defaultdict(lambda: math.inf)
 
-                        if penalty < current_best[1]:
-                            current_best = [neighbor, penalty]
-                            consecutive_runs_without_improvement = 0
+            print("NEW BLOCK NEIGHBORHOOD")
 
-                        else:
-                            consecutive_exam_swaps_without_improvement += 1
+            for block_neighbor in BlockNeighborhood(best_block_neighbor):
+                consecutive_exam_swaps_without_improvement = 0
+                current_block_neighbor_best = [
+                    block_neighbor,
+                    self.evaluator.penalty(block_neighbor)
+                ]
 
-                        break
-                else:
-                    consecutive_exam_swaps_without_improvement += 1
+                current_solution = block_neighbor
 
-        return current_solution
+                while consecutive_exam_swaps_without_improvement < 10:
+                    scored_neighbors = sorted(
+                        [
+                            [neighbor, self.evaluator.penalty(neighbor)]
+                            for neighbor in ExamNeighborhood(current_solution)
+                        ],
+                        key=lambda x: x[1]
+                    )
+
+                    for neighbor, penalty in scored_neighbors:
+                        exam_code = neighbor.swapped_exam.exam_code
+                        best_block_neighbor_penalties[block_neighbor] = min([
+                            best_block_neighbor_penalties[block_neighbor],
+                            penalty
+                        ])
+                        if (
+                                exam_code not in tabu_exams
+                                or penalty < current_best[1]
+                        ):
+                            current_solution = neighbor
+                            tabu_exams.append(exam_code)
+
+                            if penalty < current_block_neighbor_best[1]:
+                                current_block_neighbor_best = [neighbor, penalty]
+                                consecutive_exam_swaps_without_improvement = 0
+
+                                if penalty < current_best[1]:
+                                    improved = True
+                                    current_best = [neighbor, penalty]
+                                    print("CURRENT_BEST", f"{str(neighbor._key)[:5]}: {penalty}")
+
+                            else:
+                                consecutive_exam_swaps_without_improvement += 1
+
+                            break
+                    else:
+                        consecutive_exam_swaps_without_improvement += 1
+
+        return current_best[0]
 
     def _iterate(self, schedule: Schedule):
         """Modify the schedule according to the tabu search algorithm, such
