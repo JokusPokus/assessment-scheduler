@@ -168,7 +168,7 @@ class TestSearchActions:
         # Block 3 in the new schedule has not been changed
         new_block_3 = new_schedule[0][0]
         old_block_3 = schedule_deepcopy[0][1]
-        assert new_block_3 == old_block_3
+        assert new_block_3.start_time == old_block_3.start_time
 
         # Block 1 and 2 have been swapped and updated correctly
         new_block_1 = new_schedule[1][0]
@@ -204,7 +204,7 @@ class TestSearchActions:
         with pytest.raises(IndexError):
             Actions().swap_blocks(schedule, [(0, 0), (1, 1)])
 
-    def test_exams_are_swapped_between_blocks(self):
+    def test_exams_are_swapped_within_block(self):
         # ARRANGE
         schedule = Schedule()
 
@@ -298,3 +298,91 @@ class TestSearchActions:
         assert new_exam_3.student.id == student_3.id
         assert new_exam_3.module == module_3
         assert new_exam_3.exam_code == 'exam_3'
+
+    def test_exams_are_swapped_between_blocks(self):
+        # ARRANGE
+        schedule = Schedule()
+
+        assessor = Assessor(id=1)
+
+        student_1 = Student(id=1)
+        student_2 = Student(id=2)
+
+        module_1 = Module(id=1)
+        module_2 = Module(id=2)
+
+        time_frames = [
+            TimeFrame(
+                datetime(2022, 1, 2, 14, 0),
+                datetime(2022, 1, 2, 14, 20),
+            ),
+            TimeFrame(
+                datetime(2022, 1, 2, 14, 20),
+                datetime(2022, 1, 2, 14, 40),
+            ),
+        ]
+
+        exam_1 = ExamSchedule(
+            student=student_1,
+            position=0,
+            module=module_1,
+            assessor=assessor,
+            exam_code='exam_1',
+            time_frame=time_frames[0]
+        )
+        exam_2 = ExamSchedule(
+            student=student_2,
+            position=0,
+            module=module_2,
+            assessor=assessor,
+            exam_code='exam_2',
+            time_frame=time_frames[1]
+        )
+
+        block_1 = BlockSchedule(
+            assessor=assessor,
+            exams=[exam_1],
+            exam_length=20,
+            start_time=time_frames[0].start_time,
+            exam_start_times=[0, 20, 40]
+        )
+        block_2 = BlockSchedule(
+            assessor=assessor,
+            exams=[exam_2],
+            exam_length=20,
+            start_time=time_frames[0].start_time,
+            exam_start_times=[0, 20, 40]
+        )
+
+        schedule[0] = [block_1]
+        schedule[1] = [block_2]
+
+        # To verify later that the original schedule is not modified
+        schedule_deepcopy = deepcopy(schedule)
+
+        # ACT
+        new_schedule = Actions().swap_exams(
+            schedule=schedule,
+            exam_indices=[(0, 0, 0), (1, 0, 0)]
+        )
+
+        # ASSERT
+        # The original schedule has not been changed
+        assert schedule == schedule_deepcopy
+
+        # Exams 1 and 2 have been swapped and updated correctly
+        new_exam_1 = new_schedule[1][0].exams[0]
+        assert new_exam_1.position == 0
+        assert new_exam_1.time_frame == time_frames[1]
+        assert new_exam_1.student.id == student_1.id
+        assert new_exam_1.block.start_time == block_2.start_time
+        assert new_exam_1.module == module_1
+        assert new_exam_1.exam_code == 'exam_1'
+
+        new_exam_2 = new_schedule[0][0].exams[0]
+        assert new_exam_2.position == 0
+        assert new_exam_2.time_frame == time_frames[0]
+        assert new_exam_2.student.id == student_2.id
+        assert new_exam_2.block.start_time == block_1.start_time
+        assert new_exam_2.module == module_2
+        assert new_exam_2.exam_code == 'exam_2'

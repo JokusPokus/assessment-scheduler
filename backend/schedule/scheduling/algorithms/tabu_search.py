@@ -37,7 +37,7 @@ class Actions:
         self._swap_start_times(first, second)
 
         for block in [first, second]:
-            self._update_exam_time_frames_of(block)
+            self._update_exams_of(block)
 
         self._add_updated_blocks(schedule, first, second, block_indeces)
         return schedule
@@ -51,6 +51,8 @@ class Actions:
         copy of the schedule.
         """
         schedule = deepcopy(schedule)
+
+        # Needed to make schedules hashable for function call caching
         schedule._key = uuid4()
 
         first, second = self._get_exams(schedule, exam_indices)
@@ -77,7 +79,7 @@ class Actions:
         first.start_time, second.start_time = second.start_time, first.start_time
 
     @staticmethod
-    def _update_exam_time_frames_of(block: BlockSchedule) -> None:
+    def _update_exams_of(block: BlockSchedule) -> None:
         """Update the exams' time frames according to the new start times."""
         if len(block.exam_start_times) < len(block.exams):
             raise ValueError('Not enough exam start times given for this block')
@@ -122,6 +124,7 @@ class Actions:
         first.exam_code, second.exam_code = second.exam_code, first.exam_code
         first.student, second.student = second.student, first.student
         first.module, second.module = second.module, first.module
+        first.block, second.block = second.block, first.block
 
 
 class Neighborhood(ABC, UserList):
@@ -240,52 +243,99 @@ class ExamNeighborhood(Neighborhood):
                         return slot, i, j
 
 
+class BlockNeighborhood(Neighborhood):
+    def _set_neighbors(self) -> None:
+        block_to_swap = self._block_to_swap()
+        block_to_swap_index = self._get_index_of(exam_to_swap)
+
+        for slot, blocks in self.schedule.items():
+            for i, block in enumerate(blocks):
+                if not self._compatible_lengths(block, exam_to_swap):
+                    continue
+
+                for j, exam in enumerate(block.exams):
+                    if self._swappable(exam, exam_to_swap):
+                        exam_indices = [exam_to_swap_index, (slot, i, j)]
+                        neighbor = self.actions.swap_exams(
+                            self.schedule,
+                            exam_indices
+                        )
+
+                        neighbor.swapped_exam = exam
+                        self.data.append(neighbor)
+
+    def _exam_to_swap(self) -> BlockSchedule:
+        """Return the block that is to be swapped to get the schedule's
+        neighbors.
+
+        The block is randomly selected from the set of most severely
+        punished blocks.
+        """
+        mc_student = self.evaluator.most_conflicted_student(self.schedule)
+
+        conflicts = self.evaluator.conflicts(self.schedule)
+        category = self._most_severe_category(conflicts, mc_student)
+        mc_exams = conflicts[mc_student][category]
+
+        return random.choice(random.choice(mc_exams).exams)
+
+
 class TabuSearch(BaseAlgorithm):
     """Tabu search is a local meta heuristic that iteratively explores
     the solution space while keeping track of a 'tabu list'.
     """
 
     def run(self) -> Schedule:
-        current_solution = RandomAssignment(self.data).run()
-
+        tabu_blocks = deque(maxlen=8)
         tabu_exams = deque(maxlen=8)
 
+        current_solution = RandomAssignment(self.data).run()
         current_best = [
             current_solution,
             self.evaluator.penalty(current_solution)
         ]
 
-        consecutive_runs_without_improvement = 0
+        consecutive_block_swaps_without_improvement = 0
 
-        while consecutive_runs_without_improvement < 10:
-            scored_neighbors = sorted(
+        while consecutive_block_swaps_without_improvement < 10:
+            scored_block_neighbors = sorted(
                 [
                     [neighbor, self.evaluator.penalty(neighbor)]
-                    for neighbor in ExamNeighborhood(current_solution)
+                    for neighbor in BlockNeighborhood(current_solution)
                 ],
                 key=lambda x: x[1]
             )
 
-            for neighbor, penalty in scored_neighbors:
-                print(current_best[1])
-                print(tabu_exams)
-                if (
-                        neighbor.swapped_exam.exam_code not in tabu_exams
-                        or penalty < current_best[1]
-                ):
-                    current_solution = neighbor
-                    tabu_exams.append(current_solution.swapped_exam.exam_code)
+            consecutive_exam_swaps_without_improvement = 0
 
-                    if penalty < current_best[1]:
-                        current_best = [neighbor, penalty]
-                        consecutive_runs_without_improvement = 0
+            while consecutive_exam_swaps_without_improvement < 10:
+                scored_neighbors = sorted(
+                    [
+                        [neighbor, self.evaluator.penalty(neighbor)]
+                        for neighbor in ExamNeighborhood(current_solution)
+                    ],
+                    key=lambda x: x[1]
+                )
 
-                    else:
-                        consecutive_runs_without_improvement += 1
+                for neighbor, penalty in scored_neighbors:
+                    exam_code = neighbor.swapped_exam.exam_code
+                    if (
+                            exam_code not in tabu_exams
+                            or penalty < current_best[1]
+                    ):
+                        current_solution = neighbor
+                        tabu_exams.append(exam_code)
 
-                    break
-            else:
-                consecutive_runs_without_improvement += 1
+                        if penalty < current_best[1]:
+                            current_best = [neighbor, penalty]
+                            consecutive_runs_without_improvement = 0
+
+                        else:
+                            consecutive_exam_swaps_without_improvement += 1
+
+                        break
+                else:
+                    consecutive_exam_swaps_without_improvement += 1
 
         return current_solution
 

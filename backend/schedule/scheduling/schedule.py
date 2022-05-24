@@ -93,6 +93,7 @@ class ExamSchedule:
     position: int
     student: Student
     time_frame: TimeFrame
+    block: Optional[BlockSchedule] = None
 
     def __repr__(self):
         return f'{self.position+1}. {self.exam_code} ({self.module.code}): ' \
@@ -108,16 +109,24 @@ class ExamSchedule:
         )
 
 
-@dataclass
 class BlockSchedule:
     """Represents the schedule of a block of exams."""
 
-    assessor: Assessor
-    start_time: Optional[datetime] = None
-    exam_start_times: List[int] = field(default_factory=list)
-    exam_length: Optional[int] = None
-    exams: List[ExamSchedule] = field(default_factory=list)
-    helper: Optional[Helper] = None
+    def __init__(
+            self,
+            assessor: Assessor,
+            start_time: Optional[datetime] = None,
+            exam_start_times: Optional[List[int]] = None,
+            exam_length: Optional[int] = None,
+            exams: Optional[List[ExamSchedule]] = None,
+            helper: Optional[Helper] = None,
+    ):
+        self.assessor = assessor
+        self.start_time = start_time
+        self.exam_start_times = exam_start_times or []
+        self.exam_length = exam_length
+        self.exams = exams
+        self.helper = helper
 
     def __repr__(self):
         pp = pprint.PrettyPrinter(indent=4)
@@ -130,14 +139,20 @@ class BlockSchedule:
             }
         )
 
-    def __eq__(self, other):
-        return (
-            self.assessor.id == other.assessor.id
-            and self.start_time == other.start_time
-            and self.exam_start_times == other.exam_start_times
-            and self.exams == other.exams
-            and self.helper == other.helper
-        )
+    @property
+    def exams(self):
+        return self._exams
+
+    @exams.setter
+    def exams(self, exam_list: List[ExamSchedule]):
+        if not exam_list:
+            self._exams = []
+            return
+
+        for _exam in exam_list:
+            _exam.block = self
+
+        self._exams = exam_list
 
     @property
     def start_times(self) -> List[datetime]:
@@ -192,6 +207,10 @@ class Schedule(UserDict):
         return self.data[key]
 
     def __hash__(self):
+        """Make Schedule objects hashable for function call caching.
+
+        This is a little 'hack' to improve performance.
+        """
         return hash(self._key)
 
     def __eq__(self, other):

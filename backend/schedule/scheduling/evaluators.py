@@ -13,7 +13,7 @@ from exam.models import Exam, Student
 from schedule.models import BlockSlot
 from staff.models import Assessor, Helper
 
-from .schedule import Schedule, ExamSchedule
+from .schedule import Schedule, ExamSchedule, BlockSchedule
 from .input_collectors import InputData
 from .types import ExamId
 
@@ -160,6 +160,9 @@ class Evaluator:
         """Return the student who scores the highest penalty."""
         penalties = self._penalties_by_student(schedule)
         return max(penalties, key=lambda x: x[1])[0]
+
+    def most_conflicted_block(self, schedule: Schedule) -> BlockSchedule:
+        pass
 
     def validate_availabilities(self, data: InputData) -> None:
         """Raise a validation error if the given staff availabilities
