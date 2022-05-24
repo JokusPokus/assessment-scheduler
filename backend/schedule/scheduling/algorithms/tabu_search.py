@@ -4,6 +4,7 @@ Implementation of the Tabu Search (TS) meta heuristic.
 from abc import ABC, abstractmethod
 from collections import deque, UserList, defaultdict
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 import math
 from pprint import pprint
@@ -288,98 +289,219 @@ class BlockNeighborhood(Neighborhood):
         return first != second and first.assessor == second.assessor
 
 
+class SearchContext(ABC):
+    """Keeps track of and processes context metrics
+    that help guide the search algorithm.
+    """
+    MAX_ITERATIONS_WITHOUT_IMPROVEMENT = None
+
+    def __init__(self, initial: Schedule):
+        self.initial = initial
+        self.iterations_since_improvement = 0
+        self.improved = True
+
+    def termination_criterion_met(self) -> bool:
+        """Return True if the the last number of iterations has not
+        produced a penalty improvement.
+
+        The concrete number is given as a parameter.
+        """
+        if not self.improved:
+            self.iterations_since_improvement += 1
+
+            if self.iterations_since_improvement \
+                    > self.MAX_ITERATIONS_WITHOUT_IMPROVEMENT:
+                return True
+
+        else:
+            self.iterations_since_improvement = 0
+
+        return False
+
+    @abstractmethod
+    def initialize_iteration(self) -> None:
+        """Refresh the context for a new iteration of neighborhood search."""
+        pass
+
+    def record_improvement(self) -> None:
+        self.improved = True
+
+
+class BlockSearchContext(SearchContext):
+    MAX_ITERATIONS_WITHOUT_IMPROVEMENT = 2
+
+    def __init__(self, initial: Schedule):
+        super().__init__(initial)
+        self.best_penalties_of_block_neighbors = {
+            initial: Evaluator().penalty(initial)
+        }
+
+    def best_block_neighbor_of_previous_iteration(self):
+        """Return the best block neighbor found in the last block
+        neighborhood iteration, together with its penalty.
+
+        A tuple with (best_schedule, penalty) is returned.
+        """
+        return min(
+            self.best_penalties_of_block_neighbors.items(),
+            key=lambda x: x[1]
+        )[0]
+
+    def initialize_iteration(self) -> None:
+        """Refresh the context for a new iteration of
+        block neighborhood search.
+        """
+        self.improved = False
+        self.best_penalties_of_block_neighbors = defaultdict(lambda: math.inf)
+
+    def record(
+            self,
+            neighbor: Schedule,
+            relative_best: int,
+    ) -> None:
+        """Record the best score that was achieved during the search
+        process starting form the given block.
+        """
+        self.best_penalties_of_block_neighbors[neighbor] = relative_best
+
+
+class ExamSearchContext(SearchContext):
+    MAX_ITERATIONS_WITHOUT_IMPROVEMENT = 10
+
+    def initialize_iteration(self) -> None:
+        self.improved = False
+
+
+class TabuList:
+    def __init__(self, max_len: int):
+        self.records = deque(maxlen=max_len)
+
+    def __contains__(self, item):
+        assert hasattr(item, 'exam_code'), 'The tabu list contains exams only'
+        return item.exam_code in self.records
+
+    def add(self, item) -> None:
+        assert hasattr(item, 'exam_code'), 'The tabu list contains exams only'
+        self.records.append(item.exam_code)
+
+
 class TabuSearch(BaseAlgorithm):
     """Tabu search is a local meta heuristic that iteratively explores
     the solution space while keeping track of a 'tabu list'.
     """
 
-    def run(self) -> Schedule:
-        tabu_blocks = deque(maxlen=8)
-        tabu_exams = deque(maxlen=8)
+    def run(self, verbose=False) -> Schedule:
+        if verbose:
+            log = print
+        else:
+            def log(ignored_input):
+                pass
 
-        current_solution = RandomAssignment(self.data).run()
-        current_best = [
+        tabu_exams = TabuList(max_len=8)
+
+        # Initialize search context
+        current_solution = self._get_initial_solution()
+
+        absolute_best = [
             current_solution,
             self.evaluator.penalty(current_solution)
         ]
 
-        best_block_neighbor_penalties = {current_solution: current_best[1]}
-        improved = True
-        consecutive_block_swaps_without_improvement = 0
+        if absolute_best[1] == 0:
+            return current_solution
+
+        block_context = BlockSearchContext(current_solution)
 
         while True:
+            if block_context.termination_criterion_met():
+                break
 
-            best_block_neighbor, lowest_penalty = min(
-                best_block_neighbor_penalties.items(),
-                key=lambda x: x[1]
-            )
+            starting_point \
+                = block_context.best_block_neighbor_of_previous_iteration()
 
-            if not improved:
-                consecutive_block_swaps_without_improvement += 1
-                if consecutive_block_swaps_without_improvement > 2:
-                    break
-            else:
-                consecutive_block_swaps_without_improvement = 0
+            log("\n******\nNEW BLOCK SEARCH\n******")
 
-            for schedule, penalty in best_block_neighbor_penalties.items():
-                print(f"{str(schedule._key)[:5]}: {penalty}")
+            block_context.initialize_iteration()
 
-            improved = False
-            best_block_neighbor_penalties = defaultdict(lambda: math.inf)
+            for block_neighbor in BlockNeighborhood(starting_point):
+                exam_context = ExamSearchContext(block_neighbor)
 
-            print("NEW BLOCK NEIGHBORHOOD")
-
-            for block_neighbor in BlockNeighborhood(best_block_neighbor):
-                consecutive_exam_swaps_without_improvement = 0
-                current_block_neighbor_best = [
+                # Initialize exam search for the block neighbor
+                current_solution = block_neighbor
+                relative_best = [
                     block_neighbor,
                     self.evaluator.penalty(block_neighbor)
                 ]
 
-                current_solution = block_neighbor
+                if relative_best[1] == 0:
+                    return current_solution
 
-                while consecutive_exam_swaps_without_improvement < 10:
-                    scored_neighbors = sorted(
-                        [
-                            [neighbor, self.evaluator.penalty(neighbor)]
-                            for neighbor in ExamNeighborhood(current_solution)
-                        ],
-                        key=lambda x: x[1]
+                log(f"\nNEW BLOCK NEIGHBOR: {relative_best[1]}\n")
+
+                while True:
+                    if exam_context.termination_criterion_met():
+                        best_schedule, best_penalty = relative_best
+                        block_context.record(best_schedule, best_penalty)
+                        break
+
+                    exam_context.initialize_iteration()
+
+                    scored_exam_neighbors = self._get_scored_exam_neighbors_of(
+                        current_solution
                     )
 
-                    for neighbor, penalty in scored_neighbors:
-                        exam_code = neighbor.swapped_exam.exam_code
-                        best_block_neighbor_penalties[block_neighbor] = min([
-                            best_block_neighbor_penalties[block_neighbor],
-                            penalty
-                        ])
-                        if (
-                                exam_code not in tabu_exams
-                                or penalty < current_best[1]
-                        ):
-                            current_solution = neighbor
-                            tabu_exams.append(exam_code)
+                    for exam_neighbor, penalty in scored_exam_neighbors:
+                        if penalty == 0:
+                            return exam_neighbor
 
-                            if penalty < current_block_neighbor_best[1]:
-                                current_block_neighbor_best = [neighbor, penalty]
-                                consecutive_exam_swaps_without_improvement = 0
+                        not_tabu = exam_neighbor.swapped_exam not in tabu_exams
+                        aspiration_criterion_met = penalty < absolute_best[1]
 
-                                if penalty < current_best[1]:
-                                    improved = True
-                                    current_best = [neighbor, penalty]
-                                    print("CURRENT_BEST", f"{str(neighbor._key)[:5]}: {penalty}")
+                        if not_tabu or aspiration_criterion_met:
+                            current_solution = exam_neighbor
+                            tabu_exams.add(exam_neighbor.swapped_exam)
 
-                            else:
-                                consecutive_exam_swaps_without_improvement += 1
+                            is_relative_improvement \
+                                = penalty < relative_best[1]
+
+                            if is_relative_improvement:
+                                exam_context.record_improvement()
+                                relative_best = [exam_neighbor, penalty]
+                                log("New relative best:", penalty)
+
+                                is_absolute_improvement \
+                                    = penalty < absolute_best[1]
+
+                                if is_absolute_improvement:
+                                    block_context.record_improvement()
+                                    absolute_best = [exam_neighbor, penalty]
+                                    log("-----> Best so far!!")
 
                             break
-                    else:
-                        consecutive_exam_swaps_without_improvement += 1
 
-        return current_best[0]
+        log("\n*")
+        log("**")
+        log("***")
+        log("****")
+        log("Best solution found:", absolute_best[1])
+        log("****")
+        log("***")
+        log("**")
+        log("*")
+        return absolute_best[0]
 
-    def _iterate(self, schedule: Schedule):
-        """Modify the schedule according to the tabu search algorithm, such
-        that the resulting schedule is a neighbor of the current one.
+    def _get_scored_exam_neighbors_of(self, current_solution: Schedule):
+        """Return a list of [exam_neighbor, penalty] lists, sorted
+        by the penalty.
         """
-        pass
+        return sorted(
+            [
+                [neighbor, self.evaluator.penalty(neighbor)]
+                for neighbor in ExamNeighborhood(current_solution)
+            ],
+            key=lambda x: x[1]
+        )
+
+    def _get_initial_solution(self) -> Schedule:
+        """Construct an initial solution that is the base for the search."""
+        return RandomAssignment(self.data).run()
