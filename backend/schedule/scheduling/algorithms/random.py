@@ -143,7 +143,8 @@ class RandomAssignment(BaseAlgorithm):
                 assessor=exam.assessor,
                 student=exam.student,
                 position=position,
-                time_frame=TimeFrame(abs_start_time, abs_end_time)
+                time_frame=TimeFrame(abs_start_time, abs_end_time),
+                block=block
             )
         )
         return exam
