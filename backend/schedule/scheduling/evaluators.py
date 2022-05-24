@@ -24,6 +24,13 @@ class ConflictDegree:
     SAME_DAY = 2
     CONSECUTIVE_DAYS = 3
 
+    choices = [
+        FIRST_ORDER,
+        SHORTLY_FOLLOWED,
+        SAME_DAY,
+        CONSECUTIVE_DAYS
+    ]
+
 
 class Conflict:
     """Represents a first-order conflict in a schedule, that is,
@@ -136,6 +143,8 @@ class Evaluator:
     penalty_2 = 10
     penalty_3 = 1
 
+    penalties = [penalty_0, penalty_1, penalty_2, penalty_3]
+
     def __init__(self, conflict_search: Optional[ConflictSearch] = None):
         self.conflict_search = conflict_search or BruteForce()
 
@@ -162,7 +171,9 @@ class Evaluator:
         return max(penalties, key=lambda x: x[1])[0]
 
     def most_conflicted_block(self, schedule: Schedule) -> BlockSchedule:
-        pass
+        """Return the block that scores the highest penalty."""
+        penalties = self._penalties_by_block(schedule)
+        return max(penalties, key=lambda x: x[1])[0]
 
     def validate_availabilities(self, data: InputData) -> None:
         """Raise a validation error if the given staff availabilities
@@ -228,13 +239,27 @@ class Evaluator:
         def total_penalty(student_conf: Dict[int, List[Conflict]]) -> int:
             """Return a given student's total penalty."""
             return sum([
-                len(student_conf[ConflictDegree.FIRST_ORDER]) * self.penalty_0,
-                len(student_conf[ConflictDegree.SHORTLY_FOLLOWED]) * self.penalty_1,
-                len(student_conf[ConflictDegree.SAME_DAY]) * self.penalty_2,
-                len(student_conf[ConflictDegree.CONSECUTIVE_DAYS]) * self.penalty_3
+                len(student_conf[degree]) * penalty
+                for degree, penalty in zip(ConflictDegree.choices, self.penalties)
             ])
 
         return [
             (student, total_penalty(conf))
             for student, conf in self.conflicts(schedule).items()
         ]
+
+    @lru_cache
+    def _penalties_by_block(
+            self,
+            schedule: Schedule
+    ) -> List[Tuple[BlockSchedule, int]]:
+        """Return the total penalties for each block."""
+        by_block = defaultdict(int)
+        for confs in self.conflicts(schedule).values():
+            for degree, penalty in zip(ConflictDegree.choices, self.penalties):
+                for conf in confs[degree]:
+                    exam_1, exam_2 = conf.exams
+                    by_block[exam_1.block] += penalty
+                    by_block[exam_2.block] += penalty
+
+        return by_block.items()
