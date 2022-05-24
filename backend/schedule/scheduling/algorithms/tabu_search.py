@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import math
 from pprint import pprint
 import random
+from timeit import default_timer
 from typing import List, Tuple, Optional
 from uuid import uuid4
 
@@ -251,6 +252,7 @@ class BlockNeighborhood(Neighborhood):
     A block neighbor of a schedule is obtained by swapping two blocks of
     the same assessor.
     """
+    MAX_NEIGHBORS = 5
 
     def _set_neighbors(self) -> None:
         block_to_swap = self.evaluator.most_conflicted_block(self.schedule)
@@ -266,6 +268,9 @@ class BlockNeighborhood(Neighborhood):
                     )
                     neighbor.swapped_block = block
                     self.data.append(neighbor)
+
+                    if len(self.data) > self.MAX_NEIGHBORS:
+                        return
 
     def _get_index_of(self, block_to_find: BlockSchedule) -> Tuple[int]:
         """Return the index information to find the given block schedule
@@ -385,17 +390,39 @@ class TabuList:
         self.records.append(item.exam_code)
 
 
+class Logger:
+    def __init__(self, verbose: bool = True):
+        self.log = print if verbose else self._shut_up
+        self.brag = self._brag if verbose else self._shut_up
+
+    @staticmethod
+    def _shut_up(*args, **kwargs):
+        pass
+
+    @staticmethod
+    def _brag(final_penalty, start_time) -> None:
+        end_time = default_timer()
+        total_time = int(end_time - start_time)
+
+        print("\n*")
+        print("**")
+        print("****")
+        print("********")
+        print(f"Best solution found in {total_time}s: {final_penalty}")
+        print("********")
+        print("****")
+        print("**")
+        print("*")
+
+
 class TabuSearch(BaseAlgorithm):
     """Tabu search is a local meta heuristic that iteratively explores
     the solution space while keeping track of a 'tabu list'.
     """
 
     def run(self, verbose=False) -> Schedule:
-        if verbose:
-            log = print
-        else:
-            def log(ignored_input):
-                pass
+        logger = Logger(verbose=verbose)
+        start_time = default_timer()
 
         tabu_exams = TabuList(max_len=8)
 
@@ -408,6 +435,7 @@ class TabuSearch(BaseAlgorithm):
         ]
 
         if absolute_best[1] == 0:
+            logger.brag(0, start_time)
             return current_solution
 
         block_context = BlockSearchContext(current_solution)
@@ -419,7 +447,7 @@ class TabuSearch(BaseAlgorithm):
             starting_point \
                 = block_context.best_block_neighbor_of_previous_iteration()
 
-            log("\n******\nNEW BLOCK SEARCH\n******")
+            logger.log("\n******\nNEW BLOCK SEARCH\n******")
 
             block_context.initialize_iteration()
 
@@ -434,9 +462,10 @@ class TabuSearch(BaseAlgorithm):
                 ]
 
                 if relative_best[1] == 0:
+                    logger.brag(0, start_time)
                     return current_solution
 
-                log(f"\nNEW BLOCK NEIGHBOR: {relative_best[1]}\n")
+                logger.log(f"\nNEW BLOCK NEIGHBOR: {relative_best[1]}\n")
 
                 while True:
                     if exam_context.termination_criterion_met():
@@ -452,6 +481,7 @@ class TabuSearch(BaseAlgorithm):
 
                     for exam_neighbor, penalty in scored_exam_neighbors:
                         if penalty == 0:
+                            logger.brag(0, start_time)
                             return exam_neighbor
 
                         not_tabu = exam_neighbor.swapped_exam not in tabu_exams
@@ -467,7 +497,6 @@ class TabuSearch(BaseAlgorithm):
                             if is_relative_improvement:
                                 exam_context.record_improvement()
                                 relative_best = [exam_neighbor, penalty]
-                                log("New relative best:", penalty)
 
                                 is_absolute_improvement \
                                     = penalty < absolute_best[1]
@@ -475,19 +504,13 @@ class TabuSearch(BaseAlgorithm):
                                 if is_absolute_improvement:
                                     block_context.record_improvement()
                                     absolute_best = [exam_neighbor, penalty]
-                                    log("-----> Best so far!!")
+                                    logger.log(f"New relative best: {penalty} ***")
+                                else:
+                                    logger.log(f"New relative best: {penalty}")
 
                             break
 
-        log("\n*")
-        log("**")
-        log("***")
-        log("****")
-        log("Best solution found:", absolute_best[1])
-        log("****")
-        log("***")
-        log("**")
-        log("*")
+        logger.brag(absolute_best[1], start_time)
         return absolute_best[0]
 
     def _get_scored_exam_neighbors_of(self, current_solution: Schedule):

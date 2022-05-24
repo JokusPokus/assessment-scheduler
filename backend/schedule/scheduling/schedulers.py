@@ -45,7 +45,7 @@ class Scheduler:
 
         algorithm = self.algorithm_class(data, self.evaluator)
         try:
-            schedule = algorithm.run()
+            schedule = algorithm.run(verbose=True)
         except UnfeasibleInputError as e:
             print("Input does not allow for valid schedule!")
             raise e
