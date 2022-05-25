@@ -29,7 +29,7 @@ class DBOutputWriter:
             for block_schedule in block_schedules:
                 block = Block.objects.create(
                     schedule=db_schedule,
-                    slot=slot,
+                    block_slot=slot,
                     template=self._get_template_from(block_schedule)
                 )
                 for exam_schedule in block_schedule.exams:
