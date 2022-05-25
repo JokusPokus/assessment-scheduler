@@ -5,6 +5,7 @@ from .models import (
     Window,
     BlockSlot,
     BlockTemplate,
+    Block,
     Schedule,
 )
 from input.admin import PlanningSheetInline
@@ -26,6 +27,13 @@ class BlockSlotInline(admin.TabularInline):
 
 class BlockTemplateInline(admin.TabularInline):
     model = Window.block_templates.through
+    show_change_link = True
+    extra = 0
+
+
+class BlockInline(admin.TabularInline):
+    model = Block
+    fields = ['block_slot', 'template']
     show_change_link = True
     extra = 0
 
@@ -64,6 +72,7 @@ class BlockTemplateAdmin(admin.ModelAdmin):
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ['id', 'window', 'phase']
+    inlines = [BlockInline]
 
     @staticmethod
     def phase(obj):
