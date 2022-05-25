@@ -144,6 +144,12 @@ class Block(BaseModel):
     of the same assessor.
     """
 
+    schedule = models.ForeignKey(
+        'schedule.Schedule',
+        related_name='blocks',
+        on_delete=models.CASCADE
+    )
+
     block_slot = models.ForeignKey(
         'schedule.BlockSlot',
         related_name='blocks',

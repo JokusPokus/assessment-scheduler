@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import AssessmentPhase, Window, BlockSlot, BlockTemplate
+from .models import (
+    AssessmentPhase,
+    Window,
+    BlockSlot,
+    BlockTemplate,
+    Schedule,
+)
 from input.admin import PlanningSheetInline
 from staff.admin import AssessorInline
 
@@ -53,3 +59,12 @@ class AssessmentPhaseAdmin(admin.ModelAdmin):
 @admin.register(BlockTemplate)
 class BlockTemplateAdmin(admin.ModelAdmin):
     list_display = ['block_length', 'exam_length', 'exam_start_times']
+
+
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ['id', 'window', 'phase']
+
+    @staticmethod
+    def phase(obj):
+        return str(obj.window.assessment_phase)
