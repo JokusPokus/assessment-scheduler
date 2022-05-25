@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import (
     AssessmentPhase,
@@ -34,21 +35,24 @@ class BlockTemplateInline(admin.TabularInline):
 
 class BlockInline(admin.TabularInline):
     model = Block
-    fields = ['block_slot', 'template']
-    read_only_fields = ['exams']
+    readonly_fields = ['exams']
+    fields = ['block_slot', 'template', 'exams']
     show_change_link = True
     extra = 0
 
-    @staticmethod
-    def exams(obj):
+    @admin.display(description='Exams scheduled')
+    def exams(self, obj):
         exams = Exam.objects.filter(
             time_slot__in=obj.exam_slots.all()
         )
-        return "\n".join(
-            [
-                f"{exam.time_slot.start_time}: {exam.module.code} | {exam.student.email}"
-                for exam in exams
-            ]
+        return format_html(
+            "<br>".join(
+                [
+                    f"{exam.time_slot.start_time.strftime('%Y-%m-%d, %H:%M')}: "
+                    f"{exam.module.code} | {exam.student.email}"
+                    for exam in exams
+                ]
+            )
         )
 
 
