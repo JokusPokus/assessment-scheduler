@@ -3,7 +3,7 @@ Abstract base class for algorithm implementations.
 """
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Tuple
 
 from ..input_collectors import InputData
 from ..evaluators import Evaluator
@@ -22,9 +22,11 @@ class BaseAlgorithm(ABC):
         self.evaluator = evaluator
 
     @abstractmethod
-    def run(self) -> Schedule:
+    def run(self) -> Tuple[Schedule, Optional[int]]:
         """Solve the exam scheduling problem as defined by self.data and
         return the solution as a Schedule instance.
+
+        Optionally, include the evaluation of the schedule.
         """
         pass
 

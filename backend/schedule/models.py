@@ -137,6 +137,7 @@ class Schedule(BaseModel):
         related_name='schedules',
         on_delete=models.CASCADE
     )
+    penalty = models.PositiveIntegerField(null=True, blank=True)
 
 
 class Block(BaseModel):

@@ -46,10 +46,10 @@ class Scheduler:
 
         algorithm = self.algorithm_class(data, self.evaluator)
         try:
-            schedule = algorithm.run(verbose=True)
+            schedule, penalty = algorithm.run(verbose=True)
         except UnfeasibleInputError as e:
             print("Input does not allow for valid schedule!")
             raise e
 
-        DBOutputWriter(self.window, schedule).write_to_db()
+        DBOutputWriter(self.window, schedule, penalty).write_to_db()
         print("Schedule was written to database!")

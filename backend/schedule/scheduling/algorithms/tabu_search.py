@@ -418,7 +418,7 @@ class TabuSearch(BaseAlgorithm):
     the solution space while keeping track of a 'tabu list'.
     """
 
-    def run(self, verbose=False) -> Schedule:
+    def run(self, verbose=False) -> Tuple[Schedule, int]:
         logger = Logger(verbose=verbose)
         start_time = default_timer()
 
@@ -434,7 +434,7 @@ class TabuSearch(BaseAlgorithm):
 
         if absolute_best[1] == 0:
             logger.brag(0, start_time)
-            return current_solution
+            return current_solution, 0
 
         block_context = BlockSearchContext(current_solution)
 
@@ -452,7 +452,7 @@ class TabuSearch(BaseAlgorithm):
                 logger.log("(Skipped solution without neighbors)")
             else:
                 logger.brag(absolute_best[1], start_time)
-                return absolute_best[0]
+                return tuple(absolute_best)
 
             logger.log("\n******\nNEW BLOCK SEARCH\n******")
 
@@ -470,7 +470,7 @@ class TabuSearch(BaseAlgorithm):
 
                 if relative_best[1] == 0:
                     logger.brag(0, start_time)
-                    return current_solution
+                    return current_solution, 0
 
                 logger.log(f"\nNEW BLOCK NEIGHBOR: {relative_best[1]}\n")
 
@@ -489,7 +489,7 @@ class TabuSearch(BaseAlgorithm):
                     for exam_neighbor, penalty in scored_exam_neighbors:
                         if penalty == 0:
                             logger.brag(0, start_time)
-                            return exam_neighbor
+                            return exam_neighbor, 0
 
                         not_tabu = exam_neighbor.swapped_exam not in tabu_exams
                         aspiration_criterion_met = penalty < absolute_best[1]
@@ -518,7 +518,7 @@ class TabuSearch(BaseAlgorithm):
                             break
 
         logger.brag(absolute_best[1], start_time)
-        return absolute_best[0]
+        return tuple(absolute_best)
 
     def _get_scored_exam_neighbors_of(self, current_solution: Schedule):
         """Return a list of [exam_neighbor, penalty] lists, sorted
@@ -534,4 +534,5 @@ class TabuSearch(BaseAlgorithm):
 
     def _get_initial_solution(self) -> Schedule:
         """Construct an initial solution that is the base for the search."""
-        return RandomAssignment(self.data).run()
+        schedule, _ = RandomAssignment(self.data).run()
+        return schedule

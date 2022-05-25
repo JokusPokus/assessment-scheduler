@@ -16,12 +16,16 @@ from .schedule import Schedule, BlockSchedule, ExamSchedule
 
 class DBOutputWriter:
     """Writes a Schedule instance to a normalized database representation."""
-    def __init__(self, window: Window, schedule: Schedule):
+    def __init__(self, window: Window, schedule: Schedule, penalty: int):
         self.window = window
         self.schedule = schedule
+        self.penalty = penalty
 
     def write_to_db(self) -> None:
-        db_schedule = DBSchedule.objects.create(window=self.window)
+        db_schedule = DBSchedule.objects.create(
+            window=self.window,
+            penalty=self.penalty
+        )
 
         for slot_id, block_schedules in self.schedule.items():
             slot = BlockSlot.objects.get(id=slot_id)

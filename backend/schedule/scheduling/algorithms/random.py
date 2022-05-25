@@ -24,7 +24,7 @@ class RandomAssignment(BaseAlgorithm):
         super().__init__(data)
         self.slot_assigner = slot_assigner or BackTracking(data)
 
-    def run(self) -> Schedule:
+    def run(self) -> Tuple[Schedule, None]:
         """Using a back-tracking result for assessor-slot assignment,
         randomly assign concrete exams with conforming assessor and
         exam time.
@@ -32,7 +32,7 @@ class RandomAssignment(BaseAlgorithm):
         Return the resulting schedule, which is not guaranteed to be
         free of first-order conflicts.
         """
-        schedule = self.slot_assigner.run()
+        schedule, _ = self.slot_assigner.run()
 
         for slot, blocks in schedule.items():
             for block in blocks:
@@ -57,7 +57,7 @@ class RandomAssignment(BaseAlgorithm):
                     template.exam_length
                 )
 
-        return schedule
+        return schedule, None
 
     def _get_random_template_for(self, assessor: Assessor) -> BlockTemplate:
         """Randomly return one of the possible block templates that the

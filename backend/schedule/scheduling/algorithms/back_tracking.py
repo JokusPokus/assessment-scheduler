@@ -61,17 +61,18 @@ class BackTracking(BaseAlgorithm):
         super().__init__(data)
         self.heuristics = heuristics or SchedulingHeuristics()
 
-    def run(self) -> Schedule:
+    def run(self) -> Tuple[Schedule, None]:
         assessor_workload = self.data.assessor_workload
         for assessor in assessor_workload:
             assessor_workload[assessor]['remaining_workload'] = \
                 assessor_workload.remaining_blocks_of(assessor)
 
-        return self.back_track(
+        schedule = self.back_track(
             Schedule(),
             self.data.staff_avails,
             assessor_workload
         )
+        return schedule, None
 
     def back_track(
             self,
