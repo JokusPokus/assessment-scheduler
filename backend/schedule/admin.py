@@ -8,6 +8,7 @@ from .models import (
     Block,
     Schedule,
 )
+from exam.models import Exam
 from input.admin import PlanningSheetInline
 from staff.admin import AssessorInline
 
@@ -34,8 +35,21 @@ class BlockTemplateInline(admin.TabularInline):
 class BlockInline(admin.TabularInline):
     model = Block
     fields = ['block_slot', 'template']
+    read_only_fields = ['exams']
     show_change_link = True
     extra = 0
+
+    @staticmethod
+    def exams(obj):
+        exams = Exam.objects.filter(
+            time_slot__in=obj.exam_slots.all()
+        )
+        return "\n".join(
+            [
+                f"{exam.time_slot.start_time}: {exam.module.code} | {exam.student.email}"
+                for exam in exams
+            ]
+        )
 
 
 @admin.register(Window)
