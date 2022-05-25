@@ -96,17 +96,25 @@ class CSVOutputWriter:
             window=self.schedule.window,
             is_filled_out=True
         )
-        output_planning_sheet.csv.save(f'schedule.csv', temp_file)
+
+        output_planning_sheet.csv.save(self._file_name(), temp_file)
         output_planning_sheet.save()
 
-    def _schedule_decisions(self, row):
+    def _file_name(self) -> str:
+        """Return a descriptive name for the csv output file."""
+        phase = self.schedule.window.assessment_phase
+        window_pos = self.schedule.window.position
+        return f'schedule_{phase.semester}_{phase.year}' \
+               f'_window_{window_pos}.csv'
+
+    def _schedule_decisions(self, row) -> pd.Series:
         exam = Exam.objects.get(
             window=self.schedule.window,
             code=row['assessmentId']
         )
 
-        start_time = exam.time_slot.start_time.strftime('%Y-%m-%d, %H:%M')
-        end_time = exam.time_slot.end_time.strftime('%Y-%m-%d, %H:%M')
+        start_time = exam.time_slot.start_time.strftime('%Y-%m-%d %H:%M')
+        end_time = exam.time_slot.end_time.strftime('%Y-%m-%d %H:%M')
         helper = exam.helper.email if exam.helper else 'n.d.'
 
         return pd.Series([start_time, end_time, helper])
