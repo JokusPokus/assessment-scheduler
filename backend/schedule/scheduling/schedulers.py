@@ -8,6 +8,7 @@ from schedule.models import Window
 from .algorithms import BaseAlgorithm, TabuSearch, UnfeasibleInputError
 from .evaluators import Evaluator, ValidationError
 from .input_collectors import BaseInputCollector, DBInputCollector
+from .output_writers import DBOutputWriter
 
 
 class Scheduler:
@@ -50,4 +51,5 @@ class Scheduler:
             print("Input does not allow for valid schedule!")
             raise e
 
-        #print(schedule)
+        DBOutputWriter(self.window, schedule).write_to_db()
+        print("Schedule was written to database!")
