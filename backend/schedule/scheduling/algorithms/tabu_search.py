@@ -341,16 +341,14 @@ class BlockSearchContext(SearchContext):
             initial: Evaluator().penalty(initial)
         }
 
-    def best_block_neighbor_of_previous_iteration(self):
-        """Return the best block neighbor found in the last block
-        neighborhood iteration, together with its penalty.
-
-        A tuple with (best_schedule, penalty) is returned.
+    def ranked_block_neighbors_of_previous_iteration(self):
+        """Return the block neighbors found in the last block
+        neighborhood iteration, ranked by its optimal penalties.
         """
-        return min(
+        return sorted(
             self.best_penalties_of_block_neighbors.items(),
             key=lambda x: x[1]
-        )[0]
+        )
 
     def initialize_iteration(self) -> None:
         """Refresh the context for a new iteration of
@@ -444,14 +442,23 @@ class TabuSearch(BaseAlgorithm):
             if block_context.termination_criterion_met():
                 break
 
-            starting_point \
-                = block_context.best_block_neighbor_of_previous_iteration()
+            ranked_neighbors \
+                = block_context.ranked_block_neighbors_of_previous_iteration()
+
+            for potential, _ in ranked_neighbors:
+                block_neighborhood = BlockNeighborhood(potential)
+                if block_neighborhood:
+                    break
+                logger.log("(Skipped solution without neighbors)")
+            else:
+                logger.brag(absolute_best[1], start_time)
+                return absolute_best[0]
 
             logger.log("\n******\nNEW BLOCK SEARCH\n******")
 
             block_context.initialize_iteration()
 
-            for block_neighbor in BlockNeighborhood(starting_point):
+            for block_neighbor in block_neighborhood:
                 exam_context = ExamSearchContext(block_neighbor)
 
                 # Initialize exam search for the block neighbor
