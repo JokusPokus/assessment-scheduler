@@ -90,6 +90,7 @@ class BlockTemplateAdmin(admin.ModelAdmin):
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ['id', 'window', 'phase']
+    readonly_fields = ['penalty']
     inlines = [BlockInline]
 
     @staticmethod
