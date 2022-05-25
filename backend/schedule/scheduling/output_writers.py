@@ -1,7 +1,12 @@
 """
 Conversion of in-memory schedule to useful output formats
 """
+import pandas as pd
+
+from django.core.files.base import ContentFile
+
 from exam.models import Exam
+from input.models import PlanningSheet
 from schedule.models import (
     Window,
     Block,
@@ -21,7 +26,7 @@ class DBOutputWriter:
         self.schedule = schedule
         self.penalty = penalty
 
-    def write_to_db(self) -> None:
+    def write_to_db(self) -> DBSchedule:
         db_schedule = DBSchedule.objects.create(
             window=self.window,
             penalty=self.penalty
@@ -42,6 +47,8 @@ class DBOutputWriter:
                         block_schedule,
                         exam_schedule,
                     )
+
+        return db_schedule
 
     def _get_template_from(self, block_schedule) -> BlockTemplate:
         return self.window.block_templates.get(
@@ -74,5 +81,32 @@ class CSVOutputWriter:
         self.schedule = schedule
 
     def write_to_csv(self):
-        input_csv = self.schedule.window
-        pass
+        input_planning_sheet = self.schedule.window.planning_sheets.get(
+            is_filled_out=False
+        )
+
+        data = pd.read_csv(input_planning_sheet.csv.path, sep=',')
+        data[['startTime', 'endTime', 'assistant']] \
+            = data.apply(self._schedule_decisions, axis=1)
+
+        content = data.to_csv(index=False)
+        temp_file = ContentFile(content.encode('utf-8'))
+
+        output_planning_sheet = PlanningSheet(
+            window=self.schedule.window,
+            is_filled_out=True
+        )
+        output_planning_sheet.csv.save(f'schedule.csv', temp_file)
+        output_planning_sheet.save()
+
+    def _schedule_decisions(self, row):
+        exam = Exam.objects.get(
+            window=self.schedule.window,
+            code=row['assessmentId']
+        )
+
+        start_time = exam.time_slot.start_time.strftime('%Y-%m-%d, %H:%M')
+        end_time = exam.time_slot.end_time.strftime('%Y-%m-%d, %H:%M')
+        helper = exam.helper.email if exam.helper else 'n.d.'
+
+        return pd.Series([start_time, end_time, helper])

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -236,3 +238,8 @@ class ExamSlot(BaseModel):
         on_delete=models.CASCADE
     )
     start_time = models.DateTimeField()
+
+    @property
+    def end_time(self):
+        length = self.block.template.exam_length
+        return self.start_time + timedelta(minutes=length)
