@@ -1,6 +1,8 @@
 import io
 import pandas as pd
 
+from django.db import transaction
+
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
@@ -24,13 +26,19 @@ class PlanningSheetUploadView(generics.CreateAPIView):
         if not window_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        if not Window.objects.filter(
+        try:
+            window = Window.objects.get(
                 id=window_id,
                 assessment_phase__organization=request.user.organization
-        ).exists():
+            )
+        except Window.DoesNotExist:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        serializer = PlanningSheetSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        with transaction.atomic():
+            window.planning_sheets.filter(is_filled_out=False).delete()
+
+            serializer = PlanningSheetSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
         return Response(status=status.HTTP_200_OK)

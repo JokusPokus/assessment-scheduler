@@ -65,3 +65,14 @@ class DBOutputWriter:
         exam.time_slot = exam_slot
         exam.helper = block_schedule.helper
         exam.save()
+
+
+class CSVOutputWriter:
+    """Takes a normalized database schedule and writes it to a CSV file."""
+
+    def __init__(self, schedule: DBSchedule):
+        self.schedule = schedule
+
+    def write_to_csv(self):
+        input_csv = self.schedule.window
+        pass

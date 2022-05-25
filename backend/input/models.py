@@ -15,6 +15,7 @@ class PlanningSheet(BaseModel):
         on_delete=models.CASCADE
     )
     csv = models.FileField()
+    is_filled_out = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
