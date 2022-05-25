@@ -131,6 +131,14 @@ class BlockSlot(BaseModel):
         return f"{self.window}: {self.start_time.strftime('%Y-%m-%d, %H:%M')}"
 
 
+class Schedule(BaseModel):
+    window = models.ForeignKey(
+        'schedule.Window',
+        related_name='schedules',
+        on_delete=models.CASCADE
+    )
+
+
 class Block(BaseModel):
     """A collection of concrete back-to-back exams and breaks
     of the same assessor.
