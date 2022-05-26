@@ -1,11 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Row, Statistic} from "antd";
-import {httpTriggerScheduling, httpGetSchedulingStatus} from "../../../../../hooks/requests";
-import {DownloadOutlined} from "@ant-design/icons";
+import {Button, Col, Row, Statistic, Result} from "antd";
+import {
+    httpTriggerScheduling,
+    httpGetSchedulingStatus,
+    httpGetScheduleEvaluation, httpGetCSV,
+} from "../../../../../hooks/requests";
+import {DownloadOutlined, RocketOutlined} from "@ant-design/icons";
 import './ScheduleDashboard.css'
 
 
-const StatsRow = ({window}) => {
+const StatsRow = ({window, penalty}) => {
     const assessorsOk = window.total_assessors > 0
         && window.available_assessors === window.total_assessors;
 
@@ -81,9 +85,9 @@ const StatsRow = ({window}) => {
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard unblocked'}
+                        className={`statsCard ${penalty === null ? 'unblocked' : 'highlighted'}`}
                         title="Penalty"
-                        value={'-'}
+                        value={penalty === null ? '-' : penalty}
                     />
                 </Col>
             </Row>
@@ -92,91 +96,116 @@ const StatsRow = ({window}) => {
 };
 
 
-const ScheduleDashboard = ({window}) => {
-    const Status = {
-        IDLE: 'idle',
-        ONGOING: 'ongoing',
-        DONE: 'done'
-    };
+const ScheduleDashboard = ({window: schedWindow}) => {
+        const Status = {
+            IDLE: 'idle',
+            ONGOING: 'ongoing',
+            DONE: 'done'
+        };
 
-    const [schedulingStatus, setSchedulingStatus] = useState(Status.IDLE);
+        const [schedulingStatus, setSchedulingStatus] = useState(Status.IDLE);
+        const [penalty, setPenalty] = useState(null);
 
-    useEffect(async () => {
-        const response = await httpGetSchedulingStatus(window.id)();
-        const payload = await response.json();
-        setSchedulingStatus(payload.scheduling_status);
-        console.log('SET')
-    }, []);
-
-    const getScheduleStatus = async () => {
-        setTimeout(async () => {
-            const response = await httpGetSchedulingStatus(window.id)();
+        useEffect(async () => {
+            const response = await httpGetSchedulingStatus(schedWindow.id)();
             const payload = await response.json();
+            setSchedulingStatus(payload.scheduling_status);
+        }, []);
 
-            if (payload.scheduling_status !== Status.ONGOING) {
-                setSchedulingStatus(payload.scheduling_status);
-            } else {
+        useEffect(async () => {
+            if (schedulingStatus === Status.DONE) {
+                const response = await httpGetScheduleEvaluation(schedWindow.id)();
+                const payload = await response.json();
+                setPenalty(payload.penalty);
+            }
+        }, [schedulingStatus]);
+
+        const getScheduleStatus = async () => {
+            setTimeout(async () => {
+                const response = await httpGetSchedulingStatus(schedWindow.id)();
+                const payload = await response.json();
+
+                if (payload.scheduling_status !== Status.ONGOING) {
+                    setSchedulingStatus(payload.scheduling_status);
+                } else {
+                    await getScheduleStatus();
+                }
+            }, 10000);
+        };
+
+        useEffect(async () => {
+            if (schedulingStatus === Status.ONGOING) {
                 await getScheduleStatus();
             }
-        }, 10000);
-    };
+        }, [schedulingStatus]);
 
-    useEffect(async () => {
-        if (schedulingStatus === Status.ONGOING) {
-            await getScheduleStatus();
-        }
-    }, [schedulingStatus]);
+        const scheduleConditions = [
+            schedWindow.total_assessors > 0,
+            schedWindow.available_assessors === schedWindow.total_assessors,
+            schedWindow.csv_uploaded
+        ];
 
-    const scheduleConditions = [
-        window.total_assessors > 0,
-        window.available_assessors === window.total_assessors,
-        window.csv_uploaded
-    ];
+        const goodToGo = scheduleConditions.every(Boolean);
 
-    const goodToGo = scheduleConditions.every(Boolean);
+        useEffect(async () => {
+            if (schedulingStatus === Status.ONGOING) {
+                await httpTriggerScheduling(schedWindow.id)();
+            }
+        }, [schedulingStatus]);
 
-    useEffect(async () => {
-        if (schedulingStatus === Status.ONGOING) {
-            await httpTriggerScheduling(window.id)();
-        }
-    }, [schedulingStatus]);
+        const downloadCSV = async () => {
+            const response = await httpGetCSV(schedWindow.id)();
+            const blob = await response.blob();
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'schedule.csv';
+            a.click();
+        };
 
-    return (
-        <>
-            <div>{schedulingStatus}</div>
-            <StatsRow window={window}/>
-            <Button
-                id={goodToGo ? '' : 'schedulingBlocked'}
-                className={"fade-in"}
-                type="primary"
-                shape="round"
-                size="large"
-                style={{
-                    marginTop: "30px",
-                    marginBottom: "30px",
-                    marginRight: "30px"
-                }}
-                disabled={!goodToGo}
-                onClick={() => setSchedulingStatus(Status.ONGOING)}
-            >
-                <strong>Trigger scheduling process</strong>
-            </Button>
-            <Button
-                className={'fade-in'}
-                type="primary"
-                shape="round"
-                size="large"
-                disabled={schedulingStatus !== Status.DONE}
-                style={{
-                    marginTop: "30px",
-                    marginBottom: "30px"
-                }}
-                icon={<strong><DownloadOutlined/> </strong>}
-            >
-                <strong>Download CSV</strong>
-            </Button>
-        </>
-    )
-};
+        return (
+            <>
+                {schedulingStatus === Status.DONE &&
+                <Result
+                    className={'fade-in'}
+                    icon={<RocketOutlined/>}
+                    title="Looks like we found a solution!"
+                    style={{paddingBottom: '0'}}
+                    extra={<Button
+                        className={'fade-in'}
+                        type="primary"
+                        shape="round"
+                        size="large"
+                        style={{
+                            marginTop: "30px",
+                        }}
+                        icon={<strong><DownloadOutlined/> </strong>}
+                        onClick={() => downloadCSV()}
+                    >
+                        <strong>Download CSV</strong>
+                    </Button>}
+                />
+                }
+                <StatsRow window={schedWindow} penalty={penalty}/>
+                <Button
+                    id={goodToGo ? '' : 'schedulingBlocked'}
+                    className={"fade-in"}
+                    type="primary"
+                    shape="round"
+                    size="large"
+                    style={{
+                        marginTop: "30px",
+                        marginBottom: "30px"
+                    }}
+                    disabled={!goodToGo}
+                    loading={schedulingStatus === Status.ONGOING}
+                    onClick={() => setSchedulingStatus(Status.ONGOING)}
+                >
+                    <strong>Trigger scheduling process</strong>
+                </Button>
+            </>
+        )
+    }
+;
 
 export default ScheduleDashboard;

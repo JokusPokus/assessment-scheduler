@@ -12,6 +12,10 @@
     box-shadow: #cf1322 0 4px 8px;
 }
 
+.highlighted {
+    box-shadow: #1890ff 0 4px 8px;
+}
+
 #schedulingBlocked {
     box-shadow: #cf1322 0 2px 4px;
 }
