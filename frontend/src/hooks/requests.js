@@ -51,6 +51,11 @@ export const httpGetModules = (windowId) => {
     return httpApiCall('GET', path, null);
 };
 
+export const httpGetSchedulingStatus = (windowId) => {
+    const path = `schedules/windows/${windowId}/scheduling-status/`;
+    return httpApiCall('GET', path, null);
+};
+
 export const httpPostStaffAvails = (windowId, body, apiResourceName) => {
     const path = `schedules/windows/${windowId}/add-staff-availabilities/?resource=${apiResourceName}`;
     return httpApiCall('POST', path, body);

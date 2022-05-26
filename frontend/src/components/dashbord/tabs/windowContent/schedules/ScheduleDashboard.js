@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Col, Row, Statistic} from "antd";
-import {httpTriggerScheduling} from "../../../../../hooks/requests";
+import {httpTriggerScheduling, httpGetSchedulingStatus} from "../../../../../hooks/requests";
 import {DownloadOutlined} from "@ant-design/icons";
 import './ScheduleDashboard.css'
 
@@ -93,6 +93,39 @@ const StatsRow = ({window}) => {
 
 
 const ScheduleDashboard = ({window}) => {
+    const Status = {
+        IDLE: 'idle',
+        ONGOING: 'ongoing',
+        DONE: 'done'
+    };
+
+    const [schedulingStatus, setSchedulingStatus] = useState(Status.IDLE);
+
+    useEffect(async () => {
+        const response = await httpGetSchedulingStatus(window.id)();
+        const payload = await response.json();
+        setSchedulingStatus(payload.scheduling_status);
+        console.log('SET')
+    }, []);
+
+    const getScheduleStatus = async () => {
+        setTimeout(async () => {
+            const response = await httpGetSchedulingStatus(window.id)();
+            const payload = await response.json();
+
+            if (payload.scheduling_status !== Status.ONGOING) {
+                setSchedulingStatus(payload.scheduling_status);
+            } else {
+                await getScheduleStatus();
+            }
+        }, 10000);
+    };
+
+    useEffect(async () => {
+        if (schedulingStatus === Status.ONGOING) {
+            await getScheduleStatus();
+        }
+    }, [schedulingStatus]);
 
     const scheduleConditions = [
         window.total_assessors > 0,
@@ -102,13 +135,16 @@ const ScheduleDashboard = ({window}) => {
 
     const goodToGo = scheduleConditions.every(Boolean);
 
-    const triggerScheduling = async () => {
-        await httpTriggerScheduling(window.id)();
-    };
+    useEffect(async () => {
+        if (schedulingStatus === Status.ONGOING) {
+            await httpTriggerScheduling(window.id)();
+        }
+    }, [schedulingStatus]);
 
     return (
         <>
-            <StatsRow window={window} />
+            <div>{schedulingStatus}</div>
+            <StatsRow window={window}/>
             <Button
                 id={goodToGo ? '' : 'schedulingBlocked'}
                 className={"fade-in"}
@@ -121,7 +157,7 @@ const ScheduleDashboard = ({window}) => {
                     marginRight: "30px"
                 }}
                 disabled={!goodToGo}
-                onClick={triggerScheduling}
+                onClick={() => setSchedulingStatus(Status.ONGOING)}
             >
                 <strong>Trigger scheduling process</strong>
             </Button>
@@ -130,13 +166,12 @@ const ScheduleDashboard = ({window}) => {
                 type="primary"
                 shape="round"
                 size="large"
-                disabled={true}
+                disabled={schedulingStatus !== Status.DONE}
                 style={{
                     marginTop: "30px",
-                    marginBottom: "30px",
-
+                    marginBottom: "30px"
                 }}
-                icon={<strong><DownloadOutlined /> </strong>}
+                icon={<strong><DownloadOutlined/> </strong>}
             >
                 <strong>Download CSV</strong>
             </Button>
