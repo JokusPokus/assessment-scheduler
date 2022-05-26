@@ -108,7 +108,7 @@ class WindowSerializer(serializers.ModelSerializer):
         """Return the number of assessors with exams to be scheduled in
         this window who already have at least one availability recorded.
         """
-        return obj.assessor.filter(available_blocks__isnull=False).distinct().count()
+        return obj.assessor.filter(available_blocks__window=obj).distinct().count()
 
     @staticmethod
     def get_total_exams(obj) -> int:

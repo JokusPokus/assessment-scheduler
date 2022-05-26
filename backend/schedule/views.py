@@ -1,6 +1,7 @@
 from typing import Type, Union
 
 from django.db import transaction
+from django.http import HttpResponse
 
 from rest_framework.decorators import action
 from rest_framework.mixins import CreateModelMixin
@@ -261,7 +262,7 @@ class WindowViewSet(ModelViewSet):
         except PlanningSheet.DoesNotExist:
             return Response(HTTP_404_NOT_FOUND)
 
-        response = Response(
+        response = HttpResponse(
             planning_sheet.csv,
             content_type='text/csv',
             status=HTTP_200_OK
