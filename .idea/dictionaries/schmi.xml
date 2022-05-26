@@ -2,8 +2,12 @@
   <dictionary name="schmi">
     <words>
       <w>checkable</w>
+      <w>confs</w>
+      <w>disjunct</w>
       <w>dragger</w>
       <w>incomp</w>
+      <w>indeces</w>
+      <w>insufficiencies</w>
       <w>pytestmark</w>
       <w>tabu</w>
     </words>

@@ -72,8 +72,6 @@ const WindowSteps = ({window, setPhaseData}) => {
             title: 'Schedule',
             content: <ScheduleDashboard
                 window={window}
-                windowStep={current}
-                setWindowStep={setCurrent}
             />,
             icon: <DownloadOutlined />
         },
