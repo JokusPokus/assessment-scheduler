@@ -8,7 +8,7 @@ import AvailChecks from "./AvailChecks";
 import {NextStepButton, SaveButton} from "../Buttons";
 
 
-const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensible}) => {
+const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensible, setPhaseData}) => {
     const emailColumn = [
         {
             title: 'Email',
@@ -152,6 +152,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                 message.success(`You successfully saved ${apiResourceName} availabilities.`);
                 setStatus(processStatus.SUCCESS);
                 await getStaff();
+                await setPhaseData();
             } else {
                 message.error("Something went wrong...");
                 setStatus(processStatus.FAILURE);

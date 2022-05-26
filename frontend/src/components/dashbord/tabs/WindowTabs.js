@@ -105,7 +105,7 @@ const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
                             closable={true}
                             closeIcon={<EditOutlined/>}
                         >
-                            <WindowContent window={pane} setPhaseData={setPhaseData}/>
+                            <WindowContent phase={currentPhase} window={pane} setPhaseData={setPhaseData}/>
                         </TabPane>
                     ))}
                 </Tabs>

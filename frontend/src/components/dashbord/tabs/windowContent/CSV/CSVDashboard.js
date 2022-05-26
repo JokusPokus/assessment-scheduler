@@ -16,7 +16,8 @@ const CSVDashboard = ({
                           uploadSuccess,
                           setUploadSuccess,
                           uploadErrors,
-                          setUploadErrors
+                          setUploadErrors,
+                          setPhaseData
                       }) => {
 
     const [isUploading, setIsUploading] = useState(false);
@@ -39,6 +40,7 @@ const CSVDashboard = ({
         setTimeout(async () => {
             if (response.status === 200) {
                 setUploadSuccess(true);
+                setPhaseData();
             } else if (response.status === 400) {
                 const body = await response.json();
                 if ('csv' in body) {

@@ -12,7 +12,7 @@ import ScheduleDashboard from "./schedules/ScheduleDashboard";
 const {Step} = Steps;
 
 
-const WindowSteps = ({window, setPhaseData}) => {
+const WindowSteps = ({phase, window, setPhaseData}) => {
     const [current, setCurrent] = useState(0);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadErrors, setUploadErrors] = useState({});
@@ -28,6 +28,7 @@ const WindowSteps = ({window, setPhaseData}) => {
                 setUploadSuccess={setUploadSuccess}
                 uploadErrors={uploadErrors}
                 setUploadErrors={setUploadErrors}
+                setPhaseData={setPhaseData}
             />,
             icon: <UploadOutlined />
         },
@@ -47,6 +48,7 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
+                setPhaseData={setPhaseData}
             />,
             icon: <TeamOutlined />
         },
@@ -56,6 +58,7 @@ const WindowSteps = ({window, setPhaseData}) => {
                 window={window}
                 windowStep={current}
                 setWindowStep={setCurrent}
+                setPhaseData={setPhaseData}
             />,
             icon: <HeartOutlined />
         },
@@ -71,6 +74,7 @@ const WindowSteps = ({window, setPhaseData}) => {
         {
             title: 'Schedule',
             content: <ScheduleDashboard
+                phase={phase}
                 window={window}
             />,
             icon: <DownloadOutlined />

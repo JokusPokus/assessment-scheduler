@@ -3,7 +3,7 @@ import './HelperDashboard.css'
 import StaffTable from "./StaffTable";
 
 
-const HelperDashboard = ({window, windowStep, setWindowStep}) => {
+const HelperDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
     return (
         <StaffTable
             window={window}
@@ -11,6 +11,7 @@ const HelperDashboard = ({window, windowStep, setWindowStep}) => {
             setWindowStep={setWindowStep}
             apiResourceName={'helpers'}
             extensible={true}
+            setPhaseData={setPhaseData}
         />
     )
 };

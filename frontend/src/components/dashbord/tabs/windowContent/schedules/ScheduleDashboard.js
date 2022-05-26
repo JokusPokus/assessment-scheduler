@@ -96,7 +96,7 @@ const StatsRow = ({window, penalty}) => {
 };
 
 
-const ScheduleDashboard = ({window: schedWindow}) => {
+const ScheduleDashboard = ({phase, window: schedWindow}) => {
         const Status = {
             IDLE: 'idle',
             ONGOING: 'ongoing',
@@ -156,10 +156,10 @@ const ScheduleDashboard = ({window: schedWindow}) => {
         const downloadCSV = async () => {
             const response = await httpGetCSV(schedWindow.id)();
             const blob = await response.blob();
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement('a');
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
             a.href = url;
-            a.download = 'schedule.csv';
+            a.download = `schedule_${phase.semester}_${phase.year}_window_${schedWindow.position}`;
             a.click();
         };
 
