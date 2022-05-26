@@ -5,7 +5,10 @@ import {DownloadOutlined} from "@ant-design/icons";
 import './ScheduleDashboard.css'
 
 
-const StatsRow = () => {
+const StatsRow = ({window}) => {
+    const assessorsOk = window.total_assessors > 0
+        && window.available_assessors === window.total_assessors;
+
     return (
         <>
             <Row
@@ -14,32 +17,31 @@ const StatsRow = () => {
             >
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="Start date"
-                        value={'12-12-2022'}
+                        value={window.start_date}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="End date"
-                        value={'24-12-2022'}
+                        value={window.end_date}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="Block length"
-                        value={180}
+                        value={window.block_length}
                         suffix="min"
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="Exams to schedule"
-                        value={19}
-                        valueStyle={{ color: '#3f8600' }}
+                        value={window.total_exams}
                     />
                 </Col>
             </Row>
@@ -49,35 +51,39 @@ const StatsRow = () => {
             >
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={`statsCard ${window.csv_uploaded ? 'unblocked' : 'blocked'}`}
                         title="CSV sheet"
-                        value={`OK`}
-                        valueStyle={{ color: '#3f8600' }}
+                        value={window.csv_uploaded ? "OK" : "missing"}
+                        valueStyle={{
+                            color: window.csv_uploaded ? '#3f8600' : '#cf1322'
+                        }}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={`statsCard ${assessorsOk ? 'unblocked' : 'blocked'}`}
                         title="Assessor availabilities"
-                        value={5}
-                        suffix={`/ 6`}
-                        valueStyle={{ color: '#cf1322' }}
+                        value={window.available_assessors}
+                        suffix={`/ ${window.total_assessors}`}
+                        valueStyle={{
+                            color: assessorsOk
+                                ? '#3f8600'
+                                : '#cf1322'
+                        }}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="Helpers"
-                        value={4}
-                        valueStyle={{ color: '#3f8600' }}
+                        value={window.total_helpers}
                     />
                 </Col>
                 <Col span={6}>
                     <Statistic
-                        className={'statsCard'}
+                        className={'statsCard unblocked'}
                         title="Penalty"
                         value={'-'}
-                        valueStyle={{ color: '#3f8600' }}
                     />
                 </Col>
             </Row>
@@ -87,15 +93,25 @@ const StatsRow = () => {
 
 
 const ScheduleDashboard = ({window}) => {
+
+    const scheduleConditions = [
+        window.total_assessors > 0,
+        window.available_assessors === window.total_assessors,
+        window.csv_uploaded
+    ];
+
+    const goodToGo = scheduleConditions.every(Boolean);
+
     const triggerScheduling = async () => {
         await httpTriggerScheduling(window.id)();
     };
 
     return (
         <>
-            <StatsRow/>
+            <StatsRow window={window} />
             <Button
-                className={'fade-in'}
+                id={goodToGo ? '' : 'schedulingBlocked'}
+                className={"fade-in"}
                 type="primary"
                 shape="round"
                 size="large"
@@ -104,6 +120,7 @@ const ScheduleDashboard = ({window}) => {
                     marginBottom: "30px",
                     marginRight: "30px"
                 }}
+                disabled={!goodToGo}
                 onClick={triggerScheduling}
             >
                 <strong>Trigger scheduling process</strong>

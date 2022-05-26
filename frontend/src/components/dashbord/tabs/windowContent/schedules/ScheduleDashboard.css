@@ -1,6 +1,17 @@
 .statsCard {
-    box-shadow: rgba(0, 0, 0, 0.08) 0 4px 12px;
     margin: auto 40px;
     padding-top: 20px;
     padding-bottom: 20px;
+}
+
+.unblocked {
+    box-shadow: rgba(0, 0, 0, 0.08) 0 4px 8px;
+}
+
+.blocked {
+    box-shadow: #cf1322 0 4px 8px;
+}
+
+#schedulingBlocked {
+    box-shadow: #cf1322 0 2px 4px;
 }
