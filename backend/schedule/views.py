@@ -187,7 +187,12 @@ class WindowViewSet(ModelViewSet):
         window.scheduling_ongoing = True
         window.save()
 
-        Scheduler(window).run()
+        try:
+            Scheduler(window).run()
+        except Exception as e:
+            window.scheduling_ongoing = False
+            window.save()
+            raise e
 
         window.scheduling_ongoing = False
         window.save()
