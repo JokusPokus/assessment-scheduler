@@ -21,6 +21,7 @@ from .serializers import (
     BlockSlotSerializer
 )
 from .utils.datetime import combine
+from input.models import PlanningSheet
 from staff.models import Assessor, Helper, Staff
 
 
@@ -228,7 +229,7 @@ class WindowViewSet(ModelViewSet):
         url_path='schedule-evaluation'
     )
     def schedule_evaluation(self, request, pk=None):
-        """Determine a window's scheduling status."""
+        """Get the window's latest schedule's evaluation stats."""
         window = self.get_object()
 
         try:
@@ -242,6 +243,31 @@ class WindowViewSet(ModelViewSet):
             {'penalty': penalty},
             status=HTTP_200_OK
         )
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='get-csv',
+        url_path='get-csv'
+    )
+    def get_csv(self, request, pk=None):
+        """Get the window's latest csv planning sheet."""
+        window = self.get_object()
+
+        try:
+            planning_sheet = window.planning_sheets\
+                .filter(is_filled_out=True)\
+                .latest('created')
+        except PlanningSheet.DoesNotExist:
+            return Response(HTTP_404_NOT_FOUND)
+
+        response = Response(
+            planning_sheet.csv,
+            content_type='text/csv',
+            status=HTTP_200_OK
+        )
+        response['Content-Disposition'] = f'attachment; filename={planning_sheet.csv.name}'
+        return response
 
     @staticmethod
     def _delete_obsolete_slots(window, window_ids):
