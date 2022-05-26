@@ -12,7 +12,7 @@ from rest_framework.status import (
 )
 from rest_framework.viewsets import ModelViewSet
 
-from .models import AssessmentPhase, Window, BlockSlot
+from .models import AssessmentPhase, Window, BlockSlot, Schedule
 from .scheduling import Scheduler
 from .serializers import (
     AssessmentPhaseDetailSerializer,
@@ -218,6 +218,28 @@ class WindowViewSet(ModelViewSet):
 
         return Response(
             {'scheduling_status': scheduling_status},
+            status=HTTP_200_OK
+        )
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='schedule-evaluation',
+        url_path='schedule-evaluation'
+    )
+    def schedule_evaluation(self, request, pk=None):
+        """Determine a window's scheduling status."""
+        window = self.get_object()
+
+        try:
+            schedule = window.schedules.latest('created')
+        except Schedule.DoesNotExist:
+            penalty = None
+        else:
+            penalty = schedule.penalty
+
+        return Response(
+            {'penalty': penalty},
             status=HTTP_200_OK
         )
 
