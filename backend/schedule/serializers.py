@@ -75,10 +75,50 @@ class WindowSerializer(serializers.ModelSerializer):
         read_only=True,
         source='get_csv_uploaded'
     )
+    total_assessors = serializers.SerializerMethodField(
+        read_only=True,
+        source='get_total_assessors'
+    )
+    available_assessors = serializers.SerializerMethodField(
+        read_only=True,
+        source='get_available_assessors'
+    )
+    total_exams = serializers.SerializerMethodField(
+        read_only=True,
+        source='get_total_exams'
+    )
+    total_helpers = serializers.SerializerMethodField(
+        read_only=True,
+        source='get_total_helpers'
+    )
 
     @staticmethod
-    def get_csv_uploaded(obj):
-        return obj.planning_sheets.all().exists()
+    def get_csv_uploaded(obj) -> bool:
+        return obj.planning_sheets.filter(is_filled_out=False).exists()
+
+    @staticmethod
+    def get_total_assessors(obj) -> int:
+        """Return the number of assessors with exams to be scheduled in
+        this window.
+        """
+        return obj.assessor.all().count()
+
+    @staticmethod
+    def get_available_assessors(obj) -> int:
+        """Return the number of assessors with exams to be scheduled in
+        this window who already have at least one availability recorded.
+        """
+        return obj.assessor.filter(available_blocks__isnull=False).count()
+
+    @staticmethod
+    def get_total_exams(obj) -> int:
+        """Return the number of exams to be scheduled in this window."""
+        return obj.exams.all().count()
+
+    @staticmethod
+    def get_total_helpers(obj) -> int:
+        """Return the number of helpers available in this window."""
+        return obj.helper.all().count()
 
     class Meta:
         model = Window
@@ -90,7 +130,11 @@ class WindowSerializer(serializers.ModelSerializer):
             'end_date',
             'block_length',
             'block_slots',
-            'csv_uploaded'
+            'csv_uploaded',
+            'total_assessors',
+            'available_assessors',
+            'total_exams',
+            'total_helpers',
         ]
 
     @staticmethod
