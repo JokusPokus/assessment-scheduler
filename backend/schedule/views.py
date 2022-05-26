@@ -184,9 +184,37 @@ class WindowViewSet(ModelViewSet):
     )
     def trigger_scheduling(self, request, pk=None):
         window = self.get_object()
+        window.scheduling_ongoing = True
+        window.save()
+
         Scheduler(window).run()
 
+        window.scheduling_ongoing = False
+        window.save()
+
         return Response(HTTP_200_OK)
+
+    @action(
+        methods=['get'],
+        detail=True,
+        url_name='scheduling-status',
+        url_path='scheduling-status'
+    )
+    def scheduling_status(self, request, pk=None):
+        """Determine a window's scheduling status."""
+        window = self.get_object()
+
+        if window.scheduling_ongoing:
+            scheduling_status = 'ongoing'
+        elif window.planning_sheets.filter(is_filled_out=True).exists():
+            scheduling_status = 'done'
+        else:
+            scheduling_status = 'idle'
+
+        return Response(
+            {'scheduling_status': scheduling_status},
+            status=HTTP_200_OK
+        )
 
     @staticmethod
     def _delete_obsolete_slots(window, window_ids):

@@ -93,6 +93,8 @@ class Window(BaseModel):
         ]
     )
 
+    scheduling_ongoing = models.BooleanField(default=False)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
