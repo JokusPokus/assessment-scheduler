@@ -13,6 +13,7 @@ defusedxml==0.7.1
 Django==4.0.3
 django-admin==2.0.1
 django-cors-headers==3.11.0
+django-environ==0.8.1
 django-excel-base==1.0.4
 django-excel-response2==3.0.2
 django-six==1.0.4
