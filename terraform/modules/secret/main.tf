@@ -17,8 +17,3 @@ resource google_secret_manager_secret_iam_binding secret {
   role      = "roles/secretmanager.secretAccessor"
   members   = var.accessors
 }
-
-resource "google_kms_key_ring" "keyring" {
-  name     = "fairvote-keyring"
-  location = "europe-west3"
-}
