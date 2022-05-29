@@ -1,3 +1,3 @@
-service       = "CODEscheduler"
-project       = "CODEscheduler"
+service       = "codescheduler"
+project       = "codescheduler"
 instance_name = "postgresql"

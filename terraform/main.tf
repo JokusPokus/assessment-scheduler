@@ -62,7 +62,7 @@ module "backing" {
 }
 
 module "codescheduler" {
-  source = "./modules/CODEscheduler"
+  source = "./modules/codescheduler"
 
   project               = module.services.project_id
   service               = var.service

@@ -1,4 +1,4 @@
-resource google_cloud_run_service CODEscheduler {
+resource google_cloud_run_service codescheduler {
   name                       = var.service
   location                   = var.region
   autogenerate_revision_name = true
@@ -38,9 +38,9 @@ data google_iam_policy noauth {
 }
 
 resource google_cloud_run_service_iam_policy noauth {
-  location = google_cloud_run_service.CODEscheduler.location
-  project  = google_cloud_run_service.CODEscheduler.project
-  service  = google_cloud_run_service.CODEscheduler.name
+  location = google_cloud_run_service.codescheduler.location
+  project  = google_cloud_run_service.codescheduler.project
+  service  = google_cloud_run_service.codescheduler.name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
