@@ -1,0 +1,107 @@
+name: Deploy to Prod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/*.backend.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/*.backend.yml"
+
+env:
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  SERVICE_NAME: codescheduler
+  RUN_REGION: europe-west3
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  pull-test:
+    name: Integration and acceptance testing of latest dev container
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    env:
+      IMAGE_NAME: gcr.io/codescheduler/codescheduler:dev-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: accounts
+        ports:
+          - 5496:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to GCR
+        uses: docker/login-action@v1
+        with:
+          registry: gcr.io
+          username: _json_key
+          password: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Build container
+        run: docker run -d $IMAGE_NAME
+
+      - name: Run migrations
+        run: docker run -e DATABASE_HOST='172.17.0.1' $IMAGE_NAME sh -c "python manage.py migrate"
+
+      - name: Run unit tests
+        run: docker run -e DATABASE_HOST='172.17.0.1' $IMAGE_NAME sh -c "pytest -m unit"
+
+      - name: Run integration tests
+        run: docker run -e DATABASE_HOST='172.17.0.1' $IMAGE_NAME sh -c "pytest -m integration"
+
+      - name: Run acceptance tests
+        run: docker run -e DATABASE_HOST='172.17.0.1' $IMAGE_NAME sh -c "pytest -m acceptance"
+
+  migrate-deploy:
+    name: Migrate prod db and deploy latest dev image to production
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    env:
+      IMAGE_NAME: gcr.io/codescheduler/codescheduler
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: '275.0.0'
+          service_account_email: ${{ secrets.SA_EMAIL }}
+          service_account_key: ${{ secrets.GOOGLE_CREDENTIALS}}
+
+      - name: Configure gcloud CLI
+        run: |
+          gcloud config set project ${{ secrets.PROJECT_ID }}
+
+      - name: Add prod tag to latest dev image
+        run: |
+          gcloud container images add-tag $IMAGE_NAME:dev-latest \
+            $IMAGE_NAME:prod-latest
+
+      - name: Migrate
+        run: |
+          gcloud builds submit \
+            --config ./.cloudbuild/migrate.yaml
+
+      - name: Deploy
+        run: |
+          gcloud run deploy codescheduler \
+            --region europe-west3 \
+            --image $IMAGE_NAME:prod-latest \
+            --platform managed

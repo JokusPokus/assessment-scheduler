@@ -1,0 +1,16 @@
+steps:
+    - id: 'migrate'
+      name: 'gcr.io/google-appengine/exec-wrapper'
+      args: ['-i', 'gcr.io/${PROJECT_ID}/${_SERVICE}:prod-latest',
+             '-s', '${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}',
+             '-e', 'PROJECT_ID=${PROJECT_ID}',
+             "-e", "APPLICATION_STAGE=production",
+             "--", "python", "manage.py", "migrate"]
+
+images:
+ - "gcr.io/$PROJECT_ID/${_SERVICE}:prod-latest"
+
+substitutions:
+   _SERVICE: codescheduler
+   _REGION: europe-west3
+   _INSTANCE_NAME: postgresql
