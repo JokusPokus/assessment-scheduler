@@ -47,7 +47,7 @@ else:
 
 ALLOWED_HOSTS = [
                     "127.0.0.1",
-                    "codescheduler-ckbpvgq2sq-ey.a.run.app/"
+                    "codescheduler-ckbpvgq2sq-ey.a.run.app"
                 ] + HOSTS
 
 # CORS_ALLOWED_ORIGINS = []
