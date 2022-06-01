@@ -45,7 +45,10 @@ else:
     HOSTS = ["localhost"]
 
 
-ALLOWED_HOSTS = ["127.0.0.1"] + HOSTS
+ALLOWED_HOSTS = [
+                    "127.0.0.1",
+                    "https://codescheduler-ckbpvgq2sq-ey.a.run.app/"
+                ] + HOSTS
 
 # CORS_ALLOWED_ORIGINS = []
 # CSRF_TRUSTED_ORIGINS = []
