@@ -158,7 +158,7 @@ class Neighborhood(ABC, UserList):
     @abstractmethod
     def _set_neighbors(self) -> None:
         """Set the self.data attribute with all neighbors of the schedule
-        that shall be considered in the search's next iteration.
+        that shall be considered in the next search iteration.
         """
         pass
 
