@@ -6,6 +6,7 @@ variable "project" {
 variable "service" {
   description = "Name of the service"
   type        = string
+  default     = "examsched"
 }
 
 variable "region" {
@@ -16,4 +17,5 @@ variable "region" {
 variable "instance_name" {
   description = "Name of the postgres instance (PROJECT_ID:REGION:INSTANCE_NAME))"
   type        = string
+  default     = "psql"
 }

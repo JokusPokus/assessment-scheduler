@@ -1,2 +1,0 @@
-DATABASE_URL="${database_url}"
-SECRET_KEY="${secret_key}"
