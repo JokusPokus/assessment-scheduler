@@ -16,7 +16,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  SERVICE_NAME: codescheduler
+  SERVICE_NAME: examsched
   RUN_REGION: europe-west3
 
 defaults:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     env:
-      IMAGE_NAME: gcr.io/codescheduler/codescheduler:dev-latest
+      IMAGE_NAME: gcr.io/examsched/examsched:dev-latest
 
     services:
       postgres:
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
     env:
-      IMAGE_NAME: gcr.io/codescheduler/codescheduler
+      IMAGE_NAME: gcr.io/examsched/examsched
 
     steps:
       - name: Checkout code
@@ -101,7 +101,7 @@ jobs:
 
       - name: Deploy
         run: |
-          gcloud run deploy codescheduler \
+          gcloud run deploy examsched \
             --region europe-west3 \
             --image $IMAGE_NAME:prod-latest \
             --platform managed

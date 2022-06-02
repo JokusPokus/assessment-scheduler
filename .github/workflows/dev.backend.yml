@@ -86,9 +86,9 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     env:
       PROJECT_ID: ${{ secrets.PROJECT_ID }}
-      SERVICE_NAME: codescheduler
+      SERVICE_NAME: examsched
       RUN_REGION: europe-west3
-      IMAGE_NAME: gcr.io/codescheduler/codescheduler
+      IMAGE_NAME: gcr.io/examsched/examsched
       DATABASE_HOST: postgres
 
     services:
