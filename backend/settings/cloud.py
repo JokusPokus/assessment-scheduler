@@ -55,8 +55,9 @@ ALLOWED_HOSTS = [
 
 # Storage
 # define the default file storage for static files
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 STATICFILES_STORAGE = 'core.storage.backends.GoogleCloudStaticStorage'
-GS_STATIC_BUCKET_NAME = 'codescheduler-media'
+GS_STATIC_BUCKET_NAME = 'examsched-media'
 STATIC_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
 
 
