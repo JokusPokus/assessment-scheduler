@@ -167,7 +167,7 @@ class ExamNeighborhood(Neighborhood):
     """Defines the neighborhood of a schedule w.r.t. swapping single exams.
 
     An exam neighbor of a schedule is obtained by swapping two exams of the
-    same assessor, module, and length.
+    same assessor, module and length.
     """
 
     def _set_neighbors(self) -> None:
