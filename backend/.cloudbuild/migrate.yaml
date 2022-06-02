@@ -11,6 +11,6 @@ images:
  - "gcr.io/$PROJECT_ID/${_SERVICE}:prod-latest"
 
 substitutions:
-   _SERVICE: codescheduler
+   _SERVICE: examsched
    _REGION: europe-west3
    _INSTANCE_NAME: postgresql
