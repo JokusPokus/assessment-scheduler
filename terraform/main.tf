@@ -4,6 +4,14 @@ terraform {
       source  = "hashicorp/google"
     }
   }
+
+  backend "remote" {
+    organization = "CODEScheduler"
+
+    workspaces {
+      name = "examsched"
+    }
+  }
 }
 
 provider "google" {
