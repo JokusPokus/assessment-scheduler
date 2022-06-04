@@ -16,6 +16,8 @@ steps:
             "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
             "-e",
             "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
+            "-e",
+            "APPLICATION_STAGE=production",
             "--",
             "python",
             "manage.py",
