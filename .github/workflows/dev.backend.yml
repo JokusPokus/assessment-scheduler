@@ -109,6 +109,8 @@ jobs:
         with:
           node-version: 16.14.2
         working-directory: frontend
+
+      - name: Build react app
         run: npm run build
 
       - name: Login to GCR
