@@ -37,26 +37,23 @@ const CSVDashboard = ({
                 window: window.id
             }
         );
-        setTimeout(async () => {
-            if (response.status === 200) {
-                setUploadSuccess(true);
-                setPhaseData();
-            } else if (response.status === 400) {
-                const body = await response.json();
-                if ('csv' in body) {
-                    let newErrors = {};
-                    if ('missing_cols' in body.csv) {
-                        newErrors.missingCols = body.csv.missing_cols;
-                    }
-                    if ('wrong_email_format' in body.csv) {
-                        newErrors.wrongEmailCols = body.csv.wrong_email_format;
-                    }
-                    setUploadErrors({...uploadErrors, ...newErrors});
+        if (response.status === 200) {
+            setUploadSuccess(true);
+            setPhaseData();
+        } else if (response.status === 400) {
+            const body = await response.json();
+            if ('csv' in body) {
+                let newErrors = {};
+                if ('missing_cols' in body.csv) {
+                    newErrors.missingCols = body.csv.missing_cols;
                 }
+                if ('wrong_email_format' in body.csv) {
+                    newErrors.wrongEmailCols = body.csv.wrong_email_format;
+                }
+                setUploadErrors({...uploadErrors, ...newErrors});
             }
-            setIsUploading(false);
-        }, 1000);
-
+        }
+        setIsUploading(false);
     };
 
     return (

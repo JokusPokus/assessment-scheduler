@@ -98,20 +98,19 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
 
     const saveTimes = async () => {
         setStatus(processStatus.LOADING);
-        setTimeout(async () => {
-            const response = await httpPostBlockSlots(window.id, startTimeData)();
-            await setPhaseData();
-            if (response.status === 200) {
-                message.success("You successfully saved the block slots.");
-                setStatus(processStatus.SUCCESS);
-            } else if (response.status === 400) {
-                message.error("At least two slots were overlapping! Check again.");
-                setStatus(processStatus.FAILURE);
-            } else {
-                message.error("Something went wrong...");
-                setStatus(processStatus.FAILURE);
-            }
-        }, 1000);
+
+        const response = await httpPostBlockSlots(window.id, startTimeData)();
+        await setPhaseData();
+        if (response.status === 200) {
+            message.success("You successfully saved the block slots.");
+            setStatus(processStatus.SUCCESS);
+        } else if (response.status === 400) {
+            message.error("At least two slots were overlapping! Check again.");
+            setStatus(processStatus.FAILURE);
+        } else {
+            message.error("Something went wrong...");
+            setStatus(processStatus.FAILURE);
+        }
     };
 
     return (

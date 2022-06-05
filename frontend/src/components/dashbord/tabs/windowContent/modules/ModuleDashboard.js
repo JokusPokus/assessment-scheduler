@@ -105,17 +105,15 @@ const ModuleDashboard = ({window, windowStep, setWindowStep}) => {
 
     const saveDurations = async () => {
         setStatus(processStatus.LOADING);
-        setTimeout(async () => {
-            const response = await httpPostModuleDurations(durationData)();
-            if (response.status === 200) {
-                message.success(`You successfully saved module durations.`);
-                setStatus(processStatus.SUCCESS);
-                await getModules();
-            } else {
-                message.error("Something went wrong...");
-                setStatus(processStatus.FAILURE);
-            }
-        }, 1000);
+        const response = await httpPostModuleDurations(durationData)();
+        if (response.status === 200) {
+            message.success("You successfully saved module durations.");
+            setStatus(processStatus.SUCCESS);
+            await getModules();
+        } else {
+            message.error("Something went wrong...");
+            setStatus(processStatus.FAILURE);
+        }
     };
 
     return (

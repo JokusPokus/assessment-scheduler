@@ -146,18 +146,17 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
 
     const saveAvails = async () => {
         setStatus(processStatus.LOADING);
-        setTimeout(async () => {
-            const response = await httpPostStaffAvails(window.id, availData, apiResourceName)();
-            if (response.status === 200) {
-                message.success(`You successfully saved ${apiResourceName} availabilities.`);
-                setStatus(processStatus.SUCCESS);
-                await getStaff();
-                await setPhaseData();
-            } else {
-                message.error("Something went wrong...");
-                setStatus(processStatus.FAILURE);
-            }
-        }, 1000);
+
+        const response = await httpPostStaffAvails(window.id, availData, apiResourceName)();
+        if (response.status === 200) {
+            message.success(`You successfully saved ${apiResourceName} availabilities.`);
+            setStatus(processStatus.SUCCESS);
+            await getStaff();
+            await setPhaseData();
+        } else {
+            message.error("Something went wrong...");
+            setStatus(processStatus.FAILURE);
+        }
     };
 
     let columns = [...emailColumn, ...daysColumns];

@@ -59,32 +59,32 @@ const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
             block_length: values.blockLength
         };
         setConfirmLoading(true);
-        setTimeout(async () => {
-            const response = await httpPatchWindow(paneToBeModified.id, requestBody)();
-            if (response.status === 200) {
-                message.success(`You successfully updated week ${paneToBeModified.position}.`);
-                await setPhaseData();
-            } else {
-                message.error("Something went wrong...");
-            }
-            setPaneToBeModified(null);
-            setConfirmLoading(false);
-        }, 1000);
+
+        const response = await httpPatchWindow(paneToBeModified.id, requestBody)();
+        if (response.status === 200) {
+            message.success(`You successfully updated week ${paneToBeModified.position}.`);
+            await setPhaseData();
+        } else {
+            message.error("Something went wrong...");
+        }
+        setPaneToBeModified(null);
+        setConfirmLoading(false);
+
     };
 
     const onDelete = async (targetKey) => {
         setConfirmLoading(true);
-        setTimeout(async () => {
-            const response = await httpDeleteWindow(paneToBeModified.id)();
-            if (response.status === 204) {
-                message.success(`You successfully deleted week ${paneToBeModified.position}.`);
-                await setPhaseData();
-            } else {
-                message.error("Something went wrong...");
-            }
-            setPaneToBeModified(null);
-            setConfirmLoading(false);
-        }, 1000);
+
+        const response = await httpDeleteWindow(paneToBeModified.id)();
+        if (response.status === 204) {
+            message.success(`You successfully deleted week ${paneToBeModified.position}.`);
+            await setPhaseData();
+        } else {
+            message.error("Something went wrong...");
+        }
+        setPaneToBeModified(null);
+        setConfirmLoading(false);
+
     };
 
     return (
