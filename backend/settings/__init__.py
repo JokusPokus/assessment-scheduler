@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'staff.apps.StaffConfig',
     'exam.apps.ExamConfig',
     'input.apps.InputConfig',
+    'frontend',
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,7 @@ TEMPLATES = [
     },
 ]
 
+STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'user.User'
 USERNAME_FIELD = 'email'
