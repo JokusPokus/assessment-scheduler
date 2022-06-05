@@ -122,7 +122,10 @@ jobs:
         run: cd ../frontend&&npm install
 
       - name: Build react app
-        run: cd ../frontend&&CI=false&&npm run build
+        env:
+          BUILD_PATH: ../backend/frontend
+          CI: false
+        run: cd ../frontend&&npm run build
 
       - name: Print dir
         run: ls
