@@ -25,7 +25,17 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path='/login' element={
+                <Route path={'/login'} element={
+                    <LogIn
+                        requestUrl={requestUrl}
+                    />
+                }/>
+                <Route path={'/'} element={
+                    <LogIn
+                        requestUrl={requestUrl}
+                    />
+                }/>
+                <Route path={''} element={
                     <LogIn
                         requestUrl={requestUrl}
                     />
