@@ -17,8 +17,8 @@ const WindowForm = ({
                     }) => {
 
     const title = {
-        create: "Create a new assessment week",
-        modify: `Modify assessment week ${paneToBeModified && paneToBeModified.position}`
+        create: "Create a new assessment window",
+        modify: `Modify assessment window ${paneToBeModified && paneToBeModified.position}`
     }[type];
 
     const okText = {
@@ -96,11 +96,11 @@ const WindowForm = ({
             >
                 <Form.Item
                     name="timeFrame"
-                    label="Time frame of the assessment week"
+                    label="Time frame of the assessment window"
                     rules={[
                         {
                             required: true,
-                            message: 'Please select the time frame of the assessment week!',
+                            message: 'Please select the time frame of the assessment window!',
                         },
                     ]}
                 >

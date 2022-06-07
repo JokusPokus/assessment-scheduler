@@ -1,10 +1,28 @@
 import React, {useEffect, useState} from "react";
-import {Tag} from "antd";
+import {Button, Tag} from "antd";
 
 const _ = require('lodash');
 const {CheckableTag} = Tag;
 
-const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
+
+export const SelectAll = ({staff, availData, setAvailData, slotData}) => {
+    const selectAll = () => {
+        const staffAvails = {[staff]: slotData};
+        setAvailData({...availData, ...staffAvails});
+    };
+
+    return (
+        <Button
+            shape={'round'}
+            onClick={selectAll}
+        >
+            Select all
+        </Button>
+    )
+};
+
+
+export const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
     const [selectedTags, setSelectedTags] = useState([]);
 
     const handleChange = (tag, checked) => {
@@ -18,7 +36,6 @@ const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
             }
         };
         setAvailData({...availData, ...nextAssessorAvails});
-        console.log('new ad:', {...availData, ...nextAssessorAvails})
     };
 
     useEffect(() => {
@@ -45,5 +62,3 @@ const AvailChecks = ({day, staff, availableTimes, availData, setAvailData}) => {
         </>
     )
 };
-
-export default AvailChecks;

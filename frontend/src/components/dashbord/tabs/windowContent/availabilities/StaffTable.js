@@ -4,7 +4,7 @@ import {Button, Input, message, Popconfirm, Table, Tooltip} from "antd";
 import {httpGetStaff, httpPostStaffAvails, httpDeleteHelper} from "../../../../../hooks/requests";
 import {foldSlotData, foldStaffData} from "../../../../../utils/dataTransform";
 import {UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
-import AvailChecks from "./AvailChecks";
+import {AvailChecks, SelectAll} from "./AvailChecks";
 import {NextStepButton, SaveButton} from "../Buttons";
 
 
@@ -17,7 +17,15 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
             width: '25%',
         },
     ];
-    let [newEmail, setNewEmail] = useState('');
+    let [newEmail, setNewEmail] = useState('helper@code.berlin');
+
+    const selectAllColumn = [
+        {
+            title: 'Action',
+            dataIndex: 'selectAll',
+            key: 'selectAll',
+        },
+    ];
 
     const days = getDaysArray(window.start_date, window.end_date);
     const daysColumns = days.map(day => (
@@ -92,7 +100,13 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                 return Object.assign(
                     {
                         email: email,
-                        key: email
+                        key: email,
+                        selectAll: <SelectAll
+                            staff={email}
+                            availData={availData}
+                            setAvailData={setAvailData}
+                            slotData={slotData}
+                        />
                     },
                     ...dayElements
                 )
@@ -116,7 +130,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
     };
 
     const handleAdd = () => {
-        const email = `${newEmail}@code.berlin`;
+        const email = newEmail;
         let dayElements = days.map(day => (
             {
                 [day]: <AvailChecks
@@ -133,12 +147,18 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
         const newData = Object.assign(
             {
                 key: email,
-                email: email
+                email: email,
+                selectAll: <SelectAll
+                    staff={email}
+                    availData={availData}
+                    setAvailData={setAvailData}
+                    slotData={slotData}
+                />
             },
             ...dayElements
         );
 
-        setNewEmail('');
+        setNewEmail('helper@code.berlin');
         availData[email] = {};
         setAvailData(availData);
         setDataSource([...dataSource, newData]);
@@ -159,7 +179,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
         }
     };
 
-    let columns = [...emailColumn, ...daysColumns];
+    let columns = [...emailColumn, ...selectAllColumn, ...daysColumns];
 
     if (extensible) {
         columns.push({
@@ -202,7 +222,6 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                         style={{width: '20vw', textAlign: 'right', float: "left"}}
                         onChange={handleEmailChange}
                         onPressEnter={handleAdd}
-                        suffix="@code.berlin"
                         value={newEmail}
                     />
                     <Button

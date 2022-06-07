@@ -1,6 +1,6 @@
 import React from 'react';
 import {Result, Button, Typography} from 'antd';
-import {CloseCircleOutlined} from '@ant-design/icons';
+import {CloseCircleOutlined, RocketOutlined, FrownOutlined} from '@ant-design/icons';
 import './UploadFeedback.css';
 
 const {Paragraph, Text} = Typography;
@@ -9,7 +9,7 @@ const UploadError = ({uploadErrors}) => {
     return (
         <Result
             className="fade-in"
-            status="error"
+            icon={<FrownOutlined/>}
             title="The sheet was not as expected"
             subTitle="Please solve the following problems and upload again"
         >
@@ -40,7 +40,7 @@ const UploadSuccess = ({windowStep, setWindowStep, setDisplaySuccess, setUploadS
     return (
         <Result
             className="fade-in steps-success"
-            status="success"
+            icon={<RocketOutlined/>}
             title="Successfully uploaded planning sheet!"
             extra={[
                 <Button

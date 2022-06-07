@@ -3,12 +3,13 @@ import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../../hooks/requests";
 import {foldSlotData} from "../../../../../utils/dataTransform";
+import getDaysArray from "../../../../../utils/datetime";
 
 const format = 'HH:mm';
 const _ = require('lodash');
 
 
-const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
+const StatsRow = ({window, availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
     return (
         <>
             <Row
@@ -35,19 +36,41 @@ const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
                     />
                 </Col>
                 <StartTimeSelector
+                    window={window}
                     availableTimes={availableTimes}
                     setAvailableTimes={setAvailableTimes}
+                    startTimeData={startTimeData}
+                    setStartTimeData={setStartTimeData}
                 />
             </Row>
         </>
     );
 };
 
-const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
+const StartTimeSelector = ({window, availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
     const onChange = (time, timeString) => {
         let newAvailableTimes = [...availableTimes, timeString];
         newAvailableTimes.sort();
-        setAvailableTimes(newAvailableTimes)
+        setAvailableTimes(newAvailableTimes);
+
+        const daysArray = getDaysArray(window.start_date, window.end_date);
+
+        let timeData = startTimeData;
+        for (const date of daysArray) {
+            let newTimes;
+            if (date in timeData) {
+                newTimes = [...timeData[date], timeString];
+            } else {
+                newTimes = [timeString];
+            }
+            console.log(newTimes);
+            newTimes.sort();
+            timeData[date] = newTimes;
+        }
+        console.log(timeData);
+        console.log("FFF", {...startTimeData, ...timeData});
+
+        setStartTimeData({...startTimeData, ...timeData});
     };
 
     return (
@@ -119,6 +142,8 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
                 window={window}
                 availableTimes={availableTimes}
                 setAvailableTimes={setAvailableTimes}
+                startTimeData={startTimeData}
+                setStartTimeData={setStartTimeData}
             />
             <BlockDateSelector
                 window={window}

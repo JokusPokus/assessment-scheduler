@@ -38,23 +38,12 @@ class Scheduler:
     def run(self) -> None:
         """Execute all the steps given above."""
         data = self.input_collector.collect()
-        try:
-            self.evaluator.validate_availabilities(data)
-        except ValidationError as e:
-            print("Insufficient avails:", e.insufficient_avails)
-            print("Helpers needed?", e.helpers_needed)
-            raise e
+        self.evaluator.validate_availabilities(data)
 
         algorithm = self.algorithm_class(data, self.evaluator)
-        try:
-            schedule, penalty = algorithm.run(verbose=True)
-        except UnfeasibleInputError as e:
-            print("Input does not allow for valid schedule!")
-            raise e
+        schedule, penalty = algorithm.run()
 
         schedule = self.helper_assigner.assign_helpers(schedule, data)
-
-        print(schedule)
 
         db_writer = DBOutputWriter(self.window, schedule, penalty)
         db_schedule = db_writer.write_to_db()

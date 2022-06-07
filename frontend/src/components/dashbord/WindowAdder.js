@@ -16,7 +16,7 @@ const WindowAdder = ({onWindowCreate}) => {
     return (
         <Empty
             imageStyle={{height: 300}}
-            description={<span>No weeks yet...</span>}
+            description={<span>No windows yet...</span>}
             style={{marginTop: "8%"}}
         >
             <Button
@@ -25,7 +25,7 @@ const WindowAdder = ({onWindowCreate}) => {
                     setVisible(true);
                 }}
             >
-                Add first week
+                Add first window
             </Button>
             <WindowForm
                 visible={visible}

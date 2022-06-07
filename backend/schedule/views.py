@@ -14,7 +14,7 @@ from rest_framework.status import (
 from rest_framework.viewsets import ModelViewSet
 
 from .models import AssessmentPhase, Window, BlockSlot, Schedule
-from .scheduling import Scheduler
+from .scheduling import Scheduler, ValidationError, UnfeasibleInputError
 from .serializers import (
     AssessmentPhaseDetailSerializer,
     AssessmentPhaseListSerializer,
@@ -192,6 +192,28 @@ class WindowViewSet(ModelViewSet):
 
         try:
             Scheduler(window).run()
+        except ValidationError as e:
+            window.scheduling_ongoing = False
+            window.save()
+            data = {
+                'errors': {
+                    'insufficient_avails': [
+                        assessor.email
+                        for assessor in e.insufficient_avails
+                    ],
+                    'helpers_needed': e.helpers_needed
+                }
+            }
+            return Response(data, status=HTTP_400_BAD_REQUEST)
+        except UnfeasibleInputError:
+            window.scheduling_ongoing = False
+            window.save()
+            data = {
+                'errors': {
+                    'unfeasible_input': 'not enough availabilities',
+                }
+            }
+            return Response(data, status=HTTP_400_BAD_REQUEST)
         except Exception as e:
             window.scheduling_ongoing = False
             window.save()

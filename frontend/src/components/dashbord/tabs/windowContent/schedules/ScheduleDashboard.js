@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Row, Statistic, Result} from "antd";
+import {Button, Col, Row, Statistic, Result, Typography} from "antd";
 import {
     httpTriggerScheduling,
     httpGetSchedulingStatus,
     httpGetScheduleEvaluation, httpGetCSV,
 } from "../../../../../hooks/requests";
-import {DownloadOutlined, RocketOutlined} from "@ant-design/icons";
+import {CloseCircleOutlined, DownloadOutlined, FrownOutlined, RocketOutlined} from "@ant-design/icons";
 import './ScheduleDashboard.css'
 
+const {Paragraph, Text} = Typography;
 
 const StatsRow = ({window, penalty}) => {
     const assessorsOk = window.total_assessors > 0
@@ -105,6 +106,7 @@ const ScheduleDashboard = ({phase, window: schedWindow}) => {
 
         const [schedulingStatus, setSchedulingStatus] = useState(Status.IDLE);
         const [penalty, setPenalty] = useState(null);
+        const [errors, setErrors] = useState(null);
 
         useEffect(async () => {
             const response = await httpGetSchedulingStatus(schedWindow.id)();
@@ -149,7 +151,16 @@ const ScheduleDashboard = ({phase, window: schedWindow}) => {
 
         useEffect(async () => {
             if (schedulingStatus === Status.ONGOING) {
-                await httpTriggerScheduling(schedWindow.id)();
+                setErrors(null);
+                const response = await httpTriggerScheduling(schedWindow.id)();
+
+                console.log(response);
+
+                if (response.status === 400) {
+                    const validationErrors = await response.json();
+                    setSchedulingStatus(Status.IDLE);
+                    setErrors(validationErrors.errors);
+                }
             }
         }, [schedulingStatus]);
 
@@ -165,7 +176,7 @@ const ScheduleDashboard = ({phase, window: schedWindow}) => {
 
         return (
             <>
-                {schedulingStatus === Status.DONE &&
+                {schedulingStatus === Status.DONE && !errors &&
                 <Result
                     className={'fade-in'}
                     icon={<RocketOutlined/>}
@@ -185,6 +196,35 @@ const ScheduleDashboard = ({phase, window: schedWindow}) => {
                         <strong>Download CSV</strong>
                     </Button>}
                 />
+                }
+                {errors &&
+                <Result
+                    className="fade-in"
+                    icon={<FrownOutlined/>}
+                    title="This does not quite work..."
+                    subTitle="Please solve the following problems and trigger again"
+                    style={{paddingBottom: '0'}}
+                >
+                    <div className="desc">
+                        {'insufficient_avails' in errors && errors.insufficient_avails.length > 0 &&
+                        <Paragraph>
+                            <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;The following assessors
+                            need to provide more availabilities: <strong>{errors.insufficient_avails.join(', ')}</strong>.
+                        </Paragraph>
+                        }
+                        {'helpers_needed' in errors && errors.helpers_needed &&
+                        <Paragraph>
+                            <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;More helpers are needed.
+                        </Paragraph>
+                        }
+                        {'unfeasible_input' in errors &&
+                        <Paragraph>
+                            <CloseCircleOutlined style={{color: 'red'}}/>&nbsp;&nbsp;&nbsp;The given input (exams,
+                            availabilities) do not allow for a feasible schedule. Please provide more availabilities.
+                        </Paragraph>
+                        }
+                    </div>
+                </Result>
                 }
                 <StatsRow window={schedWindow} penalty={penalty}/>
                 <Button
