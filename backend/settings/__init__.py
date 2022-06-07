@@ -92,6 +92,13 @@ TEMPLATES = [
 ]
 
 STATIC_URL = '/static/'
+STATICFILES_LOCATION = 'static'
+STATIC_ROOT = BASE_DIR + '/static'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
+
+MEDIAFILES_LOCATION = 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR + '/' + MEDIAFILES_LOCATION
 
 AUTH_USER_MODEL = 'user.User'
 USERNAME_FIELD = 'email'
