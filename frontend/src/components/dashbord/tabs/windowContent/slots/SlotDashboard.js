@@ -8,7 +8,7 @@ const format = 'HH:mm';
 const _ = require('lodash');
 
 
-const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
+const StatsRow = ({window, availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
     return (
         <>
             <Row
@@ -37,17 +37,25 @@ const StatsRow = ({window, availableTimes, setAvailableTimes}) => {
                 <StartTimeSelector
                     availableTimes={availableTimes}
                     setAvailableTimes={setAvailableTimes}
+                    startTimeData={startTimeData}
+                    setStartTimeData={setStartTimeData}
                 />
             </Row>
         </>
     );
 };
 
-const StartTimeSelector = ({availableTimes, setAvailableTimes}) => {
+const StartTimeSelector = ({availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
     const onChange = (time, timeString) => {
         let newAvailableTimes = [...availableTimes, timeString];
         newAvailableTimes.sort();
-        setAvailableTimes(newAvailableTimes)
+        setAvailableTimes(newAvailableTimes);
+
+        const timeData = startTimeData;
+        for (const [date, times] of Object.entries(timeData)) {
+            timeData[date] = [...times, timeString].sort();
+        }
+        setStartTimeData({...startTimeData, ...timeData});
     };
 
     return (
@@ -119,6 +127,8 @@ const SlotDashboard = ({window, windowStep, setWindowStep, setPhaseData}) => {
                 window={window}
                 availableTimes={availableTimes}
                 setAvailableTimes={setAvailableTimes}
+                startTimeData={startTimeData}
+                setStartTimeData={setStartTimeData}
             />
             <BlockDateSelector
                 window={window}

@@ -12,7 +12,12 @@ export const SelectAll = ({staff, availData, setAvailData, slotData}) => {
     };
 
     return (
-        <Button shape={'round'} onClick={selectAll}>Select all</Button>
+        <Button
+            shape={'round'}
+            onClick={selectAll}
+        >
+            Select all
+        </Button>
     )
 };
 
