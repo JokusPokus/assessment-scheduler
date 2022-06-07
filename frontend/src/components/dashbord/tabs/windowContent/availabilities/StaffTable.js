@@ -4,7 +4,7 @@ import {Button, Input, message, Popconfirm, Table, Tooltip} from "antd";
 import {httpGetStaff, httpPostStaffAvails, httpDeleteHelper} from "../../../../../hooks/requests";
 import {foldSlotData, foldStaffData} from "../../../../../utils/dataTransform";
 import {UserAddOutlined, DeleteOutlined} from "@ant-design/icons";
-import AvailChecks from "./AvailChecks";
+import {AvailChecks, SelectAll} from "./AvailChecks";
 import {NextStepButton, SaveButton} from "../Buttons";
 
 
@@ -18,6 +18,14 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
         },
     ];
     let [newEmail, setNewEmail] = useState('');
+
+    const selectAllColumn = [
+        {
+            title: 'Action',
+            dataIndex: 'selectAll',
+            key: 'selectAll',
+        },
+    ];
 
     const days = getDaysArray(window.start_date, window.end_date);
     const daysColumns = days.map(day => (
@@ -92,7 +100,13 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                 return Object.assign(
                     {
                         email: email,
-                        key: email
+                        key: email,
+                        selectAll: <SelectAll
+                            staff={email}
+                            availData={availData}
+                            setAvailData={setAvailData}
+                            slotData={slotData}
+                        />
                     },
                     ...dayElements
                 )
@@ -159,7 +173,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
         }
     };
 
-    let columns = [...emailColumn, ...daysColumns];
+    let columns = [...emailColumn, ...selectAllColumn, ...daysColumns];
 
     if (extensible) {
         columns.push({
