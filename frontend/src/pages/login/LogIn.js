@@ -7,8 +7,8 @@ import "./login.css"
 const { Header } = Layout;
 
 const LogIn = ({ requestUrl, setUserInfo }) => {
-    const [loginUser, setLoginUser] = useState(undefined);
     const navigate = useNavigate();
+    const [loginUser, setLoginUser] = useState(undefined);
 
     const onFinish = (values) => {
         setLoginUser({
@@ -17,7 +17,7 @@ const LogIn = ({ requestUrl, setUserInfo }) => {
         });
     };
 
-    useEffect(() => {
+    useEffect(async () => {
         if(loginUser) {
             const requestOptions = {
                 method: 'POST',
@@ -41,12 +41,13 @@ const LogIn = ({ requestUrl, setUserInfo }) => {
                 if(tokens) {
                     window.localStorage.setItem('access', tokens.access);
                     window.localStorage.setItem('refresh', tokens.refresh);
+                    console.log('Access and refresh tokens set');
                     message.success(`Welcome, ${loginUser.username}!`);
                     navigate('/portal');
                 }
             };
 
-            setCookie()
+            await setCookie();
         }
     }, [loginUser, requestUrl, navigate]);
 
