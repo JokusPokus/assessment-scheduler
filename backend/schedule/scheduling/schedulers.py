@@ -8,6 +8,7 @@ from schedule.models import Window
 from .algorithms import BaseAlgorithm, TabuSearch, UnfeasibleInputError
 from .evaluators import Evaluator, ValidationError
 from .input_collectors import BaseInputCollector, DBInputCollector
+from .helpers import HelperAssigner
 from .output_writers import DBOutputWriter, CSVOutputWriter
 
 
@@ -26,11 +27,13 @@ class Scheduler:
             input_collector: Optional[BaseInputCollector] = None,
             algorithm_class: Optional[Type[BaseAlgorithm]] = None,
             evaluator: Optional[Evaluator] = None,
+            helper_assigner: Optional[HelperAssigner] = None,
     ):
         self.window = window
         self.input_collector = input_collector or DBInputCollector(window)
         self.algorithm_class = algorithm_class or TabuSearch
         self.evaluator = evaluator or Evaluator()
+        self.helper_assigner = helper_assigner or HelperAssigner()
 
     def run(self) -> None:
         """Execute all the steps given above."""
@@ -48,6 +51,10 @@ class Scheduler:
         except UnfeasibleInputError as e:
             print("Input does not allow for valid schedule!")
             raise e
+
+        schedule = self.helper_assigner.assign_helpers(schedule, data)
+
+        print(schedule)
 
         db_writer = DBOutputWriter(self.window, schedule, penalty)
         db_schedule = db_writer.write_to_db()

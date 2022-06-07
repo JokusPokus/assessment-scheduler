@@ -116,7 +116,7 @@ export const httpPatchWindow = (windowId, body) => {
 };
 
 export const httpTriggerScheduling = (windowId) => {
-    const path = `schedules/windows/${windowId}/trigger-scheduling`;
+    const path = `schedules/windows/${windowId}/trigger-scheduling/`;
     return httpApiCall('GET', path, null);
 };
 
