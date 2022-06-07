@@ -1,6 +1,8 @@
 const _ = require("lodash");
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NODE_ENV === 'production'
+    ? 'https://examsched-rbnh6rv7hq-ey.a.run.app'
+    : 'http://localhost:8000';
 
 function httpApiCall(method, path, body) {
     return async () => {
