@@ -26,13 +26,11 @@ class Scheduler:
             input_collector: Optional[BaseInputCollector] = None,
             algorithm_class: Optional[Type[BaseAlgorithm]] = None,
             evaluator: Optional[Evaluator] = None,
-            output_writer=None
     ):
         self.window = window
         self.input_collector = input_collector or DBInputCollector(window)
         self.algorithm_class = algorithm_class or TabuSearch
         self.evaluator = evaluator or Evaluator()
-        self.output_writer = output_writer
 
     def run(self) -> None:
         """Execute all the steps given above."""
