@@ -62,7 +62,7 @@ const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
 
         const response = await httpPatchWindow(paneToBeModified.id, requestBody)();
         if (response.status === 200) {
-            message.success(`You successfully updated week ${paneToBeModified.position}.`);
+            message.success(`You successfully updated window ${paneToBeModified.position}.`);
             await setPhaseData();
         } else {
             message.error("Something went wrong...");
@@ -77,7 +77,7 @@ const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
 
         const response = await httpDeleteWindow(paneToBeModified.id)();
         if (response.status === 204) {
-            message.success(`You successfully deleted week ${paneToBeModified.position}.`);
+            message.success(`You successfully deleted window ${paneToBeModified.position}.`);
             await setPhaseData();
         } else {
             message.error("Something went wrong...");
@@ -100,7 +100,7 @@ const WindowTabs = ({currentPhase, onWindowCreate, setPhaseData}) => {
                 >
                     {panes.map(pane => (
                         <TabPane
-                            tab={`Week ${pane.position}`}
+                            tab={`Window ${pane.position}`}
                             key={`${phaseId}_${pane.position}`}
                             closable={true}
                             closeIcon={<EditOutlined/>}
