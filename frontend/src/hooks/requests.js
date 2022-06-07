@@ -1,3 +1,5 @@
+import {useNavigate} from "react-router-dom";
+
 const _ = require("lodash");
 
 const API_URL = process.env.NODE_ENV === 'production'
@@ -5,6 +7,8 @@ const API_URL = process.env.NODE_ENV === 'production'
     : 'http://localhost:8000';
 
 function httpApiCall(method, path, body) {
+    const navigate = useNavigate();
+
     return async () => {
         const requestOptions = {
             method: method,
@@ -16,7 +20,32 @@ function httpApiCall(method, path, body) {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
             requestOptions['body'] = JSON.stringify(body)
         }
-        return await fetch(`${API_URL}/${path}`, requestOptions);
+        const response = await fetch(`${API_URL}/${path}`, requestOptions);
+
+        if ([200, 201].includes(response.status)) {
+            return response
+        }
+
+        if (response.status === 401) {
+            const refreshRequestBody = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    refresh: window.localStorage.getItem('refresh')
+                })
+            };
+            const refreshResponse = await fetch(`${API_URL}/auth/token/refresh/`, refreshRequestBody);
+            if (refreshResponse.status === 200) {
+                const newAccessToken = await refreshResponse.json();
+                window.localStorage.setItem('access', newAccessToken.access);
+                return httpApiCall(method, path, body);
+            } else {
+                message.warning('Session expired');
+                navigate('/login');
+            }
+        }
     }
 }
 

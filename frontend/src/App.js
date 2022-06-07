@@ -6,10 +6,14 @@ import LogIn from './pages/login/LogIn';
 import Portal from './pages/portal/Portal';
 
 const App = () => {
-    const [requestUrl, setRequestUrl] = useState('http://localhost:8000');
+    const homeUrl = process.env.NODE_ENV === 'production'
+    ? 'https://examsched-rbnh6rv7hq-ey.a.run.app'
+    : 'http://localhost:8000';
+
+    const [requestUrl, setRequestUrl] = useState(homeUrl);
 
     if (!requestUrl) {
-        setRequestUrl('http://localhost:8000')
+        setRequestUrl(homeUrl)
     }
 
     const refreshRequestBody = {
