@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from .processing import SheetProcessor
 from core.models import BaseModel
@@ -19,4 +20,9 @@ class PlanningSheet(BaseModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        SheetProcessor(self.window, self.csv.path).populate_db()
+
+        attr_name = 'path' \
+            if settings.APPLICATION_STAGE == 'development' \
+            else 'url'
+
+        SheetProcessor(self.window, getattr(self.csv, attr_name)).populate_db()
