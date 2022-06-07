@@ -43,7 +43,6 @@ function httpApiCall(method, path, body) {
                 return httpApiCall(method, path, body);
             } else {
                 message.warning('Session expired');
-                navigate('/login');
             }
         }
     }
