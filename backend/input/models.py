@@ -20,9 +20,11 @@ class PlanningSheet(BaseModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        SheetProcessor(self.window, self.get_file_path()).populate_db()
 
-        attr_name = 'path' \
-            if settings.APPLICATION_STAGE == 'development' \
-            else 'url'
+    def get_file_path(self):
+        """Get absolute path of the csv file."""
+        if settings.APPLICATION_STAGE == 'development':
+            return self.csv.path
 
-        SheetProcessor(self.window, getattr(self.csv, attr_name)).populate_db()
+        return self.csv.url
