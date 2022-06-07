@@ -3,6 +3,7 @@ import {Statistic, Row, Col, TimePicker, message} from 'antd';
 import BlockDateSelector from "./BlockDateSelector";
 import {httpPostBlockSlots} from "../../../../../hooks/requests";
 import {foldSlotData} from "../../../../../utils/dataTransform";
+import getDaysArray from "../../../../../utils/datetime";
 
 const format = 'HH:mm';
 const _ = require('lodash');
@@ -35,6 +36,7 @@ const StatsRow = ({window, availableTimes, setAvailableTimes, startTimeData, set
                     />
                 </Col>
                 <StartTimeSelector
+                    window={window}
                     availableTimes={availableTimes}
                     setAvailableTimes={setAvailableTimes}
                     startTimeData={startTimeData}
@@ -45,16 +47,29 @@ const StatsRow = ({window, availableTimes, setAvailableTimes, startTimeData, set
     );
 };
 
-const StartTimeSelector = ({availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
+const StartTimeSelector = ({window, availableTimes, setAvailableTimes, startTimeData, setStartTimeData}) => {
     const onChange = (time, timeString) => {
         let newAvailableTimes = [...availableTimes, timeString];
         newAvailableTimes.sort();
         setAvailableTimes(newAvailableTimes);
 
-        const timeData = startTimeData;
-        for (const [date, times] of Object.entries(timeData)) {
-            timeData[date] = [...times, timeString].sort();
+        const daysArray = getDaysArray(window.start_date, window.end_date);
+
+        let timeData = startTimeData;
+        for (const date of daysArray) {
+            let newTimes;
+            if (date in timeData) {
+                newTimes = [...timeData[date], timeString];
+            } else {
+                newTimes = [timeString];
+            }
+            console.log(newTimes);
+            newTimes.sort();
+            timeData[date] = newTimes;
         }
+        console.log(timeData);
+        console.log("FFF", {...startTimeData, ...timeData});
+
         setStartTimeData({...startTimeData, ...timeData});
     };
 

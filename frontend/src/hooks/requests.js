@@ -20,10 +20,6 @@ function httpApiCall(method, path, body) {
         }
         const response = await fetch(`${API_URL}/${path}`, requestOptions);
 
-        if ([200, 201].includes(response.status)) {
-            return response
-        }
-
         if (response.status === 401) {
             const refreshRequestBody = {
                 method: 'POST',
@@ -42,6 +38,8 @@ function httpApiCall(method, path, body) {
             } else {
                 message.warning('Session expired');
             }
+        } else {
+            return response
         }
     }
 }

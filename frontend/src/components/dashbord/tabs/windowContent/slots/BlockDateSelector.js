@@ -70,7 +70,6 @@ const BlockDateSelector = ({
                                windowStep,
                                setWindowStep
                            }) => {
-    console.log("here", startTimeData)
 
     const daysArray = getDaysArray(window.start_date, window.end_date);
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
