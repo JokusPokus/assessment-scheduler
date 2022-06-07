@@ -7,6 +7,7 @@ import "./login.css"
 const { Header } = Layout;
 
 const LogIn = ({ requestUrl, setUserInfo }) => {
+    const navigate = useNavigate();
     const [loginUser, setLoginUser] = useState(undefined);
 
     const onFinish = (values) => {

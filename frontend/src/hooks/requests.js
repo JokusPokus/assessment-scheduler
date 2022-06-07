@@ -1,4 +1,4 @@
-import {useNavigate} from "react-router-dom";
+import {message} from "antd";
 
 const _ = require("lodash");
 
@@ -7,8 +7,6 @@ const API_URL = process.env.NODE_ENV === 'production'
     : 'http://localhost:8000';
 
 function httpApiCall(method, path, body) {
-    const navigate = useNavigate();
-
     return async () => {
         const requestOptions = {
             method: method,

@@ -185,6 +185,7 @@ class WindowViewSet(ModelViewSet):
         url_path='trigger-scheduling'
     )
     def trigger_scheduling(self, request, pk=None):
+        """Trigger the scheduling process."""
         window = self.get_object()
         window.scheduling_ongoing = True
         window.save()
