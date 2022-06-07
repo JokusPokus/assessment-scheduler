@@ -13,6 +13,8 @@ from timeit import default_timer
 from typing import List, Tuple, Optional
 from uuid import uuid4
 
+from django.conf import settings
+
 from .base import BaseAlgorithm
 from .random import RandomAssignment
 from ..schedule import Schedule, BlockSchedule, ExamSchedule, TimeFrame
@@ -389,9 +391,13 @@ class TabuList:
 
 
 class Logger:
-    def __init__(self, verbose: bool = True):
+    def __init__(self, verbose: Optional[bool] = None):
         self.log = print if verbose else self._shut_up
         self.brag = self._brag if verbose else self._shut_up
+
+        if verbose is None:
+            verbose = settings.APPLICATION_STAGE == 'development'
+        self.verbose = verbose
 
     @staticmethod
     def _shut_up(*args, **kwargs):
