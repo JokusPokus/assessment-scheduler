@@ -8,7 +8,6 @@ const { Header } = Layout;
 
 const LogIn = ({ requestUrl, setUserInfo }) => {
     const [loginUser, setLoginUser] = useState(undefined);
-    const navigate = useNavigate();
 
     const onFinish = (values) => {
         setLoginUser({
