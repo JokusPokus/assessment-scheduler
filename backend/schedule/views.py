@@ -197,7 +197,10 @@ class WindowViewSet(ModelViewSet):
             window.save()
             data = {
                 'errors': {
-                    'insufficient_avails': e.insufficient_avails,
+                    'insufficient_avails': [
+                        assessor.email
+                        for assessor in e.insufficient_avails
+                    ],
                     'helpers_needed': e.helpers_needed
                 }
             }

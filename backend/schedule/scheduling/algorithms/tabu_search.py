@@ -424,7 +424,7 @@ class TabuSearch(BaseAlgorithm):
     the solution space while keeping track of a 'tabu list'.
     """
 
-    def run(self, verbose=False) -> Tuple[Schedule, int]:
+    def run(self, verbose=None) -> Tuple[Schedule, int]:
         logger = Logger(verbose=verbose)
         start_time = default_timer()
 
