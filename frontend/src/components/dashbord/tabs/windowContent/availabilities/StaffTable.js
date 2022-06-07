@@ -17,7 +17,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
             width: '25%',
         },
     ];
-    let [newEmail, setNewEmail] = useState('');
+    let [newEmail, setNewEmail] = useState('helper@code.berlin');
 
     const selectAllColumn = [
         {
@@ -130,7 +130,7 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
     };
 
     const handleAdd = () => {
-        const email = `${newEmail}@code.berlin`;
+        const email = newEmail;
         let dayElements = days.map(day => (
             {
                 [day]: <AvailChecks
@@ -147,12 +147,18 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
         const newData = Object.assign(
             {
                 key: email,
-                email: email
+                email: email,
+                selectAll: <SelectAll
+                    staff={email}
+                    availData={availData}
+                    setAvailData={setAvailData}
+                    slotData={slotData}
+                />
             },
             ...dayElements
         );
 
-        setNewEmail('');
+        setNewEmail('helper@code.berlin');
         availData[email] = {};
         setAvailData(availData);
         setDataSource([...dataSource, newData]);
@@ -216,7 +222,6 @@ const StaffTable = ({window, windowStep, setWindowStep, apiResourceName, extensi
                         style={{width: '20vw', textAlign: 'right', float: "left"}}
                         onChange={handleEmailChange}
                         onPressEnter={handleAdd}
-                        suffix="@code.berlin"
                         value={newEmail}
                     />
                     <Button
