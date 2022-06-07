@@ -85,7 +85,7 @@ class CSVOutputWriter:
             is_filled_out=False
         )
 
-        data = pd.read_csv(input_planning_sheet.csv.path, sep=',')
+        data = pd.read_csv(input_planning_sheet.get_file_path(), sep=',')
         data[['startTime', 'endTime', 'assistant']] \
             = data.apply(self._schedule_decisions, axis=1)
 
