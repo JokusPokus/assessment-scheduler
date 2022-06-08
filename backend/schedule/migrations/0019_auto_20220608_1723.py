@@ -14,8 +14,7 @@ def provide_default_phase(apps, schema_editor):
         year=2022,
         semester='spring',
         category='main',
-        created=now(),
-        modified=now()
+        defaults={'created': now(), 'modified': now()},
     )
 
 
