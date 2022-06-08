@@ -17,6 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path, include
 
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.views import index
@@ -25,7 +26,6 @@ from staff import urls as staff_urls
 from exam import urls as exam_urls
 from user.views import current_user
 from input.views import PlanningSheetUploadView
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -52,6 +52,12 @@ urlpatterns = [
     path('staff/', include(staff_urls.urlpatterns)),
     path('exams/', include(exam_urls.urlpatterns)),
     path('', index, name='index'),
+    path('docs/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path(
+        'docs/schema/swagger-ui/',
+        SpectacularSwaggerView.as_view(url_name='schema'),
+        name='swagger-ui'
+    ),
 ]
 
 if settings.DEBUG:

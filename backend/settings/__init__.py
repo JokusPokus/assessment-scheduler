@@ -7,7 +7,6 @@ import os
 from base64 import b64decode
 from datetime import timedelta
 
-
 APPLICATION_STAGE = os.environ.get('APPLICATION_STAGE', 'development')
 APPLICATION_NAME = os.environ.get('APPLICATION_NAME', 'assessment-scheduler')
 SITE_ID = 1
@@ -57,6 +56,7 @@ INSTALLED_APPS = [
     'exam.apps.ExamConfig',
     'input.apps.InputConfig',
     'frontend',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -133,10 +133,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 WSGI_APPLICATION = 'service.wsgi.application'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -147,12 +147,10 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
 # CUSTOM
 BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:8080')
 BASE_DOMAIN = os.environ.get('BASE_DOMAIN', '127.0.0.1:8080')
 FRONT_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:8080')
-
 
 if APPLICATION_STAGE == 'development':
     from .development import *
