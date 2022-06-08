@@ -67,7 +67,7 @@ wait for at least one minute to make sure the React app is properly started!**
 
 ## Using the service
 
-After the installation step is complete, you can access the regular
+After the installation step is completed, you can access the regular
 UI at `localhost:8080` and the Django admin UI at `localhost:8080/admin/`. You
 can use the admin user (username: admin, password: admin). Further users
 can be created via the Django admin interface.
@@ -75,4 +75,4 @@ can be created via the Django admin interface.
 ## Further information
 
 Comprehensive project documentation (including architecture, cyber security,
-planning & optimization algorithms used in the project) is given in the repository wiki.
+planning & optimization algorithms used in the project) can be found in the repository wiki.
