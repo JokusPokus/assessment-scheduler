@@ -91,9 +91,7 @@ TEMPLATES = [
     },
 ]
 
-MEDIAFILES_LOCATION = 'media'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR + '/' + MEDIAFILES_LOCATION
+STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'user.User'
 USERNAME_FIELD = 'email'
