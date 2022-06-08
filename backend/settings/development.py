@@ -22,6 +22,7 @@ DATABASES = {
 STATIC_URL = "/static/"
 STATICFILES_LOCATION = "static"
 STATIC_ROOT = BASE_DIR + "/static"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
 
 # CORS
 
