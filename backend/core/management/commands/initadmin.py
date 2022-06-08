@@ -8,13 +8,17 @@ class Command(BaseCommand):
         username = 'admin'
         email = 'admin'
         password = 'admin'
-        print('Creating account for %s (%s)' % (username, email))
-        admin = User.objects.create_superuser(email=email, username=username, password=password)
 
-        admin.is_active = True
-        admin.is_admin = True
+        if not User.objects.filter(email=email, username=username).exists():
+            print('Creating account for %s (%s)' % (username, email))
+            admin = User.objects.create_superuser(email=email, username=username, password=password)
 
-        code_uni = Organization.objects.get(name='CODE University')
-        admin.organization = code_uni
+            admin.is_active = True
+            admin.is_admin = True
 
-        admin.save()
+            code_uni = Organization.objects.get(name='CODE University')
+            admin.organization = code_uni
+
+            admin.save()
+        else:
+            print('Admin user already exists.')
