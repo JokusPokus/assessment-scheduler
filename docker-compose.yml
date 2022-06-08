@@ -23,3 +23,14 @@ services:
              python3 manage.py runserver 0.0.0.0:8080"
     depends_on:
       - db
+
+  client:
+    build:
+      context: frontend
+    ports:
+      - "8080:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
