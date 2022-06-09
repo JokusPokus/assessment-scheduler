@@ -1,3 +1,8 @@
+"""
+Implementation of back-tracking algorithm for construction of
+initial solutions.
+"""
+
 from copy import deepcopy
 from typing import Tuple, Dict, List
 
