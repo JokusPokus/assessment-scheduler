@@ -11,5 +11,6 @@ COPY . .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 RUN python manage.py collectstatic --noinput
+RUN python manage.py flush_cache
 
 CMD gunicorn --bind :$PORT --workers 1 --threads 8 service.wsgi:application
