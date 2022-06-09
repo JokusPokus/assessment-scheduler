@@ -30,7 +30,6 @@ In addition, the reader gets to know how to install and setup a local developmen
 - [Django REST Framework](https://www.django-rest-framework.org/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/)
-- [Docker](https://www.docker.com/)
 - [pytest](https://docs.pytest.org/en/6.2.x/) (for development and testing)
 
 ### Frontend 
