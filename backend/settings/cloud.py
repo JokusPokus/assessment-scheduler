@@ -64,9 +64,10 @@ DEFAULT_FILE_STORAGE = 'core.storage.backends.GoogleCloudStaticStorage'
 STATICFILES_STORAGE = 'core.storage.backends.GoogleCloudStaticStorage'
 GS_STATIC_BUCKET_NAME = 'examsched-media'
 STATIC_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
-STATIC_ROOT = 'static/'
+STATIC_ROOT = ''
 
 MEDIA_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
+MEDIA_ROOT = 'media/'
 
 
 # Enable Django security precautions
