@@ -66,6 +66,8 @@ GS_STATIC_BUCKET_NAME = 'examsched-media'
 STATIC_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
 STATIC_ROOT = ''
 
+print('static root hehe:', STATIC_ROOT)
+
 MEDIA_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
 MEDIA_ROOT = 'media/'
 
