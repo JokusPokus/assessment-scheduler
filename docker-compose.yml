@@ -1,6 +1,6 @@
 services:
 
-  db:
+  database:
     image: postgres:latest
     ports:
       - "5496:5432"
@@ -16,10 +16,24 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=settings
       - APPLICATION_STAGE=development
-      - DATABASE_HOST=db
+      - DATABASE_HOST=database
       - DATABASE_PORT=5432
     command: >
       sh -c "python3 manage.py migrate &&
+             python3 manage.py initadmin &&
              python3 manage.py runserver 0.0.0.0:8080"
     depends_on:
-      - db
+      - database
+
+  client:
+    build:
+      context: frontend
+    ports:
+      - "8080:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    depends_on:
+      - app

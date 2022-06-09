@@ -6,7 +6,7 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env_file = os.path.join(BASE_DIR, ".env")
 
-DEBUG = True
+DEBUG = False
 
 # If a local .env doesn't exist, create one by loading it from Secret Manager.
 if not os.path.isfile(env_file):
@@ -64,7 +64,12 @@ DEFAULT_FILE_STORAGE = 'core.storage.backends.GoogleCloudStaticStorage'
 STATICFILES_STORAGE = 'core.storage.backends.GoogleCloudStaticStorage'
 GS_STATIC_BUCKET_NAME = 'examsched-media'
 STATIC_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
-# STATIC_ROOT = 'static/'
+STATIC_ROOT = ''
+
+print('static root hehe:', STATIC_ROOT)
+
+MEDIA_URL = 'https://storage.googleapis.com/{}/'.format(GS_STATIC_BUCKET_NAME)
+MEDIA_ROOT = 'media/'
 
 
 # Enable Django security precautions

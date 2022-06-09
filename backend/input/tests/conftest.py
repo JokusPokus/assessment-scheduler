@@ -11,24 +11,21 @@ from schedule.models import AssessmentPhase, Window, Semester, PhaseCategory
 
 
 @pytest.fixture
-def create_phase():
-    def make_phase():
-        org = Organization.objects.all().get()
-        return AssessmentPhase.objects.create(
-            organization=org,
-            year=2022,
-            semester=Semester.SPRING,
-            category=PhaseCategory.MAIN
-        )
-
-    return make_phase
+def default_phase():
+    org = Organization.objects.all().get()
+    return AssessmentPhase.objects.get(
+        organization=org,
+        year=2022,
+        semester=Semester.SPRING,
+        category=PhaseCategory.MAIN
+    )
 
 
 @pytest.fixture
-def create_window(create_phase):
+def create_window(default_phase):
     def make_window():
         return Window.objects.create(
-            assessment_phase=create_phase(),
+            assessment_phase=default_phase,
             start_date=now()+timedelta(days=7),
             end_date=now()+timedelta(days=14),
             block_length=180,
