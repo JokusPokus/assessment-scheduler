@@ -16,11 +16,10 @@ The repository contains three components:
 * the **backend**, which provides an API to manage assessment phases 
 and trigger the planning process (deployed on Google Cloud)
 * the **frontend**, which provides a web client to the examination office
- staff (deployed on Google Cloud)
+ staff (served as an SPA via the API root route)
 * the **terraform** specifications, which define the project's cloud architecture
 
-This document aims to give an overview about the 
-techstack and code structure. 
+This document aims to give an overview about the techstack and code structure. 
 In addition, the reader gets to know how to install and setup a local development environment.
 
 ## Techstack
@@ -39,6 +38,12 @@ In addition, the reader gets to know how to install and setup a local developmen
 
 
 ## Installation
+Opening remark: To avoid confusion, please note that a local installation differs from the production version
+in many ways. For example, you will find that in production, the UI is served 
+as an SPA at the backend's API root route. However, if you follow the local
+installation steps below, the frontend and API will be hosted at different ports,
+respectively. 
+
 Requirements:
 * [Docker](https://docs.docker.com/get-docker/)
 
@@ -58,18 +63,49 @@ This command will:
 * create a PostgreSQL container
 * create a backend service
 * migrate the database
-* create a superuser (username: admin, password: admin)
 * start the client and expose it on `localhost:8080` 
 
 **After all three containers (`database`, `app`, `client`) have been started, 
 wait for at least one minute to make sure the React app is properly started!**
 
+To use the regular client at `localhost:8080` or the admin UI at `localhost:8000/admin/`,
+you need to create a super user like this:
+
+```zsh
+docker-compose exec app python manage.py initadmin
+```
+
+This command will create a superuser with username "admin" and password "admin".
+
+## Running tests
+
+If you wish, you can run the test suite using this command:
+
+```zsh
+docker-compose exec app pytest
+```
+
+Note that appending `-m unit` specifically runs all unit tests.  
+
+
 ## Using the service
 
 After the installation step is completed, you can access the regular
-UI at `localhost:8080` and the Django admin UI at `localhost:8080/admin/`. You
+UI at `localhost:8080` and the Django admin UI at `localhost:8000/admin/`. You
 can use the admin user (username: admin, password: admin). Further users
 can be created via the Django admin interface.
+
+Note: If the admin user is not found, you might have skipped the creation
+step in the installation process.
+
+
+## Shutting down the containers
+
+When you're done exploring, you can shut down the docker containers like this:
+
+```zsh
+docker-compose stop
+```
 
 ## Further information
 

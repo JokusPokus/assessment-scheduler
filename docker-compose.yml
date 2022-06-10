@@ -20,7 +20,6 @@ services:
       - DATABASE_PORT=5432
     command: >
       sh -c "python3 manage.py migrate &&
-             python3 manage.py initadmin &&
              python3 manage.py runserver 0.0.0.0:8080"
     depends_on:
       - database
